@@ -97,7 +97,8 @@ function renderPlanning() {
     tr.appendChild(inputCell(row, "end", "date", "col-date"));
     tr.appendChild(inputCell(row, "banner", "text", "col-banner"));
     tr.appendChild(inputCell(row, "units", "number", "col-num"));
-    tr.appendChild(inputCell(row, "unitCost", "number", "col-num"));
+    // Per-row cost disabled: planning always assumes the default cost.
+    // tr.appendChild(inputCell(row, "unitCost", "number", "col-num"));
     tr.appendChild(calcCell(item.plannedSpend ? gems(item.plannedSpend) : ""));
     tr.appendChild(calcCell(item.income ? gems(item.income) : ""));
     tr.appendChild(

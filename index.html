@@ -53,7 +53,8 @@
                 <th>End</th>
                 <th>Banner / characters</th>
                 <th>Units</th>
-                <th>Cost / unit</th>
+                <!-- Per-row cost disabled: planning always assumes the default cost. -->
+                <!-- <th>Cost / unit</th> -->
                 <th>Planned spend</th>
                 <th>Income</th>
                 <th>Expected after</th>
@@ -133,7 +134,7 @@
           <div class="help">
             <ul>
               <li><strong>Your gem anchor</strong> is the most recent <em>Actual gems</em> you logged on a row. Everything below that row counts forward from it. Until you log one, the starting count in Settings is used.</li>
-              <li><strong>Units</strong> is how many banners you want to spend on: 0 to skip, 1 or 2 (or more) otherwise. Each costs the default 24,000 unless you type a cheaper <em>Cost / unit</em> on that row.</li>
+              <li><strong>Units</strong> is how many banners you want to spend on: 0 to skip, 1 or 2 (or more) otherwise. Each costs the default 24,000 from Settings, the worst case.</li>
               <li><strong>Income</strong> of 13,000 lands on the banner whose End date is the first to reach into a new month. That row is tinted green.</li>
               <li><strong>Expected after</strong> is anchor + income so far &minus; planned spend so far. Red means it would go below zero.</li>
               <li><strong>Lowest ahead</strong> looks all the way to the end of your plan. At or above 0 means everything you have planned fits.</li>

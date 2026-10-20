@@ -87,7 +87,9 @@ function computePlan(rows, settings) {
     const start = parseDate(row.start);
     const end = parseDate(row.end);
     const units = typeof row.units === "number" ? row.units : 0;
-    const unitCost = typeof row.unitCost === "number" ? row.unitCost : settings.defaultUnitCost;
+    // Per-row cost disabled: planning always assumes the default (worst-case) cost.
+    // const unitCost = typeof row.unitCost === "number" ? row.unitCost : settings.defaultUnitCost;
+    const unitCost = settings.defaultUnitCost;
 
     // Income arrives on the row whose End date is the first to reach a new month.
     let income = 0;
