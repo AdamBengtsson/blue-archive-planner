@@ -8,7 +8,7 @@
 :root {
   --bg-dark: #121212;
   --bg-mid: #1d1d1d;
-  --panel: rgba(15, 15, 15, 0.7);
+  --panel: rgba(15, 15, 15, 0.95);
   --panel-soft: rgba(255, 255, 255, 0.04);
   --line: rgba(255, 255, 255, 0.12);
   --text: #f5f5f5;
@@ -40,7 +40,7 @@ body {
 }
 
 .container {
-  width: min(96vw, 1180px);
+  width: min(96vw, 1500px);
   margin: 0 auto;
   padding: 28px 16px 64px;
 }
@@ -192,13 +192,13 @@ th {
   text-transform: uppercase;
   color: var(--muted);
   font-weight: normal;
-  padding: 0 8px 10px;
+  padding: 0 4px 10px;
   border-bottom: 1px solid var(--line);
-  white-space: nowrap;
+  vertical-align: bottom;
 }
 
 td {
-  padding: 5px 8px;
+  padding: 5px 4px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   vertical-align: middle;
 }
@@ -226,11 +226,19 @@ td .short { color: var(--bad); }
 td .room { color: var(--good); }
 td .negative { color: var(--bad); }
 
-.col-date input { min-width: 140px; }
-.col-banner input { min-width: 200px; }
-.col-num input { width: 86px; text-align: right; }
-.col-gems input { width: 110px; text-align: right; }
+/* Kept narrow so the whole planning table fits a desktop window without
+   scrolling sideways; the banner column takes whatever width is left. */
+td input { padding: 7px 6px; }
+.col-date input { width: 132px; }
+.col-banner input { min-width: 150px; }
+.col-num input { width: 64px; text-align: right; }
+.col-gems input { width: 88px; text-align: right; }
 .col-note input { min-width: 150px; }
+
+/* The up/down spinner arrows eat width in small number boxes. */
+td input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+td input::-webkit-outer-spin-button,
+td input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 .toolbar {
   display: flex;
