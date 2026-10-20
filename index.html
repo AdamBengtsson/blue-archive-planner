@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blue Archive Gem Planner</title>
+
+    <!--
+      A static page, no build step, hosted on GitHub Pages.
+      It replaces the Blue_Archive_Gem_Planner spreadsheet: same rules, same
+      columns, but the archiving and the balance maths happen automatically.
+    -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="box">
+        <h1>Blue Archive Gem Planner</h1>
+      </section>
+
+      <!-- The numbers worth seeing without reading the table. -->
+      <section class="box summary" id="summary">
+        <div class="stat">
+          <label>Gems right now</label>
+          <div class="value" id="statAnchor">&mdash;</div>
+          <div class="hint" id="statAnchorHint"></div>
+        </div>
+        <div class="stat">
+          <label>Lowest balance ahead</label>
+          <div class="value" id="statLowest">&mdash;</div>
+          <div class="hint" id="statLowestHint"></div>
+        </div>
+        <div class="stat">
+          <label>Banners planned</label>
+          <div class="value" id="statUnits">&mdash;</div>
+          <div class="hint" id="statUnitsHint"></div>
+        </div>
+        <div class="stat">
+          <label>Count last updated</label>
+          <div class="value" id="statStale">&mdash;</div>
+          <div class="hint" id="statStaleHint"></div>
+        </div>
+      </section>
+
+      <!-- Current and upcoming banners. One row per banner, earliest first. -->
+      <section class="box">
+        <h2>Planning</h2>
+        <div class="table-scroll">
+          <table id="planningTable">
+            <thead>
+              <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th>Banner / characters</th>
+                <th>Units</th>
+                <th>Cost / unit</th>
+                <th>Planned spend</th>
+                <th>Income</th>
+                <th>Expected after</th>
+                <th>Actual gems</th>
+                <th>Lowest ahead</th>
+                <th>Room for extra?</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="planningBody"></tbody>
+          </table>
+        </div>
+        <div class="toolbar">
+          <button id="addRow" class="primary">Add banner</button>
+          <button id="archivePast">Archive past banners</button>
+          <span class="spacer"></span>
+          <span class="status" id="saveStatus"></span>
+        </div>
+      </section>
+
+      <!-- Past banners, kept only for looking back at. -->
+      <section class="box">
+        <details id="archiveSection">
+          <summary>Archive (<span id="archiveCount">0</span> past banners)</summary>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Banner / characters</th>
+                  <th>Units</th>
+                  <th>Actual gems</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="archiveBody"></tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+
+      <section class="box">
+        <details>
+          <summary>Settings</summary>
+          <div class="settings-grid">
+            <div class="field">
+              <label for="startingGems">Starting gem count</label>
+              <input id="startingGems" class="entry" type="number" step="1" />
+            </div>
+            <div class="field">
+              <label for="startingDate">Starting count date</label>
+              <input id="startingDate" class="entry" type="date" />
+            </div>
+            <div class="field">
+              <label for="monthlyIncome">Monthly income</label>
+              <input id="monthlyIncome" class="entry" type="number" step="1" />
+            </div>
+            <div class="field">
+              <label for="defaultUnitCost">Default cost per unit</label>
+              <input id="defaultUnitCost" class="entry" type="number" step="1" />
+            </div>
+          </div>
+          <div class="toolbar">
+            <button id="exportData">Export backup</button>
+            <button id="importData">Import backup</button>
+            <input id="importFile" class="hidden" type="file" accept="application/json" />
+            <span class="spacer"></span>
+            <button id="resetData" class="link">Reset to seed data</button>
+          </div>
+        </details>
+      </section>
+
+      <section class="box">
+        <details>
+          <summary>How this works</summary>
+          <div class="help">
+            <ul>
+              <li><strong>Your gem anchor</strong> is the most recent <em>Actual gems</em> you logged on a row. Everything below that row counts forward from it. Until you log one, the starting count in Settings is used.</li>
+              <li><strong>Units</strong> is how many banners you want to spend on: 0 to skip, 1 or 2 (or more) otherwise. Each costs the default 24,000 unless you type a cheaper <em>Cost / unit</em> on that row.</li>
+              <li><strong>Income</strong> of 13,000 lands on the banner whose End date is the first to reach into a new month. That row is tinted green.</li>
+              <li><strong>Expected after</strong> is anchor + income so far &minus; planned spend so far. Red means it would go below zero.</li>
+              <li><strong>Lowest ahead</strong> looks all the way to the end of your plan. At or above 0 means everything you have planned fits.</li>
+              <li><strong>Room for extra?</strong> appears when that lowest point still covers another unit &mdash; you could add a banner without going short later.</li>
+              <li>Banners whose End date has passed are moved to the Archive automatically when you open the page. Log an <em>Actual gems</em> entry on the row you are currently on so the plan picks up your real count.</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <!--
+      Scripts load in dependency order:
+      1. seed data migrated from the spreadsheet
+      2. pure planning maths
+      3. the Firebase config placeholder, then the optional sync layer
+      4. storage, then the UI that wires it all to the page
+    -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="seed-data.js"></script>
+    <script src="planner-core.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="firebase-logic.js"></script>
+    <script src="storage.js"></script>
+    <script src="planner-ui.js"></script>
+  </body>
+</html>
