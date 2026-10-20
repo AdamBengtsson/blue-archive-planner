@@ -53,4 +53,3 @@ Sync across devices is off until a project is configured.
 python3 -m http.server 8000
 ```
 Then open http://localhost:8000 in a browser.
-I'm a ghost! Boo!
