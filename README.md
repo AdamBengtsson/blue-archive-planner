@@ -27,7 +27,14 @@ Hosted on GitHub Pages, no build step.
   then earns that rate for its days. Rows reaching into a new month are tinted
   green, and the *Income estimate* panel shows the working.
 - The estimate is only as good as the logs. Units you spent but did not enter
-  make it read low; spending less than the default cost makes it read high.
+  make it read low. Pyroxene spent on anything other than banners is assumed to
+  be negligible.
+
+### Known issue: cheap units inflate the income estimate
+The planner is meant as a worst case, so every unit costs the default 24,000.
+When a unit actually came cheaper, the estimate still adds back the full 24,000
+as spend, so income reads high. Typing the real spend per banner is too much
+work, so this is left open for now; a fix should not need that.
 - **Expected after** is your gem anchor + income so far &minus; planned spend so far.
 - **Lowest ahead** is the lowest the balance is projected to get between that row and
   the end of the plan. At or above 0 means everything planned fits.
