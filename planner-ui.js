@@ -103,10 +103,15 @@ function renderPlanning(estimate) {
     if (item.isNewMonth) tr.classList.add("new-month");
     if (item.isPast) tr.classList.add("past");
     if (item.isAnchorRow) tr.classList.add("anchor");
+    tr.dataset.start = row.start || "";
 
     tr.appendChild(inputCell(row, "start", "date", "col-date"));
     tr.appendChild(inputCell(row, "end", "date", "col-date"));
-    tr.appendChild(inputCell(row, "banner", "text", "col-banner"));
+    const bannerCell = inputCell(row, "banner", "text", "col-banner");
+    // Portraits and timing from the forecast, once banners-ui.js has loaded.
+    const details = typeof forecastDetails === "function" ? forecastDetails(row) : null;
+    if (details) bannerCell.appendChild(details);
+    tr.appendChild(bannerCell);
     tr.appendChild(inputCell(row, "units", "number", "col-num"));
     // Per-row cost disabled: planning always assumes the default cost.
     // tr.appendChild(inputCell(row, "unitCost", "number", "col-num"));
@@ -152,6 +157,8 @@ function renderPlanning(estimate) {
     tr.appendChild(td);
     body.appendChild(tr);
   }
+
+  if (typeof insertForecastRows === "function") insertForecastRows(body);
 }
 
 function renderArchive() {

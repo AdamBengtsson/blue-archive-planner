@@ -14,7 +14,7 @@ Hosted on GitHub Pages, no build step.
 - [planner-ui.js](planner-ui.js): rendering and event handling
 - [banner-data.js](banner-data.js): the forecast of upcoming Global banners (generated)
 - [scripts/refresh-banners.mjs](scripts/refresh-banners.mjs): rebuilds banner-data.js from the forecast page
-- [banners-ui.js](banners-ui.js): the Upcoming banners cards, plus live checks against SchaleDB
+- [banners-ui.js](banners-ui.js): the forecast inside the planning table, plus live checks against SchaleDB
 - [firebase-config.js](firebase-config.js): Firebase web config (placeholder)
 - [firebase-logic.js](firebase-logic.js): optional Firestore sync
 
@@ -61,9 +61,13 @@ it is not part of the projection. This replaces the `ArchiveScript.gs` Apps Scri
 
 ## Upcoming banners
 Global runs JP's banners in the same order a few months later, so the upcoming
-Global schedule can be read off JP's. The *Upcoming banners* section shows one
-card per banner with portraits, dates and limited/Fes tags, and *Add to planner*
-copies a banner into the planning table.
+Global schedule can be read off JP's. The forecast lives inside the Planning
+table rather than in a section of its own:
+
+- A planner row that matches a forecast banner shows its portraits, limited/Fes
+  tags, *Predicted* or *Confirmed*, and how soon it starts, under the banner name.
+- Each forecast banner not in the plan yet appears as a faded row in date order,
+  with *Add to plan*. It has no units, so it changes none of the sums until added.
 
 - The forecast lives in [banner-data.js](banner-data.js), generated from
   [Joe's Blue Archive Tools](https://ba.joexyz.online/global/banners), which
@@ -78,9 +82,9 @@ copies a banner into the planning table.
   If SchaleDB cannot be reached, the bundled list is shown as is.
 - Portraits are loaded from SchaleDB by student id; a missing one shows the
   student's initial instead.
-- A card says *In planner* when a planning row already names its first student
-  within a week of its start date. If that row's dates differ from the forecast,
-  the button offers to move the row onto the forecast dates instead.
+- A planner row matches a banner when it names the banner's first student and
+  starts within a week of it. If its dates differ from the forecast, a *Use …*
+  button moves the row onto the forecast dates.
 
 ## Data and backups
 Everything is saved to browser localStorage, so the planner works offline and
