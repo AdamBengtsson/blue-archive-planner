@@ -3,23 +3,12 @@ name: Probe banner sources
 on:
   push:
     branches: [claude/project-thread-ypfaci]
-    paths: [.github/workflows/probe-sources.yml]
+    paths: [.github/workflows/probe-sources.yml, scripts/probe.py]
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - run: |
-          curl -sSL -A "Mozilla/5.0" https://ba.joexyz.online/global/banners -o joe.html; wc -c joe.html
-          echo "=== next_f count"; grep -o '__next_f' joe.html | wc -l
-          echo "=== HTML (tags) around first schaledb link"; grep -o '.\{1500\}schaledb.com/student/10117.\{600\}' joe.html | head -c 2500; echo
-          echo "=== RSC chunks mentioning 10117"; grep -o 'self.__next_f.push.\{0,20\}' joe.html | head -3
-          python3 - <<'PY'
-          import re
-          s=open('joe.html').read()
-          for m in re.finditer(r'10117', s):
-              print('---', m.start(), s[max(0,m.start()-700):m.start()+300].replace('\n',' '))
-          i=s.find('Recollection'); print('=== Recollection', i, s[max(0,i-800):i+400] if i>=0 else '')
-          PY
-          curl -sSL -A "Mozilla/5.0" -o /dev/null -w "schaledb config %{http_code}\n" -H "Origin: https://adambengtsson.github.io" -D - https://schaledb.com/data/config.min.json | grep -i -E "access-control|HTTP|content-type"
-          curl -sSL -o /dev/null -w "portrait %{http_code} %{content_type}\n" https://schaledb.com/images/student/collection/10145.webp
-          curl -sSL -A "Mozilla/5.0" -o /dev/null -w "wiki %{http_code}\n" "https://bluearchive.wiki/w/api.php?action=parse&page=Banner_List&prop=wikitext&format=json"
+          curl -sSL -m 60 -A "Mozilla/5.0" https://ba.joexyz.online/global/banners -o joe.html
+          python3 scripts/probe.py joe.html
