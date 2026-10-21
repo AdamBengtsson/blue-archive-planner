@@ -14,7 +14,7 @@ const gems = (n) => (typeof n === "number" ? Math.round(n).toLocaleString("en-US
 
 /** An empty banner row, filled in from a forecast banner. */
 function blankRow() {
-  return { start: "", end: "", banner: "", units: null, unitCost: null, note: "" };
+  return { start: "", end: "", banner: "", units: null, note: "" };
 }
 
 /** Reads a numeric input, treating an empty field as "not set" rather than 0. */
@@ -162,8 +162,6 @@ function renderPlanning(estimate) {
     }
     tr.appendChild(bannerCell);
     tr.appendChild(inputCell(row, "units", "number", "col-num"));
-    // Per-row cost disabled: planning always assumes the default cost.
-    // tr.appendChild(inputCell(row, "unitCost", "number", "col-num"));
     tr.appendChild(calcCell(item.plannedSpend ? gems(item.plannedSpend) : ""));
     tr.appendChild(calcCell(item.income ? gems(item.income) : ""));
     tr.appendChild(

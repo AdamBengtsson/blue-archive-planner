@@ -40,6 +40,8 @@ function normaliseState(state) {
   const archive = copy(Array.isArray(state.archive) ? state.archive : base.archive);
   const gemLog = copy(Array.isArray(state.gemLog) ? state.gemLog : []);
   migrateActualGems(archive.concat(planning), gemLog);
+  // Rows used to carry their own cost per unit; every unit now costs the default.
+  archive.concat(planning).forEach((row) => delete row.unitCost);
   const fixed = applyArchiveFixes(archive, gemLog);
   return { settings, planning, archive: fixed.archive, gemLog: sortGemLog(fixed.gemLog) };
 }

@@ -23,7 +23,6 @@ const SEED_DATA = {
       "end": "2026-09-29",
       "banner": "Problem Solver Dress",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -32,7 +31,6 @@ const SEED_DATA = {
       "end": "2026-10-06",
       "banner": "Nagusa Swimsuit",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -41,7 +39,6 @@ const SEED_DATA = {
       "end": "2026-10-13",
       "banner": "Band Rerun",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -50,7 +47,6 @@ const SEED_DATA = {
       "end": "2026-10-27",
       "banner": "Kisaki & Shun Swimsuits",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -59,7 +55,6 @@ const SEED_DATA = {
       "end": "2026-11-10",
       "banner": "Limited Reruns",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -68,7 +63,6 @@ const SEED_DATA = {
       "end": "2026-11-17",
       "banner": "Limited Reruns",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -77,7 +71,6 @@ const SEED_DATA = {
       "end": "2026-11-24",
       "banner": "Makoto & Satsuki Swimsuits",
       "units": 2,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -86,7 +79,6 @@ const SEED_DATA = {
       "end": "2026-12-01",
       "banner": "Iroha & Ibuki Swimsuits",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -95,7 +87,6 @@ const SEED_DATA = {
       "end": "2026-12-15",
       "banner": "Casual Rerun",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -104,7 +95,6 @@ const SEED_DATA = {
       "end": "2026-12-29",
       "banner": "Odyssey Maritime School",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -113,7 +103,6 @@ const SEED_DATA = {
       "end": "2027-01-12",
       "banner": "Swimsuit Reruns",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -122,7 +111,6 @@ const SEED_DATA = {
       "end": "2027-01-26",
       "banner": "Red Winter Engineers",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     }
@@ -133,7 +121,6 @@ const SEED_DATA = {
       "end": "2023-11-29",
       "banner": "Summertime Trinity",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -142,7 +129,6 @@ const SEED_DATA = {
       "end": "2023-12-13",
       "banner": "China",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Income 140160"
     },
@@ -151,7 +137,6 @@ const SEED_DATA = {
       "end": "2023-12-20",
       "banner": "Russia & Buns 1+2",
       "units": 2,
-      "unitCost": null,
       "actualGems": 118485,
       "note": "2 Unit 92160"
     },
@@ -160,7 +145,6 @@ const SEED_DATA = {
       "end": "2023-12-27",
       "banner": "Buns 3+4",
       "units": 2,
-      "unitCost": null,
       "actualGems": 99373,
       "note": "2 Unit 44160"
     },
@@ -169,7 +153,6 @@ const SEED_DATA = {
       "end": "2024-01-10",
       "banner": "SummerSRT",
       "units": 2,
-      "unitCost": null,
       "actualGems": null,
       "note": "2 Unit 9160 Date auto-fixed (day/month swap): end was 2024-10-01"
     },
@@ -178,7 +161,6 @@ const SEED_DATA = {
       "end": "2024-01-17",
       "banner": "SummerGehenna",
       "units": null,
-      "unitCost": null,
       "actualGems": 101700,
       "note": "Date auto-fixed (day/month swap): start was 2024-10-01"
     },
@@ -187,7 +169,6 @@ const SEED_DATA = {
       "end": "2024-01-24",
       "banner": "Nothing?",
       "units": null,
-      "unitCost": null,
       "actualGems": 104675,
       "note": ""
     },
@@ -196,7 +177,6 @@ const SEED_DATA = {
       "end": "2024-01-31",
       "banner": "SummerAbydos + Wakamo",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "CALCULATION"
     },
@@ -205,7 +185,6 @@ const SEED_DATA = {
       "end": "2024-02-07",
       "banner": "SummerTrinity FREE PULLS",
       "units": 1,
-      "unitCost": null,
       "actualGems": 108052,
       "note": "1 Unit 100435 Date auto-fixed (day/month swap): end was 2024-07-02"
     },
@@ -214,7 +193,6 @@ const SEED_DATA = {
       "end": "2024-02-14",
       "banner": "SummerTrinity & Wakamo %UP",
       "units": 1,
-      "unitCost": null,
       "actualGems": null,
       "note": "1 Unit 76435 Date auto-fixed (day/month swap): start was 2024-07-02"
     },
@@ -223,7 +201,6 @@ const SEED_DATA = {
       "end": "2024-02-21",
       "banner": "China (changed to Sumire&Eimi)",
       "units": null,
-      "unitCost": null,
       "actualGems": 88717,
       "note": ""
     },
@@ -232,7 +209,6 @@ const SEED_DATA = {
       "end": "2024-02-28",
       "banner": "SummerHyakidakikado",
       "units": null,
-      "unitCost": null,
       "actualGems": 94593,
       "note": ""
     },
@@ -241,7 +217,6 @@ const SEED_DATA = {
       "end": "2024-03-13",
       "banner": "Meru",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -250,7 +225,6 @@ const SEED_DATA = {
       "end": "2024-03-22",
       "banner": "Cheerleaders",
       "units": null,
-      "unitCost": null,
       "actualGems": 104574,
       "note": ""
     },
@@ -259,7 +233,6 @@ const SEED_DATA = {
       "end": "2024-04-03",
       "banner": "Gym",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Date auto-fixed (day/month swap): end was 2024-03-04"
     },
@@ -268,7 +241,6 @@ const SEED_DATA = {
       "end": "2024-04-14",
       "banner": "Ichika & Kasumi",
       "units": null,
-      "unitCost": null,
       "actualGems": 115844,
       "note": ""
     },
@@ -277,7 +249,6 @@ const SEED_DATA = {
       "end": "2024-04-24",
       "banner": "Red Winter Hot Springs",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -286,7 +257,6 @@ const SEED_DATA = {
       "end": "2024-04-30",
       "banner": "Shigure & Megu",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -295,7 +265,6 @@ const SEED_DATA = {
       "end": "2024-05-15",
       "banner": "Railgun Collab!",
       "units": 2,
-      "unitCost": null,
       "actualGems": 113147,
       "note": "2 Unit 54435"
     },
@@ -304,7 +273,6 @@ const SEED_DATA = {
       "end": "2024-05-22",
       "banner": "Yukari",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "CALCULATION"
     },
@@ -313,7 +281,6 @@ const SEED_DATA = {
       "end": "2024-05-29",
       "banner": "Arius",
       "units": 1,
-      "unitCost": null,
       "actualGems": null,
       "note": "1 Unit 85838"
     },
@@ -322,7 +289,6 @@ const SEED_DATA = {
       "end": "2024-06-14",
       "banner": "Renge & Kikyou",
       "units": null,
-      "unitCost": null,
       "actualGems": 82545,
       "note": ""
     },
@@ -331,7 +297,6 @@ const SEED_DATA = {
       "end": "2024-06-20",
       "banner": "S.Eimi & Himari",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -340,7 +305,6 @@ const SEED_DATA = {
       "end": "2024-06-27",
       "banner": "Sumire & Eimi",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -349,7 +313,6 @@ const SEED_DATA = {
       "end": "2024-07-04",
       "banner": "C&C (Bunnies)",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Date auto-fixed (day/month swap): end was 2024-04-07"
     },
@@ -358,7 +321,6 @@ const SEED_DATA = {
       "end": "2024-07-10",
       "banner": "Veritas (Camping)",
       "units": null,
-      "unitCost": null,
       "actualGems": 89675,
       "note": "Date auto-fixed (day/month swap): start was 2024-04-07, end was 2024-10-07"
     },
@@ -367,7 +329,6 @@ const SEED_DATA = {
       "end": "2024-07-17",
       "banner": "Newyear rerun",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Date auto-fixed (day/month swap): start was 2024-10-07"
     },
@@ -376,7 +337,6 @@ const SEED_DATA = {
       "end": "2024-07-24",
       "banner": "Arius ",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -385,7 +345,6 @@ const SEED_DATA = {
       "end": "2024-08-08",
       "banner": "Gehenna FES",
       "units": 2,
-      "unitCost": null,
       "actualGems": null,
       "note": "2 Unit 76838 Date auto-fixed (day/month swap): start was 2024-01-08; CHECK: expected gems looks too high (typo?)"
     },
@@ -394,7 +353,6 @@ const SEED_DATA = {
       "end": "2024-08-18",
       "banner": "Gehenna FES part 2",
       "units": 2,
-      "unitCost": null,
       "actualGems": null,
       "note": "2 Unit 52838 Date auto-fixed (day/month swap): start was 2024-09-08"
     },
@@ -403,7 +361,6 @@ const SEED_DATA = {
       "end": "2024-08-25",
       "banner": "Knights rerun (Christmas)",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -412,7 +369,6 @@ const SEED_DATA = {
       "end": "2024-09-01",
       "banner": "Chihiro & Mine",
       "units": null,
-      "unitCost": null,
       "actualGems": 74414,
       "note": "Date auto-fixed (day/month swap): end was 2024-01-09"
     },
@@ -421,7 +377,6 @@ const SEED_DATA = {
       "end": "2024-09-14",
       "banner": "Problem solver (Dress)",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -430,7 +385,6 @@ const SEED_DATA = {
       "end": "2024-09-28",
       "banner": "Food Gehenna (New Year)",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -439,7 +393,6 @@ const SEED_DATA = {
       "end": "2024-10-05",
       "banner": "Ui & Hinata",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Date auto-fixed (day/month swap): end was 2024-05-10"
     },
@@ -448,7 +401,6 @@ const SEED_DATA = {
       "end": null,
       "banner": "~~",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "CALCULATION"
     },
@@ -457,7 +409,6 @@ const SEED_DATA = {
       "end": "2025-04-01",
       "banner": "Kisaki & Reijo",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -466,7 +417,6 @@ const SEED_DATA = {
       "end": "2025-04-07",
       "banner": "Shanghaijing",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -475,7 +425,6 @@ const SEED_DATA = {
       "end": "2025-04-09",
       "banner": "Swimsuit reruns",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -484,7 +433,6 @@ const SEED_DATA = {
       "end": "2025-04-16",
       "banner": "Hyakkiyouran",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -493,7 +441,6 @@ const SEED_DATA = {
       "end": "2025-04-23",
       "banner": "*Limited* Idols",
       "units": 1,
-      "unitCost": null,
       "actualGems": 99928,
       "note": "1 unit 99403"
     },
@@ -502,7 +449,6 @@ const SEED_DATA = {
       "end": "2025-04-18",
       "banner": "Hinata & Saori",
       "units": null,
-      "unitCost": null,
       "actualGems": 104562,
       "note": ""
     },
@@ -511,7 +457,6 @@ const SEED_DATA = {
       "end": "2025-04-25",
       "banner": "*Limited* Gehenna Swimsuit",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -520,7 +465,6 @@ const SEED_DATA = {
       "end": "2025-05-08",
       "banner": "*Limited* Pandaemonium society",
       "units": 2,
-      "unitCost": null,
       "actualGems": 90000,
       "note": "2 unit 64403"
     },
@@ -529,7 +473,6 @@ const SEED_DATA = {
       "end": "2025-05-15",
       "banner": "Kasumi & Ichika",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -538,7 +481,6 @@ const SEED_DATA = {
       "end": "2025-05-22",
       "banner": "Cheerleaders",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -547,7 +489,6 @@ const SEED_DATA = {
       "end": "2025-05-29",
       "banner": "*Limited* Sportswear",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -556,7 +497,6 @@ const SEED_DATA = {
       "end": "2025-06-13",
       "banner": "Pajama",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -565,7 +505,6 @@ const SEED_DATA = {
       "end": "2025-06-20",
       "banner": "*Limited* New year",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -574,7 +513,6 @@ const SEED_DATA = {
       "end": "2025-06-23",
       "banner": "Game Development maid",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -583,7 +521,6 @@ const SEED_DATA = {
       "end": "2025-06-30",
       "banner": "*Limited* Anniversary part 1",
       "units": 2,
-      "unitCost": null,
       "actualGems": null,
       "note": "2 unit 29403"
     },
@@ -592,7 +529,6 @@ const SEED_DATA = {
       "end": "2025-07-06",
       "banner": "*Limited* Anniversary part 2",
       "units": 2,
-      "unitCost": null,
       "actualGems": null,
       "note": "2 unit -6403"
     },
@@ -601,7 +537,6 @@ const SEED_DATA = {
       "end": "2025-07-13",
       "banner": "Himari & Eimi",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "CALCULATION"
     },
@@ -610,7 +545,6 @@ const SEED_DATA = {
       "end": "2025-07-27",
       "banner": "Camping",
       "units": null,
-      "unitCost": null,
       "actualGems": 70000,
       "note": ""
     },
@@ -619,7 +553,6 @@ const SEED_DATA = {
       "end": "2025-08-10",
       "banner": "Casual & Part-timers",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -628,7 +561,6 @@ const SEED_DATA = {
       "end": "2025-08-17",
       "banner": "Christmas Knights",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -637,7 +569,6 @@ const SEED_DATA = {
       "end": "2025-08-24",
       "banner": "*Limited* New year",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -646,7 +577,6 @@ const SEED_DATA = {
       "end": "2025-09-08",
       "banner": "Sports club",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -655,7 +585,6 @@ const SEED_DATA = {
       "end": "2025-08-16",
       "banner": "Saori",
       "units": 1,
-      "unitCost": null,
       "actualGems": null,
       "note": "1 unit 65000"
     },
@@ -664,7 +593,6 @@ const SEED_DATA = {
       "end": "2025-08-23",
       "banner": "PS68",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -673,7 +601,6 @@ const SEED_DATA = {
       "end": "2025-08-30",
       "banner": "Shanghaijing",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -682,7 +609,6 @@ const SEED_DATA = {
       "end": "2025-09-13",
       "banner": "Highlanders",
       "units": 2,
-      "unitCost": null,
       "actualGems": 72483,
       "note": "2 unit 30000"
     },
@@ -691,7 +617,6 @@ const SEED_DATA = {
       "end": "2025-09-20",
       "banner": "Arius",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -700,7 +625,6 @@ const SEED_DATA = {
       "end": "2025-09-27",
       "banner": "Guides",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -709,7 +633,6 @@ const SEED_DATA = {
       "end": "2025-11-04",
       "banner": "Nagusa / Niya",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -718,7 +641,6 @@ const SEED_DATA = {
       "end": "2025-11-18",
       "banner": "Band",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -727,7 +649,6 @@ const SEED_DATA = {
       "end": "2025-12-02",
       "banner": "Swimsuit reruns",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -736,7 +657,6 @@ const SEED_DATA = {
       "end": "2025-12-09",
       "banner": "Hyakkiyouran Swimsuits",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -745,7 +665,6 @@ const SEED_DATA = {
       "end": "2025-12-16",
       "banner": "SRT Swimsuits",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -754,7 +673,6 @@ const SEED_DATA = {
       "end": "2025-12-16",
       "banner": "FEST",
       "units": 2,
-      "unitCost": null,
       "actualGems": null,
       "note": "2 unit 21000"
     },
@@ -763,7 +681,6 @@ const SEED_DATA = {
       "end": "2025-12-30",
       "banner": "FEST 2",
       "units": 2,
-      "unitCost": null,
       "actualGems": null,
       "note": "2 unit -27000"
     },
@@ -772,7 +689,6 @@ const SEED_DATA = {
       "end": "2026-01-06",
       "banner": "Valkyrie Swimsuits",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "CALCULATION"
     },
@@ -781,7 +697,6 @@ const SEED_DATA = {
       "end": "2026-01-13",
       "banner": "Toki / Nagisa",
       "units": null,
-      "unitCost": null,
       "actualGems": 89200,
       "note": ""
     },
@@ -790,7 +705,6 @@ const SEED_DATA = {
       "end": "2026-01-27",
       "banner": "Wildhunt",
       "units": 1,
-      "unitCost": null,
       "actualGems": null,
       "note": "1 unit 66200"
     },
@@ -799,7 +713,6 @@ const SEED_DATA = {
       "end": "2026-02-10",
       "banner": "Arius Swimsuits",
       "units": 1,
-      "unitCost": null,
       "actualGems": null,
       "note": "1 unit 36200"
     },
@@ -808,7 +721,6 @@ const SEED_DATA = {
       "end": "2026-02-17",
       "banner": "CnC Bunny Girls",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -817,7 +729,6 @@ const SEED_DATA = {
       "end": "2026-03-03",
       "banner": "Wildhunt",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -826,7 +737,6 @@ const SEED_DATA = {
       "end": "2026-03-03",
       "banner": "Wildhunt",
       "units": null,
-      "unitCost": null,
       "actualGems": 82664,
       "note": ""
     },
@@ -835,7 +745,6 @@ const SEED_DATA = {
       "end": "2026-03-10",
       "banner": "Gehenna Swimsuit",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -844,7 +753,6 @@ const SEED_DATA = {
       "end": "2026-03-24",
       "banner": "Magical girls",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -853,7 +761,6 @@ const SEED_DATA = {
       "end": "2026-03-31",
       "banner": "SRT & Qipao",
       "units": null,
-      "unitCost": null,
       "actualGems": 72788,
       "note": ""
     },
@@ -862,7 +769,6 @@ const SEED_DATA = {
       "end": "2026-04-07",
       "banner": "Trinity Swimsuits & New Arius",
       "units": null,
-      "unitCost": null,
       "actualGems": 78193,
       "note": ""
     },
@@ -871,7 +777,6 @@ const SEED_DATA = {
       "end": "2026-04-21",
       "banner": "Red Winter Yakumo / Takane",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -880,7 +785,6 @@ const SEED_DATA = {
       "end": "2026-04-28",
       "banner": "Idol Rerun",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -889,7 +793,6 @@ const SEED_DATA = {
       "end": "2026-05-12",
       "banner": "Hyakkiyako Dress",
       "units": null,
-      "unitCost": null,
       "actualGems": 68398,
       "note": ""
     },
@@ -898,7 +801,6 @@ const SEED_DATA = {
       "end": "2026-05-26",
       "banner": "Millenium Sportswear",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -907,7 +809,6 @@ const SEED_DATA = {
       "end": "2026-05-26",
       "banner": "Reijo / Kisaki",
       "units": null,
-      "unitCost": null,
       "actualGems": 84338,
       "note": ""
     },
@@ -916,7 +817,6 @@ const SEED_DATA = {
       "end": "2026-06-09",
       "banner": "FEST 1",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -925,7 +825,6 @@ const SEED_DATA = {
       "end": "2026-06-16",
       "banner": "FEST 2",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": ""
     },
@@ -934,7 +833,6 @@ const SEED_DATA = {
       "end": "2026-06-23",
       "banner": "Intermission",
       "units": 0,
-      "unitCost": null,
       "actualGems": null,
       "note": "Moved from Planning on 2026-09-23"
     },
@@ -943,7 +841,6 @@ const SEED_DATA = {
       "end": "2026-07-07",
       "banner": "Yuzu & Eimi Battle",
       "units": 1,
-      "unitCost": null,
       "actualGems": null,
       "note": "Moved from Planning on 2026-09-24"
     },
@@ -952,7 +849,6 @@ const SEED_DATA = {
       "end": "2026-07-14",
       "banner": "Newyear rerun",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Moved from Planning on 2026-09-24"
     },
@@ -961,7 +857,6 @@ const SEED_DATA = {
       "end": "2026-07-14",
       "banner": "Game Development maid",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Moved from Planning on 2026-09-24"
     },
@@ -970,7 +865,6 @@ const SEED_DATA = {
       "end": "2026-07-21",
       "banner": "Newyear Limited",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Moved from Planning on 2026-09-24"
     },
@@ -979,7 +873,6 @@ const SEED_DATA = {
       "end": "2026-07-21",
       "banner": "Pajama",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Moved from Planning on 2026-09-24"
     },
@@ -988,7 +881,6 @@ const SEED_DATA = {
       "end": "2026-08-04",
       "banner": "Rena & Konoka",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Moved from Planning on 2026-09-24"
     },
@@ -997,7 +889,6 @@ const SEED_DATA = {
       "end": "2026-08-18",
       "banner": "Rerun",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Moved from Planning on 2026-09-24"
     },
@@ -1006,7 +897,6 @@ const SEED_DATA = {
       "end": "2026-09-01",
       "banner": "SRT FOX",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Moved from Planning on 2026-09-24"
     },
@@ -1015,7 +905,6 @@ const SEED_DATA = {
       "end": "2026-09-08",
       "banner": "Newyear Rerun",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Moved from Planning on 2026-09-24"
     },
@@ -1024,7 +913,6 @@ const SEED_DATA = {
       "end": "2026-09-15",
       "banner": "Erika",
       "units": null,
-      "unitCost": null,
       "actualGems": null,
       "note": "Moved from Planning on 2026-09-24"
     }

@@ -174,7 +174,6 @@ const ARCHIVE_FIXES = [
       end: "2026-05-12",
       banner: "Anniversary Archive (Wakamo, Hoshino Swimsuit, Mika)",
       units: 0,
-      unitCost: null,
       note: ""
     }
   },
@@ -380,7 +379,6 @@ const ARCHIVE_FIXES = [
       end: "2024-10-08",
       banner: "Tsubaki (Guide), Umika, Mimori, Izuna & Shizuko",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -391,7 +389,6 @@ const ARCHIVE_FIXES = [
       end: "2024-10-15",
       banner: "Kazusa, Reisa, Natsu & Mari",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -402,7 +399,6 @@ const ARCHIVE_FIXES = [
       end: "2024-10-22",
       banner: "*Limited* Toki, Nagisa & Koyuki",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -413,7 +409,6 @@ const ARCHIVE_FIXES = [
       end: "2024-11-05",
       banner: "*Limited* Kazusa (Band), Yoshimi (Band) & Ako",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -424,7 +419,6 @@ const ARCHIVE_FIXES = [
       end: "2024-11-12",
       banner: "Kirara, Kaede, Tsukuyo & Kaho",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -435,7 +429,6 @@ const ARCHIVE_FIXES = [
       end: "2024-11-19",
       banner: "Rumi, Mina, Shun & Kokona",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -446,7 +439,6 @@ const ARCHIVE_FIXES = [
       end: "2024-12-03",
       banner: "Momoi (Maid), Midori (Maid), Arisu (Maid) & Toki (Bunny Girl)",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -457,7 +449,6 @@ const ARCHIVE_FIXES = [
       end: "2024-12-14",
       banner: "Serika (Swimsuit), Nonomi (Swimsuit), Wakamo (Swimsuit) & Shiroko (Swimsuit)",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -468,7 +459,6 @@ const ARCHIVE_FIXES = [
       end: "2024-12-24",
       banner: "*Limited* Izuna (Swimsuit), Chise (Swimsuit) & Mimori (Swimsuit)",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -479,7 +469,6 @@ const ARCHIVE_FIXES = [
       end: "2025-01-07",
       banner: "Kanna (Swimsuit) & Fubuki (Swimsuit)",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -490,7 +479,6 @@ const ARCHIVE_FIXES = [
       end: "2025-01-16",
       banner: "Moe (Swimsuit), Miyako (Swimsuit) & Saki (Swimsuit)",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -501,7 +489,6 @@ const ARCHIVE_FIXES = [
       end: "2025-01-23",
       banner: "Hina & Hoshino",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -512,7 +499,6 @@ const ARCHIVE_FIXES = [
       end: "2025-01-30",
       banner: "FEST: Hoshino (Battle), Shiroko＊Terror & Mika",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -523,7 +509,6 @@ const ARCHIVE_FIXES = [
       end: "2025-02-08",
       banner: "*Limited* Saori (Swimsuit) & Hiyori (Swimsuit)",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -534,7 +519,6 @@ const ARCHIVE_FIXES = [
       end: "2025-02-18",
       banner: "Meru, Momiji, Cherino, Marina, Minori & Shigure (Hot Spring)",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -545,7 +529,6 @@ const ARCHIVE_FIXES = [
       end: "2025-03-04",
       banner: "Marina (Qipao) & Tomoe (Qipao)",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -556,7 +539,6 @@ const ARCHIVE_FIXES = [
       end: "2025-03-11",
       banner: "*Limited* Ui (Swimsuit), Hinata (Swimsuit), Iroha & Miyu",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   },
@@ -567,7 +549,6 @@ const ARCHIVE_FIXES = [
       end: "2025-03-18",
       banner: "*Limited* Neru (Bunny Girl), Karin (Bunny Girl), Asuna (Bunny Girl) & Akane (Bunny Girl)",
       units: null,
-      unitCost: null,
       note: "Break, not tracked"
     }
   }
