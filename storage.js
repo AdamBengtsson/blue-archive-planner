@@ -16,8 +16,11 @@ function seedState() {
 /** Fills in anything a saved state is missing, so old saves keep working. */
 function normaliseState(state) {
   const base = seedState();
+  const settings = Object.assign({}, base.settings, state.settings || {});
+  // Income used to be one typed-in number; it is now estimated from gem logs.
+  delete settings.monthlyIncome;
   return {
-    settings: Object.assign({}, base.settings, state.settings || {}),
+    settings,
     planning: Array.isArray(state.planning) ? state.planning : base.planning,
     archive: Array.isArray(state.archive) ? state.archive : base.archive
   };

@@ -41,6 +41,11 @@ function flash(message) {
   }, 2500);
 }
 
+/** The income estimate, worked out from every row with a gem log, archive included. */
+function currentEstimate() {
+  return estimateIncome(state.archive.concat(state.planning), state.settings);
+}
+
 /* Rendering ------------------------------------------------------------ */
 
 /** Builds one editable input cell bound to a field on a planning row. */
@@ -81,10 +86,10 @@ function calcCell(text, className) {
   return td;
 }
 
-function renderPlanning() {
+function renderPlanning(estimate) {
   const body = el("planningBody");
   body.textContent = "";
-  const { rows } = computePlan(state.planning, state.settings);
+  const { rows } = computePlan(state.planning, state.settings, estimate.perDay);
 
   rows.forEach((item, index) => {
     const row = item.row;
@@ -166,8 +171,41 @@ function renderArchive() {
     });
 }
 
-function renderSummary() {
-  const { rows, anchor } = computePlan(state.planning, state.settings);
+function renderIncome(estimate) {
+  const body = el("incomeBody");
+  body.textContent = "";
+  estimate.gaps
+    .slice()
+    .reverse()
+    .forEach((gap) => {
+      const tr = document.createElement("tr");
+      if (!gap.used) tr.classList.add("past");
+      const perMonth = gap.days > 0 ? (gap.earned / gap.days) * DAYS_PER_MONTH : null;
+      [
+        formatDate(gap.from),
+        formatDate(gap.to),
+        gap.days,
+        gems(gap.change),
+        gap.spend ? gems(gap.spend) : "",
+        gems(gap.earned),
+        gems(perMonth)
+      ].forEach((value) => tr.appendChild(calcCell(String(value))));
+      body.appendChild(tr);
+    });
+
+  if (estimate.gaps.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 7;
+    td.className = "empty";
+    td.textContent = "Log Actual gems on at least two banners to get an estimate.";
+    tr.appendChild(td);
+    body.appendChild(tr);
+  }
+}
+
+function renderSummary(estimate) {
+  const { rows, anchor } = computePlan(state.planning, state.settings, estimate.perDay);
   const future = rows.filter((item) => item.expectedAfter !== null);
 
   el("statAnchor").textContent = gems(anchor.gems);
@@ -185,6 +223,14 @@ function renderSummary() {
       : lowest < 0
         ? `Short by ${gems(Math.abs(lowest))} at the worst point.`
         : describeRoom(lowest, state.settings.defaultUnitCost) || "Everything planned fits.";
+
+  const incomeCell = el("statIncome");
+  incomeCell.textContent = estimate.perMonth === null ? "—" : gems(estimate.perMonth);
+  incomeCell.className = "value " + (estimate.perMonth !== null && estimate.perMonth < 0 ? "bad" : "");
+  el("statIncomeHint").textContent =
+    estimate.perMonth === null
+      ? "Log Actual gems on two banners to estimate it."
+      : `From your gem logs since ${formatDate(estimate.since)}.`;
 
   const units = future.reduce((sum, item) => sum + item.units, 0);
   el("statUnits").textContent = units;
@@ -205,13 +251,15 @@ function renderSummary() {
 function renderSettings() {
   el("startingGems").value = state.settings.startingGems ?? "";
   el("startingDate").value = state.settings.startingDate ?? "";
-  el("monthlyIncome").value = state.settings.monthlyIncome ?? "";
+  el("incomeLookbackMonths").value = state.settings.incomeLookbackMonths ?? "";
   el("defaultUnitCost").value = state.settings.defaultUnitCost ?? "";
 }
 
 function render() {
-  renderSummary();
-  renderPlanning();
+  const estimate = currentEstimate();
+  renderSummary(estimate);
+  renderPlanning(estimate);
+  renderIncome(estimate);
   renderArchive();
 }
 
@@ -237,7 +285,7 @@ function bindSettings() {
   const fields = [
     ["startingGems", "number"],
     ["startingDate", "text"],
-    ["monthlyIncome", "number"],
+    ["incomeLookbackMonths", "number"],
     ["defaultUnitCost", "number"]
   ];
   fields.forEach(([id, type]) => {
@@ -287,7 +335,7 @@ function bindToolbar() {
 
 /** Replaces the whole state when Firebase hands back a newer copy. */
 function applyCloudState(cloudState) {
-  state = cloudState;
+  state = normaliseState(cloudState);
   renderSettings();
   render();
   flash("Loaded from the cloud.");

@@ -7,9 +7,10 @@
  *
  *  - Your gem anchor is the most recent "Actual gems" you logged, falling back
  *    to the one-time starting count until you have logged anything.
- *  - Monthly income lands on the banner whose End date is the first to reach
- *    into a new month, and never for the month the anchor itself is from
- *    (that income is assumed already inside the logged count).
+ *  - Income is not typed in. It is estimated from your own gem logs: how much
+ *    the count rose between logs, plus what the banners in between cost (see
+ *    estimateIncome). Each row then earns that daily rate for the days since
+ *    the previous counted End date, so nothing before the anchor counts twice.
  *  - A banner is still to be paid until its End date has passed.
  *  - "Lowest balance from here on" looks forward to the end of the plan, so a
  *    row is only safe if everything after it fits too.
@@ -42,6 +43,18 @@ function today() {
   return now;
 }
 
+/**
+ * Calendar days from one date to another. Done in UTC so a daylight saving
+ * change in between never loses or gains a day.
+ */
+function calendarDays(from, to) {
+  const utc = (d) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  return Math.round((utc(to) - utc(from)) / 86400000);
+}
+
+/** Average days in a month, for turning a daily rate into a monthly one. */
+const DAYS_PER_MONTH = 365.25 / 12;
+
 /** Whole days between two dates, rounded down. */
 function daysBetween(from, to) {
   return Math.floor((to - from) / 86400000);
@@ -67,20 +80,99 @@ function findAnchor(rows, settings) {
 }
 
 /**
+ * Every gem count you have logged, oldest first, as { date, gems }: the
+ * starting count from settings plus each row's Actual gems (planning and
+ * archive). Two logs on the same day keep the later one in list order.
+ */
+function collectGemLogs(rows, settings) {
+  const byDate = new Map();
+  const start = parseDate(settings.startingDate);
+  if (start && typeof settings.startingGems === "number") {
+    byDate.set(formatDate(start), { date: start, gems: settings.startingGems });
+  }
+  rows.forEach((row) => {
+    const end = parseDate(row.end);
+    if (end && typeof row.actualGems === "number") {
+      byDate.set(formatDate(end), { date: end, gems: row.actualGems });
+    }
+  });
+  return Array.from(byDate.values()).sort((a, b) => a.date - b.date);
+}
+
+/**
+ * Estimates income from the gem logs.
+ *
+ * Between two logs, earned = (later count - earlier count) + spend, where
+ * spend is the units on every banner that ended in between at the default
+ * cost. The rate is the total earned over the total days, across the gaps
+ * that end inside the lookback window, so a long gap weighs more than a short
+ * one and one odd week cannot swing the whole plan.
+ *
+ * `rows` should be every banner you have, archive included, since that is
+ * where most of the history lives. Returns the daily and monthly rate plus the
+ * gaps used, so the UI can show its working; rates are null with fewer than
+ * two logs.
+ */
+function estimateIncome(rows, settings) {
+  const logs = collectGemLogs(rows, settings);
+  const ends = rows
+    .map((row) => ({ end: parseDate(row.end), units: typeof row.units === "number" ? row.units : 0 }))
+    .filter((item) => item.end && item.units > 0);
+
+  const gaps = [];
+  for (let i = 1; i < logs.length; i += 1) {
+    const from = logs[i - 1];
+    const to = logs[i];
+    const days = calendarDays(from.date, to.date);
+    const spend = ends
+      .filter((item) => item.end > from.date && item.end <= to.date)
+      .reduce((sum, item) => sum + item.units * settings.defaultUnitCost, 0);
+    const change = to.gems - from.gems;
+    gaps.push({ from: from.date, to: to.date, days, change, spend, earned: change + spend, used: false });
+  }
+
+  // Only gaps ending within the lookback window count. With too little recent
+  // history, fall back to every gap rather than giving no estimate at all.
+  const latest = logs.length ? logs[logs.length - 1].date : null;
+  let used = [];
+  if (latest) {
+    const cutoff = new Date(latest);
+    cutoff.setMonth(cutoff.getMonth() - (settings.incomeLookbackMonths || 12));
+    used = gaps.filter((gap) => gap.to > cutoff);
+    if (used.length === 0) used = gaps;
+  }
+  used.forEach((gap) => {
+    gap.used = true;
+  });
+
+  const days = used.reduce((sum, gap) => sum + gap.days, 0);
+  const earned = used.reduce((sum, gap) => sum + gap.earned, 0);
+  const perDay = days > 0 ? earned / days : null;
+  return {
+    perDay,
+    perMonth: perDay === null ? null : perDay * DAYS_PER_MONTH,
+    days,
+    since: used.length ? used[0].from : null,
+    logCount: logs.length,
+    gaps
+  };
+}
+
+/**
  * Runs the whole projection over a list of banner rows.
  *
  * Returns one computed object per input row (same order, same length) plus the
  * anchor that was used, so the UI can show where the numbers are counting from.
  * Rows are expected to already be in date order, earliest first.
  */
-function computePlan(rows, settings) {
+function computePlan(rows, settings, perDay) {
   const anchor = findAnchor(rows, settings);
-  const anchorMonth = anchor.date ? monthIndex(anchor.date) : -Infinity;
   const now = today();
+  const rate = perDay > 0 ? perDay : 0;
 
   let incomeSoFar = 0;
   let spendSoFar = 0;
-  let highWaterMonth = anchorMonth; // latest month boundary already paid out
+  let highWater = anchor.date; // latest End date income has been counted up to
   const computed = [];
 
   rows.forEach((row) => {
@@ -91,14 +183,16 @@ function computePlan(rows, settings) {
     // const unitCost = typeof row.unitCost === "number" ? row.unitCost : settings.defaultUnitCost;
     const unitCost = settings.defaultUnitCost;
 
-    // Income arrives on the row whose End date is the first to reach a new month.
+    // Each row earns the daily rate for the days since the latest End date
+    // already counted. A row ending inside an earlier, longer banner earns
+    // nothing extra. Rounding the running total keeps the rows adding up.
     let income = 0;
-    if (end) {
-      const months = monthIndex(end) - highWaterMonth;
-      if (months > 0) {
-        income = settings.monthlyIncome * months;
-        highWaterMonth = monthIndex(end);
-      }
+    let isNewMonth = false;
+    if (end && highWater && end > highWater) {
+      const totalDays = calendarDays(anchor.date, end);
+      income = Math.round(rate * totalDays) - incomeSoFar;
+      isNewMonth = monthIndex(end) > monthIndex(highWater);
+      highWater = end;
     }
 
     // Banners that ended on or before the anchor date are already paid for:
@@ -124,7 +218,7 @@ function computePlan(rows, settings) {
       income,
       expectedAfter,
       isPast: Boolean(end && end < now),
-      isNewMonth: income > 0,
+      isNewMonth,
       isAnchorRow: computed.length === anchor.rowIndex,
       lowestAhead: null,
       roomForExtra: ""

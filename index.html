@@ -31,6 +31,11 @@
           <div class="hint" id="statLowestHint"></div>
         </div>
         <div class="stat">
+          <label>Income per month</label>
+          <div class="value" id="statIncome">&mdash;</div>
+          <div class="hint" id="statIncomeHint"></div>
+        </div>
+        <div class="stat">
           <label>Banners planned</label>
           <div class="value" id="statUnits">&mdash;</div>
           <div class="hint" id="statUnitsHint"></div>
@@ -97,6 +102,34 @@
         </details>
       </section>
 
+      <!-- The working behind the income estimate: one row per gap between gem logs. -->
+      <section class="box">
+        <details id="incomeSection">
+          <summary>Income estimate</summary>
+          <p class="help">
+            Each row is the gap between two gem counts you logged. <em>Earned</em> is how much
+            the count changed plus what the banners in between cost (their units at the default
+            cost). Faded rows are older than the lookback in Settings and are not counted.
+          </p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Days</th>
+                  <th>Gem change</th>
+                  <th>Spend counted</th>
+                  <th>Earned</th>
+                  <th>Per month</th>
+                </tr>
+              </thead>
+              <tbody id="incomeBody"></tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+
       <section class="box">
         <details>
           <summary>Settings</summary>
@@ -110,8 +143,8 @@
               <input id="startingDate" class="entry" type="date" />
             </div>
             <div class="field">
-              <label for="monthlyIncome">Monthly income</label>
-              <input id="monthlyIncome" class="entry" type="number" step="1" />
+              <label for="incomeLookbackMonths">Estimate income from the last (months)</label>
+              <input id="incomeLookbackMonths" class="entry" type="number" step="1" min="1" />
             </div>
             <div class="field">
               <label for="defaultUnitCost">Default cost per unit</label>
@@ -135,7 +168,7 @@
             <ul>
               <li><strong>Your gem anchor</strong> is the most recent <em>Actual gems</em> you logged on a row. Everything below that row counts forward from it. Until you log one, the starting count in Settings is used.</li>
               <li><strong>Units</strong> is how many banners you want to spend on: 0 to skip, 1 or 2 (or more) otherwise. Each costs the default 24,000 from Settings, the worst case.</li>
-              <li><strong>Income</strong> of 13,000 lands on the banner whose End date is the first to reach into a new month. That row is tinted green.</li>
+              <li><strong>Income</strong> is estimated from your own <em>Actual gems</em> logs, archive included: how much your count rose between logs, plus the units you spent in between at the default cost, averaged over the last 12 months (change it in Settings). Each banner then earns that rate for its days. Rows that reach into a new month are tinted green. The more often you log, the better the estimate; units you spent but did not enter make it read low.</li>
               <li><strong>Expected after</strong> is anchor + income so far &minus; planned spend so far. Red means it would go below zero.</li>
               <li><strong>Lowest ahead</strong> looks all the way to the end of your plan. At or above 0 means everything you have planned fits.</li>
               <li><strong>Room for extra?</strong> appears when that lowest point still covers another unit &mdash; you could add a banner without going short later.</li>
