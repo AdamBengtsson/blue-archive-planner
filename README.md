@@ -9,6 +9,7 @@ Hosted on GitHub Pages, no build step.
 - [index.html](index.html): page structure and the order scripts load in
 - [styles.css](styles.css): all styling, carried over from the cardnamer page
 - [seed-data.js](seed-data.js): the data migrated out of the spreadsheet, used on first run
+- [archive-fixes.js](archive-fixes.js): corrected archive dates and names, checked against the Global banner list on bluearchive.wiki. Applied on every load, so saved data gets them too
 - [planner-core.js](planner-core.js): the planning maths, ported from the sheet's formulas
 - [storage.js](storage.js): load/save, reset, and JSON backup import/export
 - [planner-ui.js](planner-ui.js): rendering and event handling

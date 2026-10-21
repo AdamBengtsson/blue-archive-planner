@@ -40,7 +40,8 @@ function normaliseState(state) {
   const archive = copy(Array.isArray(state.archive) ? state.archive : base.archive);
   const gemLog = copy(Array.isArray(state.gemLog) ? state.gemLog : []);
   migrateActualGems(archive.concat(planning), gemLog);
-  return { settings, planning, archive, gemLog: sortGemLog(gemLog) };
+  const fixed = applyArchiveFixes(archive, gemLog);
+  return { settings, planning, archive: fixed.archive, gemLog: sortGemLog(fixed.gemLog) };
 }
 
 /** Oldest first, the order every gem log calculation expects. */
