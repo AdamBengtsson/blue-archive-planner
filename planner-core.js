@@ -230,6 +230,12 @@ function computePlan(rows, gemLog, settings, perDay) {
     item.roomForExtra = describeRoom(lowest, settings.defaultUnitCost);
   }
 
+  // The low point is the first row where the balance reaches the lowest it
+  // will be: the row that limits how much more can be planned.
+  const first = computed.find((item) => item.expectedAfter !== null);
+  const lowPoint = first && computed.find((item) => item.expectedAfter === first.lowestAhead);
+  if (lowPoint) lowPoint.isLowPoint = true;
+
   return { rows: computed, anchor };
 }
 

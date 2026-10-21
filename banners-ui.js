@@ -189,7 +189,7 @@ function syncPlanWithForecast() {
 function renderBanners() {
   const ended = banners.every((banner) => parseDate(banner.end) <= today());
   const stale = ended ? " Every banner in the forecast has ended; check the Refresh upcoming banners workflow on GitHub." : "";
-  el("bannerSource").textContent = `Forecast last changed ${BANNER_DATA.updated}. ${liveStatus}${stale}`;
+  el("bannerSource").textContent = `Forecast last changed ${displayDate(BANNER_DATA.updated)}. ${liveStatus}${stale}`;
 }
 
 /* Live data from SchaleDB ------------------------------------------------ */

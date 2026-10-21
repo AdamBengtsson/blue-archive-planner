@@ -55,7 +55,7 @@ body {
 }
 
 h1 {
-  font-size: clamp(1.8rem, 4.5vw, 3rem);
+  font-size: clamp(1.2rem, 2.6vw, 1.7rem);
   line-height: 1.1;
   margin: 0;
   letter-spacing: 0.04em;
@@ -142,6 +142,11 @@ button.link:hover {
   gap: 18px;
 }
 
+/* The title shares the summary box, on a line of its own. */
+.summary h1 {
+  grid-column: 1 / -1;
+}
+
 .stat .value {
   font-size: clamp(1.3rem, 3vw, 1.9rem);
   letter-spacing: 0.02em;
@@ -171,6 +176,10 @@ button.link:hover {
 .col-when {
   white-space: nowrap;
   min-width: 140px;
+}
+
+#planningTable td.col-when {
+  padding-left: 14px;
 }
 
 .banner-dates {
@@ -373,6 +382,50 @@ tr.anchor td:first-child {
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
+/* The row where the balance bottoms out, which limits what else fits. */
+tr.low-point td.calc:nth-child(6) {
+  font-weight: bold;
+}
+
+.low-point-note {
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--warn);
+  margin-top: 3px;
+}
+
+/* Archive banners you spent on stand out from the ones you skipped. */
+#archiveSection tr.pulled td {
+  color: var(--text);
+}
+
+#archiveSection tr:not(.pulled) td {
+  color: var(--muted);
+}
+
+#archiveSection td:nth-child(-n + 2) {
+  white-space: nowrap;
+}
+
+#archiveSection tr.pulled td:nth-child(4) {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+label.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+label.check input {
+  width: auto;
+  margin: 0;
+}
+
 td .short { color: var(--bad); }
 td .room { color: var(--good); }
 td .negative { color: var(--bad); }
@@ -511,3 +564,111 @@ details[open] summary {
 /* A short table; full width would push the columns far apart. */
 #gemLogSection table { width: auto; min-width: 360px; }
 #gemLogSection td, #gemLogSection th { padding-right: 24px; }
+
+/* Phones --------------------------------------------------------------- */
+
+/* The planning table is too wide for a phone, so each row becomes a card:
+   dates and Units on top, portraits under them, then the numbers in pairs,
+   each named by its data-label since the header row is hidden. */
+@media (max-width: 700px) {
+  .container {
+    width: 100%;
+    padding: 12px 10px 48px;
+  }
+
+  .box {
+    padding: 16px 14px;
+    border-radius: 14px;
+  }
+
+  .summary {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .log-form label {
+    flex-basis: 100%;
+  }
+
+  .log-form input[type="number"],
+  .log-form input[type="date"] {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+
+  #planningTable thead {
+    display: none;
+  }
+
+  #planningTable,
+  #planningTable tbody {
+    display: block;
+  }
+
+  #planningTable tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 14px;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  #planningTable td {
+    display: block;
+    padding: 0;
+    border: none;
+    background: none;
+  }
+
+  #planningTable tr.limited {
+    background: rgba(255, 123, 123, 0.12);
+  }
+
+  #planningTable td.col-when {
+    grid-row: 1;
+    grid-column: 1;
+    padding-left: 0;
+    min-width: 0;
+  }
+
+  #planningTable td.col-units {
+    grid-row: 1;
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  #planningTable td.col-banner {
+    grid-column: 1 / -1;
+    min-width: 0;
+    margin: 4px 0;
+  }
+
+  #planningTable td.calc:empty,
+  #planningTable td.col-actions:empty {
+    display: none;
+  }
+
+  #planningTable td.calc::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: normal;
+  }
+
+  .student {
+    width: 58px;
+  }
+
+  .portrait {
+    width: 58px;
+    height: 66px;
+  }
+
+  .roster {
+    gap: 5px;
+  }
+}
