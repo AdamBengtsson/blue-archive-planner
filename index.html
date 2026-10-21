@@ -80,6 +80,18 @@
         </div>
       </section>
 
+      <!-- What is coming to Global, forecast from the JP schedule. -->
+      <section class="box">
+        <h2>Upcoming banners</h2>
+        <div class="banner-grid" id="bannerGrid"></div>
+        <p class="source-note">
+          <span id="bannerSource"></span>
+          Predicted banners follow JP's order and may be merged, shortened or skipped on Global.
+          Forecast from <a href="https://ba.joexyz.online/global/banners" target="_blank" rel="noopener">Joe's Blue Archive Tools</a>;
+          portraits and live banners from <a href="https://schaledb.com" target="_blank" rel="noopener">SchaleDB</a>.
+        </p>
+      </section>
+
       <!-- Past banners, kept only for looking back at. -->
       <section class="box">
         <details id="archiveSection">
@@ -185,6 +197,8 @@
       2. pure planning maths
       3. the Firebase config placeholder, then the optional sync layer
       4. storage, then the UI that wires it all to the page
+      5. the bundled banner forecast, then the Upcoming banners view, which
+         adds rows through the planner UI's state and commit()
     -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -194,5 +208,7 @@
     <script src="firebase-logic.js"></script>
     <script src="storage.js"></script>
     <script src="planner-ui.js"></script>
+    <script src="banner-data.js"></script>
+    <script src="banners-ui.js"></script>
   </body>
 </html>

@@ -1,0 +1,28 @@
+# Keeps banner-data.js in step with the Global forecast on Joe's Blue Archive
+# Tools. Runs daily, shortly after Global's 02:00 UTC banner turnover, and
+# commits straight to the default branch only when the banners changed.
+# A failed run (the page was down or changed shape) leaves the old file in
+# place, and GitHub emails the repo owner.
+name: Refresh upcoming banners
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/refresh-banners.mjs
+      - name: Commit if the banners changed
+        run: |
+          if git diff --quiet banner-data.js; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh upcoming banners from Joe's Blue Archive Tools" banner-data.js
+          git push

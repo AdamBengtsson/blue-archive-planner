@@ -261,6 +261,7 @@ function render() {
   renderPlanning(estimate);
   renderIncome(estimate);
   renderArchive();
+  if (typeof renderBanners === "function") renderBanners();
 }
 
 /* Actions -------------------------------------------------------------- */
