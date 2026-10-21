@@ -19,8 +19,8 @@ Hosted on GitHub Pages, no build step.
 - [firebase-logic.js](firebase-logic.js): optional Firestore sync
 
 ## How it works
-- One row per banner, earliest first: dates, characters, units planned. Rows come
-  from the forecast with *Add to plan*; only Units is typed in.
+- One row per banner, earliest first: dates, characters, units planned. The rows
+  come from the forecast by themselves; only Units is typed in.
 - **Units** is how many banners you want to spend on. Each costs 24,000 by default;
   type a cheaper figure in *Cost / unit* on a row when you get lucky.
 - **Income** is not typed in. It is estimated from your gem log: for each gap
@@ -65,12 +65,12 @@ Global runs JP's banners in the same order a few months later, so the upcoming
 Global schedule can be read off JP's. The forecast lives inside the Planning
 table rather than in a section of its own:
 
-- Dates and banner names are not typed in; only *Units* is. A planner row that
-  matches a forecast banner shows its portraits, limited/Fes tags and
-  *Predicted* or *Confirmed*, and takes the forecast's dates whenever they move.
-  Older hand-typed rows with no match show their saved name instead.
-- Each forecast banner not in the plan yet appears as a faded row in date order,
-  with *Add to plan*. It has no units, so it changes none of the sums until added.
+- Every upcoming forecast banner is a row, with its portraits, limited/Fes tags
+  and *Predicted* or *Confirmed*. Dates and names are not typed in; only
+  *Units* is. Rows take the forecast's dates whenever they move.
+- Older hand-typed rows that match no forecast banner are dropped when they fall
+  inside the forecast and have no units. One with units stays, marked as not in
+  the forecast, so nothing you planned disappears silently.
 
 - The forecast lives in [banner-data.js](banner-data.js), generated from
   [Joe's Blue Archive Tools](https://ba.joexyz.online/global/banners), which

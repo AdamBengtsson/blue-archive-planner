@@ -12,7 +12,7 @@ let state = loadState();
 const el = (id) => document.getElementById(id);
 const gems = (n) => (typeof n === "number" ? Math.round(n).toLocaleString("en-US") : "");
 
-/** An empty banner row, filled in by "Add to plan". */
+/** An empty banner row, filled in from a forecast banner. */
 function blankRow() {
   return { start: "", end: "", banner: "", units: null, unitCost: null, note: "" };
 }
@@ -142,7 +142,6 @@ function renderPlanning(estimate) {
     if (item.isNewMonth) tr.classList.add("new-month");
     if (item.isPast) tr.classList.add("past");
     if (item.isAnchorRow) tr.classList.add("anchor");
-    tr.dataset.start = row.start || "";
 
     tr.appendChild(whenCell(row));
     // Portraits from the forecast once banners-ui.js has loaded; otherwise
@@ -156,7 +155,10 @@ function renderPlanning(estimate) {
       const name = document.createElement("div");
       name.className = "banner-name";
       name.textContent = row.banner;
-      bannerCell.appendChild(name);
+      const hint = document.createElement("div");
+      hint.className = "banner-when";
+      hint.textContent = "Not in the forecast. Kept because it has units planned.";
+      bannerCell.append(name, hint);
     }
     tr.appendChild(bannerCell);
     tr.appendChild(inputCell(row, "units", "number", "col-num"));
@@ -180,16 +182,20 @@ function renderPlanning(estimate) {
       calcCell(item.roomForExtra, item.roomForExtra.startsWith("Short") ? "short" : "room")
     );
 
+    // Forecast rows come back on the next sync, so only rows of your own can
+    // be deleted. Set Units to 0 to skip a forecast banner instead.
     const actions = document.createElement("td");
-    const remove = document.createElement("button");
-    remove.className = "link";
-    remove.textContent = "✕";
-    remove.title = "Delete this banner";
-    remove.addEventListener("click", () => {
-      state.planning.splice(index, 1);
-      commit("Banner deleted.");
-    });
-    actions.appendChild(remove);
+    if (!details) {
+      const remove = document.createElement("button");
+      remove.className = "link";
+      remove.textContent = "✕";
+      remove.title = "Delete this banner";
+      remove.addEventListener("click", () => {
+        state.planning.splice(index, 1);
+        commit("Banner deleted.");
+      });
+      actions.appendChild(remove);
+    }
     tr.appendChild(actions);
 
     body.appendChild(tr);
@@ -200,12 +206,10 @@ function renderPlanning(estimate) {
     const td = document.createElement("td");
     td.colSpan = 9;
     td.className = "empty";
-    td.textContent = "No banners planned yet. Pick one from the forecast with Add to plan.";
+    td.textContent = "No upcoming banners in the forecast.";
     tr.appendChild(td);
     body.appendChild(tr);
   }
-
-  if (typeof insertForecastRows === "function") insertForecastRows(body);
 }
 
 function renderArchive() {

@@ -1,8 +1,7 @@
 /**
- * Upcoming Global banners, shown inside the planning table: portraits in
- * each planner row that matches a forecast banner, and a faded row with an
- * "Add to plan" button for each banner not planned yet. Matched rows follow
- * the forecast's dates.
+ * Upcoming Global banners, which are the planning table's rows: every
+ * forecast banner gets a row with its portraits, and the rows follow the
+ * forecast's dates and line-up (see syncPlanWithForecast).
  *
  * The list starts from the bundled BANNER_DATA (see banner-data.js), so it
  * always renders, even offline. SchaleDB is then asked which banners are live
@@ -139,70 +138,45 @@ function forecastDetails(row) {
 }
 
 /**
- * A forecast banner nobody has planned yet, as a faded row in the planning
- * table. It has no units, so it changes none of the sums until it is added.
+ * Keeps the planning table equal to the forecast, so the plan never holds a
+ * guess next to the real banner:
+ *  - every upcoming banner gets a row, with no units until you type some;
+ *  - a matched row takes the forecast's dates whenever they move;
+ *  - a row of your own that matches no banner is dropped when it falls inside
+ *    the forecast and has no units. With units it stays, so nothing you
+ *    planned disappears silently; the table marks it as not in the forecast.
+ * Saves only when something changed.
  */
-function forecastRow(banner) {
-  const tr = document.createElement("tr");
-  tr.className = "forecast";
-  tr.dataset.start = banner.start;
-  tr.appendChild(whenCell(banner));
-
-  const roster = document.createElement("td");
-  roster.className = "col-banner";
-  roster.appendChild(bannerDetails(banner));
-  tr.appendChild(roster);
-
-  const units = document.createElement("td");
-  units.colSpan = 7;
-  const add = document.createElement("button");
-  add.className = "small primary";
-  add.textContent = "Add to plan";
-  add.addEventListener("click", () => {
-    state.planning.push(
-      Object.assign(blankRow(), { start: banner.start, end: banner.end, banner: bannerLabel(banner) })
-    );
-    state.planning = sortRows(state.planning);
-    commit("Banner added to the planner.");
-  });
-  units.appendChild(add);
-  tr.appendChild(units);
-  return tr;
-}
-
-/**
- * Dates are not typed in any more, so a planner row that matches a forecast
- * banner takes the forecast's dates whenever they differ. Saves only when a
- * row actually moved.
- */
-function followForecastDates() {
-  let moved = false;
-  banners.forEach((banner) => {
-    const row = findPlannedRow(banner);
-    if (!row || !state.planning.includes(row)) return;
-    if (row.start === banner.start && row.end === banner.end) return;
-    Object.assign(row, { start: banner.start, end: banner.end });
-    moved = true;
-  });
-  if (!moved) return;
-  state.planning = sortRows(state.planning);
-  saveState(state);
-}
-
-/**
- * Called at the end of renderPlanning(): slots each upcoming banner that is
- * not in the plan yet in among the planner rows, by start date.
- */
-function insertForecastRows(body) {
+function syncPlanWithForecast() {
   const now = today();
-  banners
-    .filter((banner) => parseDate(banner.end) > now && !findPlannedRow(banner))
-    .forEach((banner) => {
-      const before = Array.from(body.children).find(
-        (tr) => tr.dataset.start !== undefined && (!tr.dataset.start || tr.dataset.start > banner.start)
-      );
-      body.insertBefore(forecastRow(banner), before || null);
-    });
+  const upcoming = banners.filter((banner) => parseDate(banner.end) > now);
+  if (upcoming.length === 0) return;
+  let changed = false;
+  const matched = new Set();
+
+  upcoming.forEach((banner) => {
+    let row = findPlannedRow(banner);
+    if (row && !state.planning.includes(row)) return; // already archived
+    if (!row) {
+      row = Object.assign(blankRow(), { banner: bannerLabel(banner) });
+      state.planning.push(row);
+      changed = true;
+    }
+    matched.add(row);
+    if (row.start !== banner.start || row.end !== banner.end) {
+      Object.assign(row, { start: banner.start, end: banner.end });
+      changed = true;
+    }
+  });
+
+  const lastEnd = upcoming.reduce((last, banner) => (banner.end > last ? banner.end : last), "");
+  const kept = state.planning.filter(
+    (row) => matched.has(row) || row.units > 0 || (row.start && row.start > lastEnd)
+  );
+  if (kept.length !== state.planning.length) changed = true;
+  if (!changed) return;
+  state.planning = sortRows(kept);
+  saveState(state);
 }
 
 /** Called from render() in planner-ui.js: the line on where the forecast comes from. */
@@ -295,12 +269,12 @@ function loadLiveBanners() {
       liveStatus = "SchaleDB could not be reached, so the live banner is not confirmed.";
     })
     .finally(() => {
-      followForecastDates();
+      syncPlanWithForecast();
       render();
     });
 }
 
 // planner-ui.js rendered before this file loaded, so draw again with the forecast.
-followForecastDates();
+syncPlanWithForecast();
 render();
 loadLiveBanners();
