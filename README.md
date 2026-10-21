@@ -55,7 +55,8 @@ copies a banner into the planning table.
 - Portraits are loaded from SchaleDB by student id; a missing one shows the
   student's initial instead.
 - A card says *In planner* when a planning row already names its first student
-  within a week of its start date.
+  within a week of its start date. If that row's dates differ from the forecast,
+  the button offers to move the row onto the forecast dates instead.
 
 ## Data and backups
 Everything is saved to browser localStorage, so the planner works offline and

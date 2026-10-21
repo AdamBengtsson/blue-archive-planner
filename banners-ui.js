@@ -29,23 +29,36 @@ function bannerLabel(banner) {
 }
 
 /**
+ * How far a hand-typed planner row is from this banner, in days, or null when
+ * it is not a candidate: the row must name the banner's first student and
+ * start within a week of it, so "Kisaki & Shun Swimsuits" counts for the
+ * Kisaki banner even when the forecast has shifted it by a week.
+ */
+function rowDistance(banner, row) {
+  const rowStart = parseDate(row.start);
+  if (!rowStart || !String(row.banner).toLowerCase().includes(firstName(banner))) return null;
+  const distance = Math.abs(daysBetween(parseDate(banner.start), rowStart));
+  return distance <= 7 ? distance : null;
+}
+
+const firstName = (banner) => baseName(banner.students[0].name).toLowerCase();
+
+/**
  * The planner row for this banner, if there is one. Rows added from here match
- * exactly. Rows typed by hand match on the first student's name within a week
- * of the start date, so "Kisaki & Shun Swimsuits" counts for the Kisaki banner
- * even when the forecast has shifted it by a week.
+ * on their label. A hand-typed row goes to the nearest banner it could be, so
+ * "Makoto & Satsuki Swimsuits" is not also claimed by the plain Makoto banner
+ * a week earlier.
  */
 function findPlannedRow(banner) {
   const label = bannerLabel(banner);
-  const first = baseName(banner.students[0].name).toLowerCase();
-  const start = parseDate(banner.start);
   return state.planning.concat(state.archive).find((row) => {
     if (row.banner === label) return true;
-    const rowStart = parseDate(row.start);
-    return (
-      rowStart &&
-      Math.abs(daysBetween(start, rowStart)) <= 7 &&
-      String(row.banner).toLowerCase().includes(first)
-    );
+    const distance = rowDistance(banner, row);
+    if (distance === null) return false;
+    return banners.every((other) => {
+      const otherDistance = other === banner ? null : rowDistance(other, row);
+      return otherDistance === null || otherDistance > distance;
+    });
   });
 }
 
@@ -142,10 +155,18 @@ function bannerCard(banner) {
   const add = document.createElement("button");
   add.className = "add-banner";
   const planned = findPlannedRow(banner);
-  if (planned) {
-    // Say so when the planner has it on a different date than the forecast.
-    add.textContent =
-      planned.start === banner.start ? "In planner" : `In planner · from ${planned.start}`;
+  const moved = planned && (planned.start !== banner.start || planned.end !== banner.end);
+  if (moved && state.planning.includes(planned)) {
+    // Hand-typed dates are guesses; offer to move the row onto the forecast.
+    add.textContent = `Move planner row to ${describeDates(banner)}`;
+    add.title = `The planner has this banner from ${planned.start} to ${planned.end}.`;
+    add.addEventListener("click", () => {
+      Object.assign(planned, { start: banner.start, end: banner.end });
+      state.planning = sortRows(state.planning);
+      commit("Planner row moved to the forecast dates.");
+    });
+  } else if (planned) {
+    add.textContent = "In planner";
     add.disabled = true;
   } else {
     add.textContent = "Add to planner";
