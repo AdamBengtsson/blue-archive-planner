@@ -163,6 +163,11 @@ const ARCHIVE_FIXES = [
     set: { units: 1, note: "1 unit (Subaru), probably" }
   },
   {
+    // Adam was missing a limited unit and pulled here, not on the banners around it.
+    match: { start: "2026-04-21", end: "2026-04-28", banner: "Idol Rerun" },
+    set: { units: 1 }
+  },
+  {
     after: { start: "2026-04-28", end: "2026-05-12", banner: "Hyakkiyako Dress" },
     add: {
       start: "2026-05-05",
