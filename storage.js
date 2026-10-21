@@ -10,20 +10,42 @@ const STORAGE_KEY = "blueArchivePlanner.state.v1";
 
 /** A fresh copy of the seed data, so edits never mutate the seed itself. */
 function seedState() {
-  return JSON.parse(JSON.stringify(SEED_DATA));
+  return normaliseState(SEED_DATA);
+}
+
+/**
+ * Gem counts used to be typed into an "Actual gems" column on banner rows.
+ * They now live in their own dated log, so each row's count moves into the
+ * log under that row's End date, and the field is dropped from the row.
+ */
+function migrateActualGems(rows, gemLog) {
+  rows.forEach((row) => {
+    if (typeof row.actualGems === "number" && row.end) {
+      if (!gemLog.some((entry) => entry.date === row.end)) {
+        gemLog.push({ date: row.end, gems: row.actualGems });
+      }
+    }
+    delete row.actualGems;
+  });
 }
 
 /** Fills in anything a saved state is missing, so old saves keep working. */
 function normaliseState(state) {
-  const base = seedState();
+  const base = SEED_DATA;
   const settings = Object.assign({}, base.settings, state.settings || {});
   // Income used to be one typed-in number; it is now estimated from gem logs.
   delete settings.monthlyIncome;
-  return {
-    settings,
-    planning: Array.isArray(state.planning) ? state.planning : base.planning,
-    archive: Array.isArray(state.archive) ? state.archive : base.archive
-  };
+  const copy = (rows) => JSON.parse(JSON.stringify(rows));
+  const planning = copy(Array.isArray(state.planning) ? state.planning : base.planning);
+  const archive = copy(Array.isArray(state.archive) ? state.archive : base.archive);
+  const gemLog = copy(Array.isArray(state.gemLog) ? state.gemLog : []);
+  migrateActualGems(archive.concat(planning), gemLog);
+  return { settings, planning, archive, gemLog: sortGemLog(gemLog) };
+}
+
+/** Oldest first, the order every gem log calculation expects. */
+function sortGemLog(gemLog) {
+  return gemLog.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
 }
 
 /** Reads the saved state, falling back to the seed on first run or bad data. */

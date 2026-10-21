@@ -361,7 +361,7 @@ tr.past td {
   opacity: 0.45;
 }
 
-tr.anchor td {
+tr.anchor td:first-child {
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
@@ -432,3 +432,26 @@ details[open] summary {
 .hidden {
   display: none;
 }
+
+/* Gem log entry --------------------------------------------------------- */
+
+.log-form {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.log-form label {
+  margin-right: 4px;
+}
+
+.log-form input[type="number"] { width: 140px; }
+.log-form input[type="date"] { width: 150px; }
+
+/* A short table; full width would push the columns far apart. */
+#gemLogSection table { width: auto; min-width: 360px; }
+#gemLogSection td, #gemLogSection th { padding-right: 24px; }
