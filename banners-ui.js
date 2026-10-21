@@ -99,10 +99,19 @@ function studentTile(student) {
   return link;
 }
 
-/** The portraits and badge shown in a planning row's Banner column. */
+/** Predicted or Confirmed, shown under a planning row's dates. */
+function statusBadge(status) {
+  const badge = document.createElement("span");
+  badge.className = `badge ${status}`;
+  badge.textContent = status === "confirmed" ? "Confirmed" : "Predicted";
+  return badge;
+}
+
+/** The portraits, title and note shown in a planning row's Banner column. */
 function bannerDetails(banner) {
   const details = document.createElement("div");
   details.className = "banner-details";
+  details.dataset.status = banner.status;
   if (banner.students.some((student) => student.tag)) details.dataset.limited = "true";
 
   const roster = document.createElement("div");
@@ -112,10 +121,6 @@ function bannerDetails(banner) {
 
   const meta = document.createElement("div");
   meta.className = "banner-meta";
-  const badge = document.createElement("span");
-  badge.className = `badge ${banner.status}`;
-  badge.textContent = banner.status === "confirmed" ? "Confirmed" : "Predicted";
-  meta.appendChild(badge);
   if (banner.title) {
     const title = document.createElement("span");
     title.className = "banner-title";
@@ -128,7 +133,7 @@ function bannerDetails(banner) {
     note.textContent = banner.note;
     meta.appendChild(note);
   }
-  details.appendChild(meta);
+  if (meta.childElementCount) details.appendChild(meta);
   return details;
 }
 

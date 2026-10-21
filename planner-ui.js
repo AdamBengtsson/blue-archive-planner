@@ -173,12 +173,14 @@ function renderPlanning(estimate) {
     if (item.isPast) tr.classList.add("past");
     if (item.isAnchorRow) tr.classList.add("anchor");
 
-    tr.appendChild(whenCell(row));
     // Portraits from the forecast once banners-ui.js has loaded; otherwise
     // the name the row was saved with.
+    const details = typeof forecastDetails === "function" ? forecastDetails(row) : null;
+    const when = whenCell(row);
+    if (details) when.appendChild(statusBadge(details.dataset.status));
+    tr.appendChild(when);
     const bannerCell = document.createElement("td");
     bannerCell.className = "col-banner";
-    const details = typeof forecastDetails === "function" ? forecastDetails(row) : null;
     if (details) {
       bannerCell.appendChild(details);
     } else {

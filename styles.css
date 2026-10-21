@@ -219,6 +219,16 @@ button.link:hover {
   white-space: nowrap;
 }
 
+/* Under the dates, Predicted lines up with the text above it. */
+.col-when .badge {
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.col-when .badge.predicted {
+  padding-left: 0;
+}
+
 .badge.confirmed {
   background: rgba(127, 182, 255, 0.16);
   border-color: rgba(127, 182, 255, 0.6);
@@ -226,15 +236,16 @@ button.link:hover {
   font-weight: bold;
 }
 
+/* One line of portraits per banner; five fit next to the other columns. */
 .roster {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
 }
 
 .student {
   position: relative;
-  width: 64px;
+  width: 72px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -244,8 +255,8 @@ button.link:hover {
 }
 
 .portrait {
-  width: 64px;
-  height: 72px;
+  width: 72px;
+  height: 82px;
   border-radius: 8px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.06);
@@ -268,7 +279,7 @@ button.link:hover {
 }
 
 .student-name {
-  font-size: 0.66rem;
+  font-size: 0.7rem;
   line-height: 1.2;
   text-align: center;
 }
