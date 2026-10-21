@@ -85,6 +85,48 @@ const ARCHIVE_FIXES = [
   {
     match: { start: "2025-07-13", end: "2025-07-27", banner: "Camping" },
     set: { start: "2025-07-22", end: "2025-08-05", banner: "Camping, Himari & Eimi", note: "CALCULATION" }
+  },
+
+  // August to October 2025
+  {
+    match: { start: "2025-07-27", end: "2025-08-10", banner: "Casual & Part-timers" },
+    set: { start: "2025-08-05", end: "2025-08-19" }
+  },
+  {
+    match: { start: "2025-08-10", end: "2025-08-17", banner: "Christmas Knights" },
+    remove: true
+  },
+  {
+    match: { start: "2025-08-17", end: "2025-08-24", banner: "*Limited* New year" },
+    set: { start: "2025-08-19", end: "2025-08-26", banner: "*Limited* New year & Christmas Knights" }
+  },
+  {
+    match: { start: "2025-08-24", end: "2025-09-08", banner: "Sports club" },
+    set: { start: "2025-08-26", end: "2025-09-09" }
+  },
+  {
+    match: { start: "2025-08-16", end: "2025-08-23", banner: "PS68" },
+    remove: true
+  },
+  {
+    match: { start: "2025-08-09", end: "2025-08-16", banner: "Saori" },
+    set: { start: "2025-09-09", end: "2025-09-16", banner: "Saori & PS68 (Dress)" }
+  },
+  {
+    match: { start: "2025-08-23", end: "2025-08-30", banner: "Shanghaijing" },
+    set: { start: "2025-09-16", end: "2025-09-23" }
+  },
+  {
+    match: { start: "2025-08-30", end: "2025-09-13", banner: "Highlanders" },
+    set: { start: "2025-09-23", end: "2025-10-07" }
+  },
+  {
+    match: { start: "2025-09-13", end: "2025-09-20", banner: "Arius" },
+    set: { start: "2025-10-07", end: "2025-10-14" }
+  },
+  {
+    match: { start: "2025-09-20", end: "2025-09-27", banner: "Guides" },
+    set: { start: "2025-10-14", end: "2025-10-21" }
   }
 ];
 
