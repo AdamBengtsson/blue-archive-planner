@@ -42,6 +42,49 @@ const ARCHIVE_FIXES = [
   {
     match: { start: "2025-04-25", end: "2025-05-08", banner: "*Limited* Pandaemonium society" },
     set: { start: "2025-05-13", end: "2025-05-27" }
+  },
+
+  // May to July 2025. Global ran some of the banners expected from JP as
+  // one bigger banner, so those pairs become one row.
+  {
+    match: { start: "2025-05-08", end: "2025-05-15", banner: "Kasumi & Ichika" },
+    set: { start: "2025-05-27", end: "2025-06-03" }
+  },
+  {
+    match: { start: "2025-05-15", end: "2025-05-22", banner: "Cheerleaders" },
+    remove: true
+  },
+  {
+    match: { start: "2025-05-22", end: "2025-05-29", banner: "*Limited* Sportswear" },
+    set: { start: "2025-06-03", end: "2025-06-10", banner: "*Limited* Sportswear & Cheerleaders" }
+  },
+  {
+    match: { start: "2025-05-29", end: "2025-06-13", banner: "Pajama" },
+    set: { start: "2025-06-10", end: "2025-06-24" }
+  },
+  {
+    match: { start: "2025-06-13", end: "2025-06-20", banner: "*Limited* New year" },
+    set: { start: "2025-06-24", end: "2025-07-01" }
+  },
+  {
+    match: { start: "2025-06-20", end: "2025-06-23", banner: "Game Development maid" },
+    set: { start: "2025-07-01", end: "2025-07-08" }
+  },
+  {
+    match: { start: "2025-06-23", end: "2025-06-30", banner: "*Limited* Anniversary part 1" },
+    set: { start: "2025-07-08", end: "2025-07-15" }
+  },
+  {
+    match: { start: "2025-06-30", end: "2025-07-06", banner: "*Limited* Anniversary part 2" },
+    set: { start: "2025-07-15", end: "2025-07-22" }
+  },
+  {
+    match: { start: "2025-07-06", end: "2025-07-13", banner: "Himari & Eimi" },
+    remove: true
+  },
+  {
+    match: { start: "2025-07-13", end: "2025-07-27", banner: "Camping" },
+    set: { start: "2025-07-22", end: "2025-08-05", banner: "Camping, Himari & Eimi", note: "CALCULATION" }
   }
 ];
 
