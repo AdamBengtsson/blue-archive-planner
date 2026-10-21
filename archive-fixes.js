@@ -206,6 +206,352 @@ const ARCHIVE_FIXES = [
   {
     match: { start: "2026-08-04", end: "2026-08-18", banner: "Rerun" },
     set: { banner: "*Limited* School Uniform rerun (Seia, Asuna)" }
+  },
+
+  // November 2023 to September 2024, then the banners that ran during
+  // Adam's break (September 2024 to March 2025)
+  {
+    match: { start: "2023-11-22", end: "2023-11-29", banner: "Summertime Trinity" },
+    set: { start: "2023-11-21", end: "2023-11-28" }
+  },
+  {
+    match: { start: "2023-11-29", end: "2023-12-13", banner: "China" },
+    set: { start: "2023-11-28", end: "2023-12-12" }
+  },
+  {
+    match: { start: "2023-12-13", end: "2023-12-20", banner: "Russia & Buns 1+2" },
+    set: { start: "2023-12-12", end: "2023-12-19" }
+  },
+  {
+    match: { start: "2023-12-20", end: "2023-12-27", banner: "Buns 3+4" },
+    set: { start: "2023-12-19", end: "2023-12-26" }
+  },
+  {
+    match: { start: "2023-12-27", end: "2024-01-10", banner: "SummerSRT" },
+    set: { start: "2023-12-26", end: "2024-01-09" }
+  },
+  {
+    match: { start: "2024-01-10", end: "2024-01-17", banner: "SummerGehenna" },
+    set: { start: "2024-01-09", end: "2024-01-16" }
+  },
+  {
+    match: { start: "2024-01-17", end: "2024-01-24", banner: "Nothing?" },
+    set: { start: "2024-01-16", end: "2024-01-23", banner: "China: Shun (Kid), Saya (Casual), Kokona & Kirino" }
+  },
+  {
+    match: { start: "2024-01-24", end: "2024-01-31", banner: "SummerAbydos + Wakamo" },
+    set: { start: "2024-01-23", end: "2024-01-30" }
+  },
+  {
+    match: { start: "2024-01-31", end: "2024-02-07", banner: "SummerTrinity FREE PULLS" },
+    set: { start: "2024-01-30", end: "2024-02-08" }
+  },
+  {
+    match: { start: "2024-02-07", end: "2024-02-14", banner: "SummerTrinity & Wakamo %UP" },
+    set: { start: "2024-02-08", end: "2024-02-15" }
+  },
+  {
+    match: { start: "2024-02-14", end: "2024-02-21", banner: "China (changed to Sumire&Eimi)" },
+    set: { start: "2024-02-15", end: "2024-02-20", banner: "Sumire & Eimi" }
+  },
+  {
+    match: { start: "2024-02-21", end: "2024-02-28", banner: "SummerHyakidakikado" },
+    set: { start: "2024-02-20", end: "2024-02-27" }
+  },
+  {
+    match: { start: "2024-02-28", end: "2024-03-13", banner: "Meru" },
+    set: { start: "2024-02-27", end: "2024-03-12" }
+  },
+  {
+    match: { start: "2024-03-13", end: "2024-03-22", banner: "Cheerleaders" },
+    set: { start: "2024-03-12", end: "2024-03-21" }
+  },
+  {
+    match: { start: "2024-03-22", end: "2024-04-03", banner: "Gym" },
+    set: { start: "2024-03-21", end: "2024-04-02" }
+  },
+  {
+    match: { start: "2024-04-04", end: "2024-04-14", banner: "Ichika & Kasumi" },
+    set: { start: "2024-04-02", end: "2024-04-16" }
+  },
+  {
+    match: { start: "2024-04-17", end: "2024-04-24", banner: "Red Winter Hot Springs" },
+    set: { start: "2024-04-16", end: "2024-04-23" }
+  },
+  {
+    match: { start: "2024-04-24", end: "2024-04-30", banner: "Shigure & Megu" },
+    set: { start: "2024-04-23" }
+  },
+  {
+    match: { start: "2024-04-30", end: "2024-05-15", banner: "Railgun Collab!" },
+    set: { end: "2024-05-14" }
+  },
+  {
+    match: { start: "2024-05-15", end: "2024-05-22", banner: "Yukari" },
+    set: { start: "2024-05-14", end: "2024-05-21" }
+  },
+  {
+    match: { start: "2024-05-22", end: "2024-05-29", banner: "Arius" },
+    set: { start: "2024-05-21", end: "2024-05-28" }
+  },
+  {
+    match: { start: "2024-05-29", end: "2024-06-14", banner: "Renge & Kikyou" },
+    set: { start: "2024-05-28", end: "2024-06-11" }
+  },
+  {
+    match: { start: "2024-06-14", end: "2024-06-20", banner: "S.Eimi & Himari" },
+    set: { start: "2024-06-11", end: "2024-06-18" }
+  },
+  {
+    match: { start: "2024-06-20", end: "2024-06-27", banner: "Sumire & Eimi" },
+    remove: true
+  },
+  {
+    match: { start: "2024-06-27", end: "2024-07-04", banner: "C&C (Bunnies)" },
+    set: { start: "2024-06-18", end: "2024-06-25" }
+  },
+  {
+    match: { start: "2024-07-04", end: "2024-07-10", banner: "Veritas (Camping)" },
+    set: { start: "2024-06-25", end: "2024-07-09" }
+  },
+  {
+    match: { start: "2024-07-10", end: "2024-07-17", banner: "Newyear rerun" },
+    set: { start: "2024-07-09", end: "2024-07-16" }
+  },
+  {
+    match: { start: "2024-07-17", end: "2024-07-24", banner: "Arius " },
+    set: { start: "2024-07-16", end: "2024-07-23" }
+  },
+  {
+    match: { start: "2024-08-01", end: "2024-08-08", banner: "Gehenna FES" },
+    set: { start: "2024-07-23", end: "2024-07-30", banner: "*Limited* Gehenna: Makoto & Ako (Dress)" }
+  },
+  {
+    match: { start: "2024-08-09", end: "2024-08-18", banner: "Gehenna FES part 2" },
+    set: { start: "2024-07-30", end: "2024-08-06", banner: "Gehenna FES: Hina (Dress) & Hoshino (Swimsuit)" }
+  },
+  {
+    match: { start: "2024-08-18", end: "2024-08-25", banner: "Knights rerun (Christmas)" },
+    set: { start: "2024-08-06", end: "2024-08-13" }
+  },
+  {
+    match: { start: "2024-08-25", end: "2024-09-01", banner: "Chihiro & Mine" },
+    set: { start: "2024-08-13", end: "2024-08-20" }
+  },
+  {
+    match: { start: "2024-09-01", end: "2024-09-14", banner: "Problem solver (Dress)" },
+    set: { start: "2024-08-20", end: "2024-09-03" }
+  },
+  {
+    match: { start: "2024-09-14", end: "2024-09-28", banner: "Food Gehenna (New Year)" },
+    set: { start: "2024-09-03", end: "2024-09-17" }
+  },
+  {
+    match: { start: "2024-09-28", end: "2024-10-05", banner: "Ui & Hinata" },
+    set: { start: "2024-09-17", end: "2024-09-24" }
+  },
+  {
+    // A spreadsheet marker for Adam's break from the game; the real banners follow.
+    match: { start: null, end: null, banner: "~~" },
+    remove: true
+  },
+  {
+    after: { start: "2024-09-17", end: "2024-09-24", banner: "Ui & Hinata" },
+    add: {
+      start: "2024-09-24",
+      end: "2024-10-08",
+      banner: "Tsubaki (Guide), Umika, Mimori, Izuna & Shizuko",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2024-09-24", end: "2024-10-08", banner: "Tsubaki (Guide), Umika, Mimori, Izuna & Shizuko" },
+    add: {
+      start: "2024-10-08",
+      end: "2024-10-15",
+      banner: "Kazusa, Reisa, Natsu & Mari",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2024-10-08", end: "2024-10-15", banner: "Kazusa, Reisa, Natsu & Mari" },
+    add: {
+      start: "2024-10-15",
+      end: "2024-10-22",
+      banner: "*Limited* Toki, Nagisa & Koyuki",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2024-10-15", end: "2024-10-22", banner: "*Limited* Toki, Nagisa & Koyuki" },
+    add: {
+      start: "2024-10-22",
+      end: "2024-11-05",
+      banner: "*Limited* Kazusa (Band), Yoshimi (Band) & Ako",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2024-10-22", end: "2024-11-05", banner: "*Limited* Kazusa (Band), Yoshimi (Band) & Ako" },
+    add: {
+      start: "2024-11-05",
+      end: "2024-11-12",
+      banner: "Kirara, Kaede, Tsukuyo & Kaho",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2024-11-05", end: "2024-11-12", banner: "Kirara, Kaede, Tsukuyo & Kaho" },
+    add: {
+      start: "2024-11-12",
+      end: "2024-11-19",
+      banner: "Rumi, Mina, Shun & Kokona",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2024-11-12", end: "2024-11-19", banner: "Rumi, Mina, Shun & Kokona" },
+    add: {
+      start: "2024-11-19",
+      end: "2024-12-03",
+      banner: "Momoi (Maid), Midori (Maid), Arisu (Maid) & Toki (Bunny Girl)",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2024-11-19", end: "2024-12-03", banner: "Momoi (Maid), Midori (Maid), Arisu (Maid) & Toki (Bunny Girl)" },
+    add: {
+      start: "2024-12-03",
+      end: "2024-12-14",
+      banner: "Serika (Swimsuit), Nonomi (Swimsuit), Wakamo (Swimsuit) & Shiroko (Swimsuit)",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2024-12-03", end: "2024-12-14", banner: "Serika (Swimsuit), Nonomi (Swimsuit), Wakamo (Swimsuit) & Shiroko (Swimsuit)" },
+    add: {
+      start: "2024-12-14",
+      end: "2024-12-24",
+      banner: "*Limited* Izuna (Swimsuit), Chise (Swimsuit) & Mimori (Swimsuit)",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2024-12-14", end: "2024-12-24", banner: "*Limited* Izuna (Swimsuit), Chise (Swimsuit) & Mimori (Swimsuit)" },
+    add: {
+      start: "2024-12-24",
+      end: "2025-01-07",
+      banner: "Kanna (Swimsuit) & Fubuki (Swimsuit)",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2024-12-24", end: "2025-01-07", banner: "Kanna (Swimsuit) & Fubuki (Swimsuit)" },
+    add: {
+      start: "2025-01-07",
+      end: "2025-01-16",
+      banner: "Moe (Swimsuit), Miyako (Swimsuit) & Saki (Swimsuit)",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2025-01-07", end: "2025-01-16", banner: "Moe (Swimsuit), Miyako (Swimsuit) & Saki (Swimsuit)" },
+    add: {
+      start: "2025-01-16",
+      end: "2025-01-23",
+      banner: "Hina & Hoshino",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2025-01-16", end: "2025-01-23", banner: "Hina & Hoshino" },
+    add: {
+      start: "2025-01-23",
+      end: "2025-01-30",
+      banner: "FEST: Hoshino (Battle), Shiroko＊Terror & Mika",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2025-01-23", end: "2025-01-30", banner: "FEST: Hoshino (Battle), Shiroko＊Terror & Mika" },
+    add: {
+      start: "2025-01-30",
+      end: "2025-02-08",
+      banner: "*Limited* Saori (Swimsuit) & Hiyori (Swimsuit)",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2025-01-30", end: "2025-02-08", banner: "*Limited* Saori (Swimsuit) & Hiyori (Swimsuit)" },
+    add: {
+      start: "2025-02-08",
+      end: "2025-02-18",
+      banner: "Meru, Momiji, Cherino, Marina, Minori & Shigure (Hot Spring)",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2025-02-08", end: "2025-02-18", banner: "Meru, Momiji, Cherino, Marina, Minori & Shigure (Hot Spring)" },
+    add: {
+      start: "2025-02-18",
+      end: "2025-03-04",
+      banner: "Marina (Qipao) & Tomoe (Qipao)",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2025-02-18", end: "2025-03-04", banner: "Marina (Qipao) & Tomoe (Qipao)" },
+    add: {
+      start: "2025-03-04",
+      end: "2025-03-11",
+      banner: "*Limited* Ui (Swimsuit), Hinata (Swimsuit), Iroha & Miyu",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
+  },
+  {
+    after: { start: "2025-03-04", end: "2025-03-11", banner: "*Limited* Ui (Swimsuit), Hinata (Swimsuit), Iroha & Miyu" },
+    add: {
+      start: "2025-03-11",
+      end: "2025-03-18",
+      banner: "*Limited* Neru (Bunny Girl), Karin (Bunny Girl), Asuna (Bunny Girl) & Akane (Bunny Girl)",
+      units: null,
+      unitCost: null,
+      note: "Break, not tracked"
+    }
   }
 ];
 
