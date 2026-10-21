@@ -14,7 +14,8 @@
  * Units and notes are left alone, unless a fix sets units Adam has
  * confirmed. Gem counts typed on a banner row were moved
  * into the gem log under that row's End date, so when a fix moves the End
- * date, a count logged on the old End date moves with it.
+ * date, a count logged on the old End date moves with it (unless the fix
+ * says `keepGemLog`, for a count that belongs to another row ending that day).
  */
 const ARCHIVE_FIXES = [
   // April 2025
@@ -142,8 +143,10 @@ const ARCHIVE_FIXES = [
     remove: true
   },
   {
+    // The count logged on 03-03 belongs to the next Wildhunt row, so it stays.
     match: { start: "2026-02-17", end: "2026-03-03", banner: "Wildhunt" },
-    set: { start: "2026-02-10", end: "2026-02-24" }
+    set: { start: "2026-02-10", end: "2026-02-24" },
+    keepGemLog: true
   },
   {
     match: { start: "2026-03-02", end: "2026-03-03", banner: "Wildhunt" },
@@ -586,7 +589,7 @@ function applyArchiveFixes(archive, gemLog) {
     rows = rows.map((row) => (isMatch(row) ? Object.assign({}, row, fix.set) : row));
     const from = fix.match.end;
     const to = fix.set.end;
-    if (to && to !== from && !log.some((entry) => entry.date === to)) {
+    if (!fix.keepGemLog && to && to !== from && !log.some((entry) => entry.date === to)) {
       log = log.map((entry) => (entry.date === from ? Object.assign({}, entry, { date: to }) : entry));
     }
   });
