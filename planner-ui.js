@@ -2,8 +2,9 @@
  * Everything that touches the page: rendering the tables, reading the inputs,
  * and saving after each change.
  *
- * The state shape is { settings, planning, archive } — see seed-data.js.
- * Planning rows are the only editable ones; archive rows are read-only.
+ * The state shape is { settings, planning, archive, gemLog } — see
+ * seed-data.js and storage.js. Planning rows are the only editable banners;
+ * archive rows are read-only. The gem log is edited in its own section.
  */
 
 let state = loadState();
@@ -13,7 +14,7 @@ const gems = (n) => (typeof n === "number" ? Math.round(n).toLocaleString("en-US
 
 /** An empty banner row, used by "Add banner". */
 function blankRow() {
-  return { start: "", end: "", banner: "", units: null, unitCost: null, actualGems: null, note: "" };
+  return { start: "", end: "", banner: "", units: null, unitCost: null, note: "" };
 }
 
 /** Reads a numeric input, treating an empty field as "not set" rather than 0. */
@@ -41,14 +42,19 @@ function flash(message) {
   }, 2500);
 }
 
-/** The income estimate, worked out from every row with a gem log, archive included. */
+/** The income estimate, worked out from the gem log and every banner, archive included. */
 function currentEstimate() {
-  return estimateIncome(state.archive.concat(state.planning), state.settings);
+  return estimateIncome(state.archive.concat(state.planning), state.gemLog, state.settings);
+}
+
+/** Adds a gem count to the log, replacing any count already logged that day. */
+function logGems(date, gems) {
+  state.gemLog = sortGemLog(state.gemLog.filter((entry) => entry.date !== date).concat({ date, gems }));
 }
 
 /* Rendering ------------------------------------------------------------ */
 
-/** Builds one editable input cell bound to a field on a planning row. */
+/** Builds one editable input cell bound to a field on a planning row or gem log entry. */
 function inputCell(row, field, type, className) {
   const td = document.createElement("td");
   td.className = className;
@@ -89,7 +95,7 @@ function calcCell(text, className) {
 function renderPlanning(estimate) {
   const body = el("planningBody");
   body.textContent = "";
-  const { rows } = computePlan(state.planning, state.settings, estimate.perDay);
+  const { rows } = computePlan(state.planning, state.gemLog, state.settings, estimate.perDay);
 
   rows.forEach((item, index) => {
     const row = item.row;
@@ -112,7 +118,6 @@ function renderPlanning(estimate) {
         item.expectedAfter !== null && item.expectedAfter < 0 ? "negative" : ""
       )
     );
-    tr.appendChild(inputCell(row, "actualGems", "number", "col-gems"));
     tr.appendChild(
       calcCell(
         item.lowestAhead === null ? "" : gems(item.lowestAhead),
@@ -141,7 +146,7 @@ function renderPlanning(estimate) {
   if (rows.length === 0) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
-    td.colSpan = 12;
+    td.colSpan = 10;
     td.className = "empty";
     td.textContent = "No banners planned yet. Add one to get started.";
     tr.appendChild(td);
@@ -160,7 +165,7 @@ function renderArchive() {
     .reverse()
     .forEach((row) => {
       const tr = document.createElement("tr");
-      [row.start, row.end, row.banner, row.units ?? "", gems(row.actualGems), row.note || ""].forEach(
+      [row.start, row.end, row.banner, row.units ?? "", row.note || ""].forEach(
         (value) => {
           const td = document.createElement("td");
           td.textContent = value === null || value === undefined ? "" : value;
@@ -169,6 +174,55 @@ function renderArchive() {
       );
       body.appendChild(tr);
     });
+}
+
+/** The gem log, newest first, with each count editable in place. */
+function renderGemLog() {
+  const body = el("gemLogBody");
+  body.textContent = "";
+  el("gemLogCount").textContent = state.gemLog.length;
+
+  // Sorted here rather than on edit, so a corrected date lands in place.
+  sortGemLog(state.gemLog)
+    .reverse()
+    .forEach((entry, i, newestFirst) => {
+      const tr = document.createElement("tr");
+      tr.appendChild(inputCell(entry, "date", "date", "col-date"));
+      tr.appendChild(inputCell(entry, "gems", "number", "col-gems"));
+
+      const previous = newestFirst[i + 1];
+      const change =
+        previous && typeof entry.gems === "number" && typeof previous.gems === "number"
+          ? entry.gems - previous.gems
+          : null;
+      tr.appendChild(
+        calcCell(change === null ? "" : (change > 0 ? "+" : "") + gems(change), change < 0 ? "negative" : "")
+      );
+
+      const actions = document.createElement("td");
+      const remove = document.createElement("button");
+      remove.className = "link";
+      remove.textContent = "✕";
+      remove.title = "Delete this entry";
+      remove.addEventListener("click", () => {
+        state.gemLog = state.gemLog.filter((other) => other !== entry);
+        commit("Gem count deleted.");
+      });
+      actions.appendChild(remove);
+      tr.appendChild(actions);
+
+      body.appendChild(tr);
+    });
+
+  if (state.gemLog.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 4;
+    td.className = "empty";
+    td.textContent = "Nothing logged yet. Log your gem count above.";
+    tr.appendChild(td);
+    body.appendChild(tr);
+  }
 }
 
 function renderIncome(estimate) {
@@ -198,20 +252,20 @@ function renderIncome(estimate) {
     const td = document.createElement("td");
     td.colSpan = 7;
     td.className = "empty";
-    td.textContent = "Log Actual gems on at least two banners to get an estimate.";
+    td.textContent = "Log your gem count at least twice to get an estimate.";
     tr.appendChild(td);
     body.appendChild(tr);
   }
 }
 
 function renderSummary(estimate) {
-  const { rows, anchor } = computePlan(state.planning, state.settings, estimate.perDay);
+  const { rows, anchor } = computePlan(state.planning, state.gemLog, state.settings, estimate.perDay);
   const future = rows.filter((item) => item.expectedAfter !== null);
 
   el("statAnchor").textContent = gems(anchor.gems);
   el("statAnchorHint").textContent = anchor.logged
-    ? `Logged on the banner ending ${formatDate(anchor.date)}.`
-    : "From your starting count — log an Actual gems entry to replace it.";
+    ? `Logged on ${formatDate(anchor.date)}.`
+    : "From your starting count — log your gems to replace it.";
 
   const lowest = future.length ? future[0].lowestAhead : null;
   const lowestCell = el("statLowest");
@@ -229,7 +283,7 @@ function renderSummary(estimate) {
   incomeCell.className = "value " + (estimate.perMonth !== null && estimate.perMonth < 0 ? "bad" : "");
   el("statIncomeHint").textContent =
     estimate.perMonth === null
-      ? "Log Actual gems on two banners to estimate it."
+      ? "Log your gems twice to estimate it."
       : `From your gem logs since ${formatDate(estimate.since)}.`;
 
   const units = future.reduce((sum, item) => sum + item.units, 0);
@@ -259,6 +313,7 @@ function render() {
   const estimate = currentEstimate();
   renderSummary(estimate);
   renderPlanning(estimate);
+  renderGemLog();
   renderIncome(estimate);
   renderArchive();
   if (typeof renderBanners === "function") renderBanners();
@@ -294,6 +349,23 @@ function bindSettings() {
       state.settings[id] = type === "number" ? numberOrNull(event.target.value) : event.target.value;
       commit("Settings saved.");
     });
+  });
+}
+
+function bindLogForm() {
+  el("logDate").value = formatDate(today());
+  el("logForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const count = numberOrNull(el("logGems").value);
+    const date = el("logDate").value || formatDate(today());
+    if (count === null) {
+      flash("Type your gem count first.");
+      return;
+    }
+    logGems(date, count);
+    el("logGems").value = "";
+    el("logDate").value = formatDate(today());
+    commit(`Logged ${gems(count)} gems.`);
   });
 }
 
@@ -347,6 +419,7 @@ function init() {
   archivePast(false); // keep Planning to current and future, like the old daily script
   renderSettings();
   bindSettings();
+  bindLogForm();
   bindToolbar();
   render();
   if (typeof startCloudSync === "function") startCloudSync(applyCloudState);

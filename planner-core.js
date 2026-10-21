@@ -5,8 +5,9 @@
  * Blue_Archive_Gem_Planner.xlsx, so the rules it encodes are the ones from the
  * spreadsheet's "How to use" tab:
  *
- *  - Your gem anchor is the most recent "Actual gems" you logged, falling back
- *    to the one-time starting count until you have logged anything.
+ *  - Your gem anchor is the most recent entry in the gem log, falling back
+ *    to the one-time starting count until you have logged anything. A banner
+ *    that had already started on the day you logged counts as paid for.
  *  - Income is not typed in. It is estimated from your own gem logs: how much
  *    the count rose between logs, plus what the banners in between cost (see
  *    estimateIncome). Each row then earns that daily rate for the days since
@@ -61,71 +62,72 @@ function daysBetween(from, to) {
 }
 
 /**
- * Finds the gem anchor: the last row (in list order) with a logged gem count.
- * Falls back to the one-time starting count from settings.
+ * Every gem count you have logged, oldest first, as { date, gems, logged }:
+ * the starting count from settings plus each gem log entry. Two counts on the
+ * same day keep the gem log one.
  */
-function findAnchor(rows, settings) {
-  for (let i = rows.length - 1; i >= 0; i -= 1) {
-    const row = rows[i];
-    if (typeof row.actualGems === "number" && row.end) {
-      return { gems: row.actualGems, date: parseDate(row.end), rowIndex: i, logged: true };
-    }
-  }
-  return {
-    gems: settings.startingGems,
-    date: parseDate(settings.startingDate),
-    rowIndex: -1,
-    logged: false
-  };
-}
-
-/**
- * Every gem count you have logged, oldest first, as { date, gems }: the
- * starting count from settings plus each row's Actual gems (planning and
- * archive). Two logs on the same day keep the later one in list order.
- */
-function collectGemLogs(rows, settings) {
+function collectGemLogs(gemLog, settings) {
   const byDate = new Map();
   const start = parseDate(settings.startingDate);
   if (start && typeof settings.startingGems === "number") {
-    byDate.set(formatDate(start), { date: start, gems: settings.startingGems });
+    byDate.set(formatDate(start), { date: start, gems: settings.startingGems, logged: false });
   }
-  rows.forEach((row) => {
-    const end = parseDate(row.end);
-    if (end && typeof row.actualGems === "number") {
-      byDate.set(formatDate(end), { date: end, gems: row.actualGems });
+  (gemLog || []).forEach((entry) => {
+    const date = parseDate(entry.date);
+    if (date && typeof entry.gems === "number") {
+      byDate.set(formatDate(date), { date, gems: entry.gems, logged: true });
     }
   });
   return Array.from(byDate.values()).sort((a, b) => a.date - b.date);
 }
 
 /**
+ * Finds the gem anchor: the latest logged count, or the one-time starting
+ * count from settings when nothing newer has been logged.
+ */
+function findAnchor(gemLog, settings) {
+  const logs = collectGemLogs(gemLog, settings);
+  const latest = logs[logs.length - 1];
+  if (latest) return latest;
+  return { gems: settings.startingGems, date: parseDate(settings.startingDate), logged: false };
+}
+
+/**
+ * The date a banner's spend is booked on: its start, since a banner that is
+ * live when you log is assumed to be pulled on already. Falls back to the end
+ * for rows with no start date.
+ */
+function spendDate(row) {
+  return parseDate(row.start) || parseDate(row.end);
+}
+
+/**
  * Estimates income from the gem logs.
  *
  * Between two logs, earned = (later count - earlier count) + spend, where
- * spend is the units on every banner that ended in between at the default
+ * spend is the units on every banner that started in between at the default
  * cost. The rate is the total earned over the total days, across the gaps
  * that end inside the lookback window, so a long gap weighs more than a short
  * one and one odd week cannot swing the whole plan.
  *
- * `rows` should be every banner you have, archive included, since that is
- * where most of the history lives. Returns the daily and monthly rate plus the
+ * `rows` should be every banner you have, archive included, so the spend
+ * between older logs is known. Returns the daily and monthly rate plus the
  * gaps used, so the UI can show its working; rates are null with fewer than
  * two logs.
  */
-function estimateIncome(rows, settings) {
-  const logs = collectGemLogs(rows, settings);
-  const ends = rows
-    .map((row) => ({ end: parseDate(row.end), units: typeof row.units === "number" ? row.units : 0 }))
-    .filter((item) => item.end && item.units > 0);
+function estimateIncome(rows, gemLog, settings) {
+  const logs = collectGemLogs(gemLog, settings);
+  const spent = rows
+    .map((row) => ({ date: spendDate(row), units: typeof row.units === "number" ? row.units : 0 }))
+    .filter((item) => item.date && item.units > 0);
 
   const gaps = [];
   for (let i = 1; i < logs.length; i += 1) {
     const from = logs[i - 1];
     const to = logs[i];
     const days = calendarDays(from.date, to.date);
-    const spend = ends
-      .filter((item) => item.end > from.date && item.end <= to.date)
+    const spend = spent
+      .filter((item) => item.date > from.date && item.date <= to.date)
       .reduce((sum, item) => sum + item.units * settings.defaultUnitCost, 0);
     const change = to.gems - from.gems;
     gaps.push({ from: from.date, to: to.date, days, change, spend, earned: change + spend, used: false });
@@ -165,8 +167,8 @@ function estimateIncome(rows, settings) {
  * anchor that was used, so the UI can show where the numbers are counting from.
  * Rows are expected to already be in date order, earliest first.
  */
-function computePlan(rows, settings, perDay) {
-  const anchor = findAnchor(rows, settings);
+function computePlan(rows, gemLog, settings, perDay) {
+  const anchor = findAnchor(gemLog, settings);
   const now = today();
   const rate = perDay > 0 ? perDay : 0;
 
@@ -195,11 +197,12 @@ function computePlan(rows, settings, perDay) {
       highWater = end;
     }
 
-    // Banners that ended on or before the anchor date are already paid for:
-    // their cost is assumed to be reflected in the logged gem count already.
-    const countsSpend = Boolean(end) && Boolean(anchor.date) && end > anchor.date;
+    // Banners that had started by the anchor date are already paid for: their
+    // cost is assumed to be reflected in the logged gem count already.
+    const paidFrom = spendDate(row);
+    const countsSpend = Boolean(paidFrom) && Boolean(anchor.date) && paidFrom > anchor.date;
     // Rows that ended before the anchor are history and show no projection.
-    // The anchor row itself still shows one, which is simply your logged count.
+    // A row live on the anchor date still shows one.
     const inProjection = !end || !anchor.date || end >= anchor.date;
     const plannedSpend = units * unitCost;
 
@@ -219,7 +222,7 @@ function computePlan(rows, settings, perDay) {
       expectedAfter,
       isPast: Boolean(end && end < now),
       isNewMonth,
-      isAnchorRow: computed.length === anchor.rowIndex,
+      isAnchorRow: Boolean(anchor.date && start && end && start <= anchor.date && end >= anchor.date),
       lowestAhead: null,
       roomForExtra: ""
     });

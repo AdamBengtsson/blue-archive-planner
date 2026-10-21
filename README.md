@@ -22,9 +22,9 @@ Hosted on GitHub Pages, no build step.
 - One row per banner, earliest first: start date, end date, characters, units planned.
 - **Units** is how many banners you want to spend on. Each costs 24,000 by default;
   type a cheaper figure in *Cost / unit* on a row when you get lucky.
-- **Income** is not typed in. It is estimated from your own *Actual gems* logs,
-  archive included: for each gap between two logs, earned = the change in your
-  count + the units spent on banners that ended in between (at the default cost).
+- **Income** is not typed in. It is estimated from your gem log: for each gap
+  between two logged counts, earned = the change in your count + the units spent
+  on banners that started in between (at the default cost).
   The monthly rate is the total earned over the total days, for the gaps in the
   last 12 months (*Estimate income from the last* in Settings). Each banner row
   then earns that rate for its days. Rows reaching into a new month are tinted
@@ -44,9 +44,15 @@ work, so this is left open for now; a fix should not need that.
 - **Room for extra?** appears when that lowest point still covers another unit.
 
 ### Your gem anchor
-The anchor is the most recent *Actual gems* figure you logged on a row. Everything
-below it counts forward from that number, so you only ever type your real gem count
-in one place. Until you log one, the starting count in Settings is used instead.
+Type your real gem count into *Log your gems* under the summary. It is saved for
+today (or another date, to fill in a count you forgot), and the latest one is the
+anchor the plan counts forward from. A banner that had already started on the day
+you logged is assumed to be paid for already. Until you log one, the starting count
+in Settings is used instead. Every count is listed in the *Gem log* section, where
+a wrong one can be corrected or deleted.
+
+Counts used to be typed into an *Actual gems* column on banner rows. Saved data
+from then is moved into the gem log automatically, dated on each row's End date.
 
 ### Archiving
 Banners whose End date has passed are moved to the Archive when the page loads, or
