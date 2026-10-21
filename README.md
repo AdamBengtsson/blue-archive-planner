@@ -19,8 +19,15 @@ Hosted on GitHub Pages, no build step.
 - One row per banner, earliest first: start date, end date, characters, units planned.
 - **Units** is how many banners you want to spend on. Each costs 24,000 by default;
   type a cheaper figure in *Cost / unit* on a row when you get lucky.
-- **Income** of 13,000 lands on the banner whose End date is the first to reach into
-  a new month. That row is tinted green.
+- **Income** is not typed in. It is estimated from your own *Actual gems* logs,
+  archive included: for each gap between two logs, earned = the change in your
+  count + the units spent on banners that ended in between (at the default cost).
+  The monthly rate is the total earned over the total days, for the gaps in the
+  last 12 months (*Estimate income from the last* in Settings). Each banner row
+  then earns that rate for its days. Rows reaching into a new month are tinted
+  green, and the *Income estimate* panel shows the working.
+- The estimate is only as good as the logs. Units you spent but did not enter
+  make it read low; spending less than the default cost makes it read high.
 - **Expected after** is your gem anchor + income so far &minus; planned spend so far.
 - **Lowest ahead** is the lowest the balance is projected to get between that row and
   the end of the plan. At or above 0 means everything planned fits.

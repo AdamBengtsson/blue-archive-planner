@@ -5,7 +5,7 @@
  * (or after "Reset to seed data"). Once the user has saved anything, the
  * copy in browser storage wins and this file is no longer read.
  *
- *   settings  one-time starting gem count/date, monthly income, unit cost
+ *   settings  one-time starting gem count/date, income lookback, unit cost
  *   planning  current and upcoming banners, earliest first
  *   archive   past banners, kept only for looking back at
  */
@@ -13,7 +13,7 @@ const SEED_DATA = {
   "settings": {
     "startingGems": 63835,
     "startingDate": "2026-09-24",
-    "monthlyIncome": 13000,
+    "incomeLookbackMonths": 12,
     "defaultUnitCost": 24000,
     "staleDays": 14
   },
