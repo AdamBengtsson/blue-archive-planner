@@ -14,7 +14,7 @@ const gems = (n) => (typeof n === "number" ? Math.round(n).toLocaleString("en-US
 
 /** An empty banner row, filled in from a forecast banner. */
 function blankRow() {
-  return { start: "", end: "", banner: "", units: null, unitCost: null, note: "" };
+  return { start: "", end: "", banner: "", units: null, note: "" };
 }
 
 /** Reads a numeric input, treating an empty field as "not set" rather than 0. */
@@ -102,6 +102,37 @@ function inputCell(row, field, type, className) {
   return td;
 }
 
+/** The Units input with − and + buttons either side, so planning a banner is one tap. */
+function unitsCell(row) {
+  const td = inputCell(row, "units", "number", "col-units");
+  const input = td.querySelector("input");
+  input.min = "0";
+  input.setAttribute("aria-label", "Units");
+  const units = typeof row.units === "number" ? row.units : 0;
+
+  const step = (label, title, delta) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "step";
+    button.textContent = label;
+    button.title = title;
+    button.disabled = units + delta < 0;
+    button.addEventListener("click", () => {
+      const next = units + delta;
+      // Back to empty rather than 0, the same as a banner never planned.
+      row.units = next > 0 ? next : null;
+      commit();
+    });
+    return button;
+  };
+
+  const stepper = document.createElement("div");
+  stepper.className = "stepper";
+  stepper.append(step("−", "One unit fewer", -1), input, step("+", "One unit more", 1));
+  td.appendChild(stepper);
+  return td;
+}
+
 /** The dates as text, with how soon the banner starts or ends under them. */
 function whenCell(banner) {
   const td = document.createElement("td");
@@ -139,16 +170,17 @@ function renderPlanning(estimate) {
   rows.forEach((item, index) => {
     const row = item.row;
     const tr = document.createElement("tr");
-    if (item.isNewMonth) tr.classList.add("new-month");
     if (item.isPast) tr.classList.add("past");
     if (item.isAnchorRow) tr.classList.add("anchor");
 
-    tr.appendChild(whenCell(row));
     // Portraits from the forecast once banners-ui.js has loaded; otherwise
     // the name the row was saved with.
+    const details = typeof forecastDetails === "function" ? forecastDetails(row) : null;
+    const when = whenCell(row);
+    if (details) when.appendChild(statusBadge(details.dataset.status));
+    tr.appendChild(when);
     const bannerCell = document.createElement("td");
     bannerCell.className = "col-banner";
-    const details = typeof forecastDetails === "function" ? forecastDetails(row) : null;
     if (details) {
       bannerCell.appendChild(details);
     } else {
@@ -161,9 +193,9 @@ function renderPlanning(estimate) {
       bannerCell.append(name, hint);
     }
     tr.appendChild(bannerCell);
-    tr.appendChild(inputCell(row, "units", "number", "col-num"));
-    // Per-row cost disabled: planning always assumes the default cost.
-    // tr.appendChild(inputCell(row, "unitCost", "number", "col-num"));
+    // Limited and Fes students leave the pool when the banner ends, so those rows stand out.
+    if (details && details.dataset.limited) tr.classList.add("limited");
+    tr.appendChild(unitsCell(row));
     tr.appendChild(calcCell(item.plannedSpend ? gems(item.plannedSpend) : ""));
     tr.appendChild(calcCell(item.income ? gems(item.income) : ""));
     tr.appendChild(

@@ -21,25 +21,23 @@ Hosted on GitHub Pages, no build step.
 
 ## How it works
 - One row per banner, earliest first: dates, characters, units planned. The rows
-  come from the forecast by themselves; only Units is typed in.
-- **Units** is how many banners you want to spend on. Each costs 24,000 by default;
-  type a cheaper figure in *Cost / unit* on a row when you get lucky.
+  come from the forecast by themselves; only Units is typed in, or set with the
+  &minus; and + buttons next to it. Rows with a Limited or Fes student are tinted red.
+- **Units** is how many banners you want to spend on. Each costs the default
+  24,000, the worst case, even when a unit comes cheaper in game.
 - **Income** is not typed in. It is estimated from your gem log: for each gap
   between two logged counts, earned = the change in your count + the units spent
   on banners that started in between (at the default cost).
   The monthly rate is the total earned over the total days, for the gaps in the
   last 12 months (*Estimate income from the last* in Settings). Each banner row
-  then earns that rate for its days. Rows reaching into a new month are tinted
-  green, and the *Income estimate* panel shows the working.
+  then earns that rate for its days, and the *Income estimate* panel shows the
+  working.
 - The estimate is only as good as the logs. Units you spent but did not enter
   make it read low. Pyroxene spent on anything other than banners is assumed to
   be negligible.
-
-### Known issue: cheap units inflate the income estimate
-The planner is meant as a worst case, so every unit costs the default 24,000.
-When a unit actually came cheaper, the estimate still adds back the full 24,000
-as spend, so income reads high. Typing the real spend per banner is too much
-work, so this is left open for now; a fix should not need that.
+- Because every unit is counted at the full 24,000, a unit that came cheaper
+  still adds the full cost back as spend, so the income estimate reads a little
+  high. That is accepted: tracking the real spend per banner is too much work.
 - **Expected after** is your gem anchor + income so far &minus; planned spend so far.
 - **Lowest ahead** is the lowest the balance is projected to get between that row and
   the end of the plan. At or above 0 means everything planned fits.

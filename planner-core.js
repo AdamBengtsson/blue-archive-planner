@@ -17,11 +17,6 @@
  *    row is only safe if everything after it fits too.
  */
 
-/** Months since year 0, so month boundaries can be counted by subtraction. */
-function monthIndex(date) {
-  return date.getFullYear() * 12 + date.getMonth();
-}
-
 /** Parses a yyyy-mm-dd string as a local date. Returns null for blanks. */
 function parseDate(value) {
   if (!value) return null;
@@ -181,19 +176,16 @@ function computePlan(rows, gemLog, settings, perDay) {
     const start = parseDate(row.start);
     const end = parseDate(row.end);
     const units = typeof row.units === "number" ? row.units : 0;
-    // Per-row cost disabled: planning always assumes the default (worst-case) cost.
-    // const unitCost = typeof row.unitCost === "number" ? row.unitCost : settings.defaultUnitCost;
+    // Every unit costs the default, the worst case.
     const unitCost = settings.defaultUnitCost;
 
     // Each row earns the daily rate for the days since the latest End date
     // already counted. A row ending inside an earlier, longer banner earns
     // nothing extra. Rounding the running total keeps the rows adding up.
     let income = 0;
-    let isNewMonth = false;
     if (end && highWater && end > highWater) {
       const totalDays = calendarDays(anchor.date, end);
       income = Math.round(rate * totalDays) - incomeSoFar;
-      isNewMonth = monthIndex(end) > monthIndex(highWater);
       highWater = end;
     }
 
@@ -221,7 +213,6 @@ function computePlan(rows, gemLog, settings, perDay) {
       income,
       expectedAfter,
       isPast: Boolean(end && end < now),
-      isNewMonth,
       isAnchorRow: Boolean(anchor.date && start && end && start <= anchor.date && end >= anchor.date),
       lowestAhead: null,
       roomForExtra: ""

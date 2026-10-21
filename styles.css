@@ -2,7 +2,7 @@
   Visual style carried over from the cardnamer page: dark diagonal stripes,
   translucent rounded panels, uppercase letter-spaced headings.
   Table and status colours are new, and follow the old spreadsheet's meanings:
-  green = income month, red = short, grey = already past.
+  red = short, grey = already past. Rows tinted red have a Limited or Fes student.
 */
 
 :root {
@@ -207,31 +207,45 @@ button.link:hover {
   color: var(--text);
 }
 
+/* Most banners are predicted, so that badge stays quiet and Confirmed stands out. */
 .badge {
-  font-size: 0.66rem;
+  font-size: 0.62rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 3px 8px;
   border-radius: 999px;
-  border: 1px solid var(--line);
-  color: var(--muted);
+  border: 1px solid transparent;
+  color: rgba(255, 255, 255, 0.4);
   white-space: nowrap;
 }
 
-.badge.confirmed {
-  border-color: rgba(127, 182, 255, 0.5);
-  color: var(--accent);
+/* Under the dates, Predicted lines up with the text above it. */
+.col-when .badge {
+  display: inline-block;
+  margin-top: 8px;
 }
 
+.col-when .badge.predicted {
+  padding-left: 0;
+}
+
+.badge.confirmed {
+  background: rgba(127, 182, 255, 0.16);
+  border-color: rgba(127, 182, 255, 0.6);
+  color: var(--accent);
+  font-weight: bold;
+}
+
+/* One line of portraits per banner; five fit next to the other columns. */
 .roster {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
 }
 
 .student {
   position: relative;
-  width: 64px;
+  width: 72px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -241,8 +255,8 @@ button.link:hover {
 }
 
 .portrait {
-  width: 64px;
-  height: 72px;
+  width: 72px;
+  height: 82px;
   border-radius: 8px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.06);
@@ -265,7 +279,7 @@ button.link:hover {
 }
 
 .student-name {
-  font-size: 0.66rem;
+  font-size: 0.7rem;
   line-height: 1.2;
   text-align: center;
 }
@@ -347,8 +361,8 @@ td.calc {
 }
 
 /* Row states, same meanings as the colours in the old spreadsheet. */
-tr.new-month td {
-  background: rgba(109, 220, 139, 0.07);
+tr.limited td {
+  background: rgba(255, 123, 123, 0.12);
 }
 
 tr.past td {
@@ -369,6 +383,7 @@ td input { padding: 7px 6px; }
 .col-date input { width: 132px; }
 .col-banner { min-width: 300px; }
 .col-num input { width: 64px; text-align: right; }
+.col-units input { width: 44px; text-align: center; }
 .col-gems input { width: 88px; text-align: right; }
 .col-note input { min-width: 150px; }
 
@@ -376,6 +391,53 @@ td input { padding: 7px 6px; }
 td input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 td input::-webkit-outer-spin-button,
 td input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* Units, between its − and + buttons. */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+button.step {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--accent);
+}
+
+button.step:disabled {
+  color: var(--muted);
+  opacity: 0.35;
+  cursor: default;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+
+.legend .swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: -2px;
+  background: rgba(255, 123, 123, 0.4);
+}
+
+.legend .tag,
+.legend .badge {
+  position: static;
+  margin-right: 6px;
+}
 
 .toolbar {
   display: flex;
