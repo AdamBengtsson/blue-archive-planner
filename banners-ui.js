@@ -194,10 +194,10 @@ function renderBanners() {
   if (upcoming.length === 0) {
     const empty = document.createElement("p");
     empty.className = "empty";
-    empty.textContent = "Every banner in the bundled list has ended. banner-data.js needs a refresh.";
+    empty.textContent = "Every banner in the forecast has ended. Check the Refresh upcoming banners workflow on GitHub.";
     grid.appendChild(empty);
   }
-  el("bannerSource").textContent = `Forecast checked ${BANNER_DATA.updated}. ${liveStatus}`;
+  el("bannerSource").textContent = `Forecast last changed ${BANNER_DATA.updated}. ${liveStatus}`;
 }
 
 /* Live data from SchaleDB ------------------------------------------------ */
@@ -280,7 +280,7 @@ function loadLiveBanners() {
     })
     .catch((error) => {
       console.warn("Could not load live banners from SchaleDB.", error);
-      liveStatus = "SchaleDB could not be reached, so this is the bundled list only.";
+      liveStatus = "SchaleDB could not be reached, so the live banner is not confirmed.";
     })
     .finally(renderBanners);
 }

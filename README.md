@@ -12,7 +12,8 @@ Hosted on GitHub Pages, no build step.
 - [planner-core.js](planner-core.js): the planning maths, ported from the sheet's formulas
 - [storage.js](storage.js): load/save, reset, and JSON backup import/export
 - [planner-ui.js](planner-ui.js): rendering and event handling
-- [banner-data.js](banner-data.js): the bundled forecast of upcoming Global banners
+- [banner-data.js](banner-data.js): the forecast of upcoming Global banners (generated)
+- [scripts/refresh-banners.mjs](scripts/refresh-banners.mjs): rebuilds banner-data.js from the forecast page
 - [banners-ui.js](banners-ui.js): the Upcoming banners cards, plus live checks against SchaleDB
 - [firebase-config.js](firebase-config.js): Firebase web config (placeholder)
 - [firebase-logic.js](firebase-logic.js): optional Firestore sync
@@ -44,10 +45,13 @@ Global schedule can be read off JP's. The *Upcoming banners* section shows one
 card per banner with portraits, dates and limited/Fes tags, and *Add to planner*
 copies a banner into the planning table.
 
-- The forecast lives in [banner-data.js](banner-data.js), taken from
+- The forecast lives in [banner-data.js](banner-data.js), generated from
   [Joe's Blue Archive Tools](https://ba.joexyz.online/global/banners), which
-  maps JP's schedule onto Global dates. Refresh it by hand every month or two and
-  bump `updated`.
+  maps JP's schedule onto Global dates. The *Refresh upcoming banners* GitHub
+  workflow re-reads that page every day at 03:17 UTC and commits straight to
+  `main` when the banners changed, so there is nothing to do by hand. It can
+  also be run from the repo's Actions tab. If the page is down or changes
+  shape, the run fails, the old list stays, and GitHub emails you.
 - On load the page asks [SchaleDB](https://schaledb.com) which banners are live.
   The live Global banner is marked *Confirmed*, and JP's live banner is appended
   as an estimate (`jpLagDays` later) when the bundled list does not reach it yet.
