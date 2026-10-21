@@ -61,6 +61,12 @@
       -->
       <section class="box">
         <h2>Planning</h2>
+        <div class="legend">
+          <span><span class="swatch"></span>Has a Limited or Fes student</span>
+          <span><span class="tag tag-limited">Limited</span>Leaves the pool when the banner ends</span>
+          <span><span class="tag tag-fes">Fes</span>Only on Fes banners</span>
+          <span><span class="badge confirmed">Confirmed</span>Live on Global now; the rest are predicted</span>
+        </div>
         <div class="table-scroll">
           <table id="planningTable">
             <thead>
@@ -199,11 +205,11 @@
             <ul>
               <li><strong>Your gem anchor</strong> is the most recent count you logged with <em>Log your gems</em>. The plan counts forward from that date, and a banner that had already started on that day is treated as paid for. Until you log one, the starting count in Settings is used. Fix or delete an old count in the <em>Gem log</em>.</li>
               <li><strong>Units</strong> is how many banners you want to spend on: 0 to skip, 1 or 2 (or more) otherwise. Each costs the default 24,000 from Settings, the worst case.</li>
-              <li><strong>Income</strong> is estimated from your gem log: how much your count rose between logs, plus the units you spent in between at the default cost, averaged over the last 12 months (change it in Settings). Each banner then earns that rate for its days. Rows that reach into a new month are tinted green. The more often you log, the better the estimate; units you spent but did not enter make it read low.</li>
+              <li><strong>Income</strong> is estimated from your gem log: how much your count rose between logs, plus the units you spent in between at the default cost, averaged over the last 12 months (change it in Settings). Each banner then earns that rate for its days. The more often you log, the better the estimate; units you spent but did not enter make it read low.</li>
               <li><strong>Expected after</strong> is anchor + income so far &minus; planned spend so far. Red means it would go below zero.</li>
               <li><strong>Lowest ahead</strong> looks all the way to the end of your plan. At or above 0 means everything you have planned fits.</li>
               <li><strong>Room for extra?</strong> appears when that lowest point still covers another unit &mdash; you could add a banner without going short later.</li>
-              <li><strong>Portraits</strong> come from the Global forecast. Every upcoming banner in the forecast gets a row by itself, and its dates move when the forecast does. Type Units on the ones you want; leave it empty or 0 to skip.</li>
+              <li><strong>Portraits</strong> come from the Global forecast. Every upcoming banner in the forecast gets a row by itself, and its dates move when the forecast does. Type Units on the ones you want, or use the &minus; and + buttons; leave it empty to skip. Rows with a Limited or Fes student are tinted red.</li>
               <li>Banners whose End date has passed are moved to the Archive automatically when you open the page. Log your gems now and then so the plan picks up your real count.</li>
             </ul>
           </div>

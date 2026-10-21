@@ -17,11 +17,6 @@
  *    row is only safe if everything after it fits too.
  */
 
-/** Months since year 0, so month boundaries can be counted by subtraction. */
-function monthIndex(date) {
-  return date.getFullYear() * 12 + date.getMonth();
-}
-
 /** Parses a yyyy-mm-dd string as a local date. Returns null for blanks. */
 function parseDate(value) {
   if (!value) return null;
@@ -188,11 +183,9 @@ function computePlan(rows, gemLog, settings, perDay) {
     // already counted. A row ending inside an earlier, longer banner earns
     // nothing extra. Rounding the running total keeps the rows adding up.
     let income = 0;
-    let isNewMonth = false;
     if (end && highWater && end > highWater) {
       const totalDays = calendarDays(anchor.date, end);
       income = Math.round(rate * totalDays) - incomeSoFar;
-      isNewMonth = monthIndex(end) > monthIndex(highWater);
       highWater = end;
     }
 
@@ -220,7 +213,6 @@ function computePlan(rows, gemLog, settings, perDay) {
       income,
       expectedAfter,
       isPast: Boolean(end && end < now),
-      isNewMonth,
       isAnchorRow: Boolean(anchor.date && start && end && start <= anchor.date && end >= anchor.date),
       lowestAhead: null,
       roomForExtra: ""

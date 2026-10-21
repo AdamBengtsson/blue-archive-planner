@@ -103,6 +103,7 @@ function studentTile(student) {
 function bannerDetails(banner) {
   const details = document.createElement("div");
   details.className = "banner-details";
+  if (banner.students.some((student) => student.tag)) details.dataset.limited = "true";
 
   const roster = document.createElement("div");
   roster.className = "roster";

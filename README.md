@@ -21,7 +21,8 @@ Hosted on GitHub Pages, no build step.
 
 ## How it works
 - One row per banner, earliest first: dates, characters, units planned. The rows
-  come from the forecast by themselves; only Units is typed in.
+  come from the forecast by themselves; only Units is typed in, or set with the
+  &minus; and + buttons next to it. Rows with a Limited or Fes student are tinted red.
 - **Units** is how many banners you want to spend on. Each costs the default
   24,000, the worst case, even when a unit comes cheaper in game.
 - **Income** is not typed in. It is estimated from your gem log: for each gap
@@ -29,8 +30,8 @@ Hosted on GitHub Pages, no build step.
   on banners that started in between (at the default cost).
   The monthly rate is the total earned over the total days, for the gaps in the
   last 12 months (*Estimate income from the last* in Settings). Each banner row
-  then earns that rate for its days. Rows reaching into a new month are tinted
-  green, and the *Income estimate* panel shows the working.
+  then earns that rate for its days, and the *Income estimate* panel shows the
+  working.
 - The estimate is only as good as the logs. Units you spent but did not enter
   make it read low. Pyroxene spent on anything other than banners is assumed to
   be negligible.
