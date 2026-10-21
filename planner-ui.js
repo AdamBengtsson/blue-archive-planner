@@ -178,7 +178,6 @@ function renderPlanning(estimate) {
   const body = el("planningBody");
   body.textContent = "";
   const { rows } = computePlan(state.planning, state.gemLog, state.settings, estimate.perDay);
-  let shownLowest = null;
 
   rows.forEach((item, index) => {
     const row = item.row;
@@ -225,20 +224,16 @@ function renderPlanning(estimate) {
     }
     tr.appendChild(expected);
 
-    // Lowest ahead only changes after a low point, so it is shown where it
-    // changes rather than repeated on every row.
-    const changed = item.lowestAhead !== shownLowest;
-    if (item.lowestAhead !== null) shownLowest = item.lowestAhead;
     tr.appendChild(
       calcCell(
-        changed && item.lowestAhead !== null ? gems(item.lowestAhead) : "",
+        item.lowestAhead === null ? "" : gems(item.lowestAhead),
         item.lowestAhead !== null && item.lowestAhead < 0 ? "negative" : "",
         "Lowest ahead"
       )
     );
     tr.appendChild(
       calcCell(
-        changed ? item.roomForExtra : "",
+        item.roomForExtra,
         item.roomForExtra.startsWith("Short") ? "short" : "room",
         "Room for extra?"
       )

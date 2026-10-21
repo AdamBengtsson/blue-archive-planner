@@ -40,9 +40,9 @@ Hosted on GitHub Pages, no build step.
   high. That is accepted: tracking the real spend per banner is too much work.
 - **Expected after** is your gem anchor + income so far &minus; planned spend so far.
 - **Lowest ahead** is the lowest the balance is projected to get between that row and
-  the end of the plan. At or above 0 means everything planned fits. It is shown
-  only where it changes, and the row where the balance bottoms out is marked
-  *Lowest point*: that banner is what limits planning more.
+  the end of the plan. At or above 0 means everything planned fits. The row where
+  the balance bottoms out is marked *Lowest point*: that banner is what limits
+  planning more.
 - **Room for extra?** appears when that lowest point still covers another unit.
 
 ### Your gem anchor
