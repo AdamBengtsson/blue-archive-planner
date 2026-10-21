@@ -11,7 +11,8 @@
  * A fix either sets new values on the row (`set`) or deletes it (`remove`),
  * or adds a banner the archive is missing (`add`, placed after the row named
  * in `after`, and only if no row with its start, end and banner exists yet).
- * Units and notes are left alone. Gem counts typed on a banner row were moved
+ * Units and notes are left alone, unless a fix sets units Adam has
+ * confirmed. Gem counts typed on a banner row were moved
  * into the gem log under that row's End date, so when a fix moves the End
  * date, a count logged on the old End date moves with it.
  */
@@ -169,11 +170,22 @@ const ARCHIVE_FIXES = [
   },
   {
     match: { start: "2026-05-26", end: "2026-06-09", banner: "FEST 1" },
-    set: { banner: "*Limited* Rio & Himari (Battle)" }
+    // Adam owns Rio and Himari (Battle), so he pulled here.
+    set: { banner: "*Limited* Rio & Himari (Battle)", units: 2 }
+  },
+  {
+    // Adam owns Kei and Arisu (Battle), so he pulled here.
+    match: { start: "2026-06-09", end: "2026-06-16", banner: "FEST 2" },
+    set: { units: 2 }
   },
   {
     match: { start: "2026-06-16", end: "2026-06-23", banner: "Intermission" },
     set: { banner: "Ichika, Kasumi, Sakurako & Eimi (Swimsuit)" }
+  },
+  {
+    // The 1 unit was an old plan; Adam was low on gems and did not pull.
+    match: { start: "2026-06-23", end: "2026-07-07", banner: "Yuzu & Eimi Battle" },
+    set: { units: 0 }
   },
   {
     match: { start: "2026-07-07", end: "2026-07-14", banner: "Game Development maid" },
