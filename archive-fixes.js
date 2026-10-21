@@ -150,6 +150,16 @@ const ARCHIVE_FIXES = [
     set: { start: "2026-02-24", banner: "Ritsu, Shigure & Miyu" }
   },
   {
+    // Adam pulled Suzumi and Reisa (Magical).
+    match: { start: "2026-03-10", end: "2026-03-24", banner: "Magical girls" },
+    set: { units: 2 }
+  },
+  {
+    // Adam thinks he pulled Subaru here.
+    match: { start: "2026-03-31", end: "2026-04-07", banner: "Trinity Swimsuits & New Arius" },
+    set: { units: 1, note: "1 unit (Subaru), probably" }
+  },
+  {
     after: { start: "2026-04-28", end: "2026-05-12", banner: "Hyakkiyako Dress" },
     add: {
       start: "2026-05-05",
