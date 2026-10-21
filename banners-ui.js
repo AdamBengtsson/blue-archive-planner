@@ -1,6 +1,7 @@
 /**
- * The Upcoming banners section: one card per Global banner, with portraits,
- * dates, and a button that copies the banner into the planning table.
+ * Upcoming Global banners, which are the planning table's rows: every
+ * forecast banner gets a row with its portraits, and the rows follow the
+ * forecast's dates and line-up (see syncPlanWithForecast).
  *
  * The list starts from the bundled BANNER_DATA (see banner-data.js), so it
  * always renders, even offline. SchaleDB is then asked which banners are live
@@ -62,28 +63,6 @@ function findPlannedRow(banner) {
   });
 }
 
-/** Running now / starts in N days, counted from today. */
-function describeWhen(banner) {
-  const start = parseDate(banner.start);
-  const end = parseDate(banner.end);
-  const now = today();
-  const plural = (n) => `${n} day${n === 1 ? "" : "s"}`;
-  if (start <= now) return `Running now · ends in ${plural(daysBetween(now, end))}`;
-  return `Starts in ${plural(daysBetween(now, start))}`;
-}
-
-/** "Oct 27 – Nov 3", with the year only where it changes from this year. */
-function describeDates(banner) {
-  const thisYear = today().getFullYear();
-  const fmt = (value) => {
-    const date = parseDate(value);
-    const options = { month: "short", day: "numeric" };
-    if (date.getFullYear() !== thisYear) options.year = "numeric";
-    return date.toLocaleDateString("en-US", options);
-  };
-  return `${fmt(banner.start)} – ${fmt(banner.end)}`;
-}
-
 function studentTile(student) {
   const link = document.createElement("a");
   link.className = "student";
@@ -120,84 +99,91 @@ function studentTile(student) {
   return link;
 }
 
-function bannerCard(banner) {
-  const card = document.createElement("article");
-  card.className = `banner-card ${banner.status}`;
-
-  const head = document.createElement("div");
-  head.className = "banner-head";
-  const dates = document.createElement("div");
-  dates.className = "banner-dates";
-  dates.textContent = describeDates(banner);
-  const badge = document.createElement("span");
-  badge.className = `badge ${banner.status}`;
-  badge.textContent = banner.status === "confirmed" ? "Confirmed" : "Predicted";
-  head.append(dates, badge);
-  card.appendChild(head);
-
-  const when = document.createElement("div");
-  when.className = "banner-when";
-  when.textContent = banner.title ? `${banner.title} · ${describeWhen(banner)}` : describeWhen(banner);
-  card.appendChild(when);
+/** The portraits and badge shown in a planning row's Banner column. */
+function bannerDetails(banner) {
+  const details = document.createElement("div");
+  details.className = "banner-details";
 
   const roster = document.createElement("div");
   roster.className = "roster";
   banner.students.forEach((student) => roster.appendChild(studentTile(student)));
-  card.appendChild(roster);
+  details.appendChild(roster);
 
+  const meta = document.createElement("div");
+  meta.className = "banner-meta";
+  const badge = document.createElement("span");
+  badge.className = `badge ${banner.status}`;
+  badge.textContent = banner.status === "confirmed" ? "Confirmed" : "Predicted";
+  meta.appendChild(badge);
+  if (banner.title) {
+    const title = document.createElement("span");
+    title.className = "banner-title";
+    title.textContent = banner.title;
+    meta.appendChild(title);
+  }
   if (banner.note) {
-    const note = document.createElement("p");
+    const note = document.createElement("span");
     note.className = "banner-note";
     note.textContent = banner.note;
-    card.appendChild(note);
+    meta.appendChild(note);
   }
-
-  const add = document.createElement("button");
-  add.className = "add-banner";
-  const planned = findPlannedRow(banner);
-  const moved = planned && (planned.start !== banner.start || planned.end !== banner.end);
-  if (moved && state.planning.includes(planned)) {
-    // Hand-typed dates are guesses; offer to move the row onto the forecast.
-    add.textContent = `Move planner row to ${describeDates(banner)}`;
-    add.title = `The planner has this banner from ${planned.start} to ${planned.end}.`;
-    add.addEventListener("click", () => {
-      Object.assign(planned, { start: banner.start, end: banner.end });
-      state.planning = sortRows(state.planning);
-      commit("Planner row moved to the forecast dates.");
-    });
-  } else if (planned) {
-    add.textContent = "In planner";
-    add.disabled = true;
-  } else {
-    add.textContent = "Add to planner";
-    add.addEventListener("click", () => {
-      state.planning.push(
-        Object.assign(blankRow(), { start: banner.start, end: banner.end, banner: bannerLabel(banner) })
-      );
-      state.planning = sortRows(state.planning);
-      commit("Banner added to the planner.");
-    });
-  }
-  card.appendChild(add);
-  return card;
+  details.appendChild(meta);
+  return details;
 }
 
-/** Called from render() in planner-ui.js, so the buttons follow the planner. */
-function renderBanners() {
-  const grid = el("bannerGrid");
-  if (!grid) return;
-  grid.textContent = "";
+/** Called from renderPlanning() for each planner row: its forecast details, or null. */
+function forecastDetails(row) {
+  const banner = banners.find((candidate) => findPlannedRow(candidate) === row);
+  return banner ? bannerDetails(banner) : null;
+}
+
+/**
+ * Keeps the planning table equal to the forecast, so the plan never holds a
+ * guess next to the real banner:
+ *  - every upcoming banner gets a row, with no units until you type some;
+ *  - a matched row takes the forecast's dates whenever they move;
+ *  - a row of your own that matches no banner is dropped when it falls inside
+ *    the forecast and has no units. With units it stays, so nothing you
+ *    planned disappears silently; the table marks it as not in the forecast.
+ * Saves only when something changed.
+ */
+function syncPlanWithForecast() {
   const now = today();
   const upcoming = banners.filter((banner) => parseDate(banner.end) > now);
-  upcoming.forEach((banner) => grid.appendChild(bannerCard(banner)));
+  if (upcoming.length === 0) return;
+  let changed = false;
+  const matched = new Set();
 
-  if (upcoming.length === 0) {
-    const empty = document.createElement("p");
-    empty.className = "empty";
-    empty.textContent = "Every banner in the forecast has ended. Check the Refresh upcoming banners workflow on GitHub.";
-    grid.appendChild(empty);
-  }
-  el("bannerSource").textContent = `Forecast last changed ${BANNER_DATA.updated}. ${liveStatus}`;
+  upcoming.forEach((banner) => {
+    let row = findPlannedRow(banner);
+    if (row && !state.planning.includes(row)) return; // already archived
+    if (!row) {
+      row = Object.assign(blankRow(), { banner: bannerLabel(banner) });
+      state.planning.push(row);
+      changed = true;
+    }
+    matched.add(row);
+    if (row.start !== banner.start || row.end !== banner.end) {
+      Object.assign(row, { start: banner.start, end: banner.end });
+      changed = true;
+    }
+  });
+
+  const lastEnd = upcoming.reduce((last, banner) => (banner.end > last ? banner.end : last), "");
+  const kept = state.planning.filter(
+    (row) => matched.has(row) || row.units > 0 || (row.start && row.start > lastEnd)
+  );
+  if (kept.length !== state.planning.length) changed = true;
+  if (!changed) return;
+  state.planning = sortRows(kept);
+  saveState(state);
+}
+
+/** Called from render() in planner-ui.js: the line on where the forecast comes from. */
+function renderBanners() {
+  const ended = banners.every((banner) => parseDate(banner.end) <= today());
+  const stale = ended ? " Every banner in the forecast has ended; check the Refresh upcoming banners workflow on GitHub." : "";
+  el("bannerSource").textContent = `Forecast last changed ${BANNER_DATA.updated}. ${liveStatus}${stale}`;
 }
 
 /* Live data from SchaleDB ------------------------------------------------ */
@@ -282,8 +268,13 @@ function loadLiveBanners() {
       console.warn("Could not load live banners from SchaleDB.", error);
       liveStatus = "SchaleDB could not be reached, so the live banner is not confirmed.";
     })
-    .finally(renderBanners);
+    .finally(() => {
+      syncPlanWithForecast();
+      render();
+    });
 }
 
-renderBanners();
+// planner-ui.js rendered before this file loaded, so draw again with the forecast.
+syncPlanWithForecast();
+render();
 loadLiveBanners();

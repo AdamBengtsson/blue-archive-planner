@@ -54,16 +54,19 @@
         </form>
       </section>
 
-      <!-- Current and upcoming banners. One row per banner, earliest first. -->
+      <!--
+        Current and upcoming banners, one row per banner, earliest first.
+        The rows are the Global forecast: each shows its portraits and follows
+        the forecast's dates and line-up. Only Units is typed in.
+      -->
       <section class="box">
         <h2>Planning</h2>
         <div class="table-scroll">
           <table id="planningTable">
             <thead>
               <tr>
-                <th>Start</th>
-                <th>End</th>
-                <th>Banner / characters</th>
+                <th>When</th>
+                <th>Banner</th>
                 <th>Units</th>
                 <!-- Per-row cost disabled: planning always assumes the default cost. -->
                 <!-- <th>Cost / unit</th> -->
@@ -79,17 +82,10 @@
           </table>
         </div>
         <div class="toolbar">
-          <button id="addRow" class="primary">Add banner</button>
           <button id="archivePast">Archive past banners</button>
           <span class="spacer"></span>
           <span class="status" id="saveStatus"></span>
         </div>
-      </section>
-
-      <!-- What is coming to Global, forecast from the JP schedule. -->
-      <section class="box">
-        <h2>Upcoming banners</h2>
-        <div class="banner-grid" id="bannerGrid"></div>
         <p class="source-note">
           <span id="bannerSource"></span>
           Predicted banners follow JP's order and may be merged, shortened or skipped on Global.
@@ -209,6 +205,7 @@
               <li><strong>Expected after</strong> is anchor + income so far &minus; planned spend so far. Red means it would go below zero.</li>
               <li><strong>Lowest ahead</strong> looks all the way to the end of your plan. At or above 0 means everything you have planned fits.</li>
               <li><strong>Room for extra?</strong> appears when that lowest point still covers another unit &mdash; you could add a banner without going short later.</li>
+              <li><strong>Portraits</strong> come from the Global forecast. Every upcoming banner in the forecast gets a row by itself, and its dates move when the forecast does. Type Units on the ones you want; leave it empty or 0 to skip.</li>
               <li>Banners whose End date has passed are moved to the Archive automatically when you open the page. Log your gems now and then so the plan picks up your real count.</li>
             </ul>
           </div>
@@ -222,8 +219,8 @@
       2. pure planning maths
       3. the Firebase config placeholder, then the optional sync layer
       4. storage, then the UI that wires it all to the page
-      5. the bundled banner forecast, then the Upcoming banners view, which
-         adds rows through the planner UI's state and commit()
+      5. the bundled banner forecast, then the forecast view, which fills
+         portraits into the planning table through the planner UI's render()
     -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>

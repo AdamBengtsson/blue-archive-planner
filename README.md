@@ -14,12 +14,13 @@ Hosted on GitHub Pages, no build step.
 - [planner-ui.js](planner-ui.js): rendering and event handling
 - [banner-data.js](banner-data.js): the forecast of upcoming Global banners (generated)
 - [scripts/refresh-banners.mjs](scripts/refresh-banners.mjs): rebuilds banner-data.js from the forecast page
-- [banners-ui.js](banners-ui.js): the Upcoming banners cards, plus live checks against SchaleDB
+- [banners-ui.js](banners-ui.js): the forecast inside the planning table, plus live checks against SchaleDB
 - [firebase-config.js](firebase-config.js): Firebase web config (placeholder)
 - [firebase-logic.js](firebase-logic.js): optional Firestore sync
 
 ## How it works
-- One row per banner, earliest first: start date, end date, characters, units planned.
+- One row per banner, earliest first: dates, characters, units planned. The rows
+  come from the forecast by themselves; only Units is typed in.
 - **Units** is how many banners you want to spend on. Each costs 24,000 by default;
   type a cheaper figure in *Cost / unit* on a row when you get lucky.
 - **Income** is not typed in. It is estimated from your gem log: for each gap
@@ -61,9 +62,15 @@ it is not part of the projection. This replaces the `ArchiveScript.gs` Apps Scri
 
 ## Upcoming banners
 Global runs JP's banners in the same order a few months later, so the upcoming
-Global schedule can be read off JP's. The *Upcoming banners* section shows one
-card per banner with portraits, dates and limited/Fes tags, and *Add to planner*
-copies a banner into the planning table.
+Global schedule can be read off JP's. The forecast lives inside the Planning
+table rather than in a section of its own:
+
+- Every upcoming forecast banner is a row, with its portraits, limited/Fes tags
+  and *Predicted* or *Confirmed*. Dates and names are not typed in; only
+  *Units* is. Rows take the forecast's dates whenever they move.
+- Older hand-typed rows that match no forecast banner are dropped when they fall
+  inside the forecast and have no units. One with units stays, marked as not in
+  the forecast, so nothing you planned disappears silently.
 
 - The forecast lives in [banner-data.js](banner-data.js), generated from
   [Joe's Blue Archive Tools](https://ba.joexyz.online/global/banners), which
@@ -78,9 +85,8 @@ copies a banner into the planning table.
   If SchaleDB cannot be reached, the bundled list is shown as is.
 - Portraits are loaded from SchaleDB by student id; a missing one shows the
   student's initial instead.
-- A card says *In planner* when a planning row already names its first student
-  within a week of its start date. If that row's dates differ from the forecast,
-  the button offers to move the row onto the forecast dates instead.
+- A planner row matches a banner when it names the banner's first student and
+  starts within a week of it.
 
 ## Data and backups
 Everything is saved to browser localStorage, so the planner works offline and

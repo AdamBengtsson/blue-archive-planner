@@ -159,46 +159,52 @@ button.link:hover {
 .value.bad { color: var(--bad); }
 .value.warn { color: var(--warn); }
 
-/* Upcoming banners -------------------------------------------------- */
+/* Forecast inside the planning table ------------------------------- */
 
-.banner-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 14px;
+/* Each planning row reads like one of the old banner cards: dates on the
+   left, the roster in the middle, the numbers after it. */
+#planningTable td {
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
-.banner-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--panel-soft);
-}
-
-/* Confirmed banners get the accent edge; forecasts stay quieter. */
-.banner-card.confirmed {
-  border-color: rgba(127, 182, 255, 0.45);
-}
-
-.banner-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+.col-when {
+  white-space: nowrap;
+  min-width: 140px;
 }
 
 .banner-dates {
-  font-size: 1.05rem;
+  font-size: 1rem;
   letter-spacing: 0.02em;
 }
 
-.banner-when,
-.banner-note {
-  font-size: 0.8rem;
+.banner-when {
+  font-size: 0.78rem;
   color: var(--muted);
-  margin: 0;
+  margin-top: 3px;
+}
+
+.banner-name {
+  font-size: 0.95rem;
+}
+
+.banner-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.banner-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.banner-title {
+  color: var(--text);
 }
 
 .badge {
@@ -220,30 +226,30 @@ button.link:hover {
 .roster {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
 }
 
 .student {
   position: relative;
-  width: 76px;
+  width: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   color: var(--text);
   text-decoration: none;
 }
 
 .portrait {
-  width: 76px;
-  height: 86px;
-  border-radius: 10px;
+  width: 64px;
+  height: 72px;
+  border-radius: 8px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.6rem;
+  font-size: 1.2rem;
   color: var(--muted);
 }
 
@@ -259,37 +265,25 @@ button.link:hover {
 }
 
 .student-name {
-  font-size: 0.72rem;
-  line-height: 1.25;
+  font-size: 0.66rem;
+  line-height: 1.2;
   text-align: center;
 }
 
 .tag {
   position: absolute;
-  top: 4px;
-  left: 4px;
-  font-size: 0.58rem;
-  letter-spacing: 0.06em;
+  top: 2px;
+  left: 2px;
+  font-size: 0.5rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 2px 5px;
-  border-radius: 6px;
+  padding: 1px 4px;
+  border-radius: 5px;
   background: rgba(0, 0, 0, 0.75);
 }
 
 .tag-limited { color: var(--warn); }
 .tag-fes { color: #ff9ad5; }
-
-.add-banner {
-  margin-top: auto;
-  align-self: flex-start;
-}
-
-.add-banner:disabled {
-  cursor: default;
-  color: var(--good);
-  border-color: rgba(109, 220, 139, 0.35);
-  background: none;
-}
 
 .source-note {
   font-size: 0.78rem;
@@ -373,7 +367,7 @@ td .negative { color: var(--bad); }
    scrolling sideways; the banner column takes whatever width is left. */
 td input { padding: 7px 6px; }
 .col-date input { width: 132px; }
-.col-banner input { min-width: 150px; }
+.col-banner { min-width: 300px; }
 .col-num input { width: 64px; text-align: right; }
 .col-gems input { width: 88px; text-align: right; }
 .col-note input { min-width: 150px; }
