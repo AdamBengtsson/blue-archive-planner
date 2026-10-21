@@ -215,7 +215,7 @@
 
     <!--
       Scripts load in dependency order:
-      1. seed data migrated from the spreadsheet
+      1. seed data migrated from the spreadsheet, then the archive date fixes
       2. pure planning maths
       3. the Firebase config placeholder, then the optional sync layer
       4. storage, then the UI that wires it all to the page
@@ -225,6 +225,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="seed-data.js"></script>
+    <script src="archive-fixes.js"></script>
     <script src="planner-core.js"></script>
     <script src="firebase-config.js"></script>
     <script src="firebase-logic.js"></script>
