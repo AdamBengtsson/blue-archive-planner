@@ -159,6 +159,149 @@ button.link:hover {
 .value.bad { color: var(--bad); }
 .value.warn { color: var(--warn); }
 
+/* Upcoming banners -------------------------------------------------- */
+
+.banner-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.banner-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-soft);
+}
+
+/* Confirmed banners get the accent edge; forecasts stay quieter. */
+.banner-card.confirmed {
+  border-color: rgba(127, 182, 255, 0.45);
+}
+
+.banner-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.banner-dates {
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+}
+
+.banner-when,
+.banner-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.badge {
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.badge.confirmed {
+  border-color: rgba(127, 182, 255, 0.5);
+  color: var(--accent);
+}
+
+.roster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.student {
+  position: relative;
+  width: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.portrait {
+  width: 76px;
+  height: 86px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: var(--muted);
+}
+
+.portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.student:hover .portrait {
+  outline: 2px solid rgba(127, 182, 255, 0.45);
+}
+
+.student-name {
+  font-size: 0.72rem;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.tag {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.tag-limited { color: var(--warn); }
+.tag-fes { color: #ff9ad5; }
+
+.add-banner {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.add-banner:disabled {
+  cursor: default;
+  color: var(--good);
+  border-color: rgba(109, 220, 139, 0.35);
+  background: none;
+}
+
+.source-note {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 14px 0 0;
+}
+
+.source-note a {
+  color: var(--accent);
+}
+
 /* Settings ------------------------------------------------------------ */
 
 .settings-grid {

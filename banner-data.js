@@ -1,0 +1,149 @@
+/**
+ * Upcoming Global banners, bundled with the page so the view works offline.
+ *
+ * Global runs the same banners as JP, in the same order, a few months later.
+ * So the list below is JP's schedule shifted onto Global dates: the first
+ * banner is the one live on Global now, the rest are forecasts that Global
+ * may still merge, shorten or skip while it catches up with JP.
+ *
+ * Sources (check these when refreshing the list by hand):
+ *   - https://ba.joexyz.online/global/banners  the forecast itself
+ *   - https://schaledb.com                     student ids, names, portraits,
+ *                                              and the banners live right now
+ *
+ * banners-ui.js also asks SchaleDB for the banners live on Global and JP when
+ * the page loads, and uses the answer to confirm or extend this list.
+ *
+ *   updated     when this list was last checked against the sources
+ *   jpLagDays   how far Global trails JP; used to place JP's live banner on
+ *               the Global calendar when it is not in the list yet
+ *   banners     earliest first. status is "confirmed" once the banner is live
+ *               or officially announced, "predicted" otherwise. tag marks a
+ *               limited unit ("Limited" or "Fes").
+ */
+const BANNER_DATA = {
+  "updated": "2026-10-21",
+  "jpLagDays": 104,
+  "banners": [
+    {
+      "start": "2026-10-13",
+      "end": "2026-10-27",
+      "status": "confirmed",
+      "students": [
+        { "id": 10145, "name": "Kisaki (Swimsuit)" },
+        { "id": 10143, "name": "Shun (Swimsuit)" }
+      ]
+    },
+    {
+      "start": "2026-10-27",
+      "end": "2026-11-03",
+      "status": "predicted",
+      "students": [
+        { "id": 10117, "name": "Hikari", "tag": "Limited" },
+        { "id": 10118, "name": "Nozomi", "tag": "Limited" },
+        { "id": 10101, "name": "Saori (Swimsuit)", "tag": "Limited" },
+        { "id": 10102, "name": "Hiyori (Swimsuit)", "tag": "Limited" },
+        { "id": 20049, "name": "Misaki (Swimsuit)" }
+      ]
+    },
+    {
+      "start": "2026-10-27",
+      "end": "2026-11-03",
+      "status": "predicted",
+      "title": "Recollection Recruitment",
+      "note": "Pick one past Fes unit to rate up.",
+      "students": [
+        { "id": 10033, "name": "Wakamo", "tag": "Fes" },
+        { "id": 10059, "name": "Mika", "tag": "Fes" },
+        { "id": 10045, "name": "Hoshino (Swimsuit)", "tag": "Fes" }
+      ]
+    },
+    {
+      "start": "2026-11-03",
+      "end": "2026-11-10",
+      "status": "predicted",
+      "students": [
+        { "id": 20033, "name": "Makoto", "tag": "Limited" },
+        { "id": 10087, "name": "Ako (Dress)", "tag": "Limited" },
+        { "id": 20040, "name": "Satsuki" },
+        { "id": 10107, "name": "Chiaki" },
+        { "id": 10096, "name": "Kanna (Swimsuit)" }
+      ]
+    },
+    {
+      "start": "2026-11-10",
+      "end": "2026-11-17",
+      "status": "predicted",
+      "note": "100 free pulls. Nexon has announced the new recruitment system for Nov 10.",
+      "students": [
+        { "id": 10146, "name": "Makoto (Swimsuit)", "tag": "Limited" },
+        { "id": 10147, "name": "Satsuki (Swimsuit)", "tag": "Limited" }
+      ]
+    },
+    {
+      "start": "2026-11-17",
+      "end": "2026-11-24",
+      "status": "predicted",
+      "title": "Fes",
+      "students": [
+        { "id": 10148, "name": "Iroha (Swimsuit)", "tag": "Fes" },
+        { "id": 20060, "name": "Ibuki (Swimsuit)", "tag": "Fes" },
+        { "id": 20041, "name": "Rio", "tag": "Fes" },
+        { "id": 10111, "name": "Neru (School)", "tag": "Fes" }
+      ]
+    },
+    {
+      "start": "2026-11-24",
+      "end": "2026-12-08",
+      "status": "predicted",
+      "students": [
+        { "id": 10113, "name": "Sena (Casual)" },
+        { "id": 10114, "name": "Juri (Part-Timer)" },
+        { "id": 10119, "name": "Nagusa" },
+        { "id": 20046, "name": "Niya" }
+      ]
+    },
+    {
+      "start": "2026-12-08",
+      "end": "2026-12-22",
+      "status": "predicted",
+      "students": [
+        { "id": 10149, "name": "Kokoro" },
+        { "id": 10150, "name": "Kotone" }
+      ]
+    },
+    {
+      "start": "2026-12-22",
+      "end": "2027-01-05",
+      "status": "predicted",
+      "students": [
+        { "id": 20061, "name": "Kasumi (Swimsuit)" },
+        { "id": 10123, "name": "Seia (Swimsuit)", "tag": "Limited" },
+        { "id": 10124, "name": "Hasumi (Swimsuit)", "tag": "Limited" },
+        { "id": 10097, "name": "Moe (Swimsuit)" },
+        { "id": 20037, "name": "Fubuki (Swimsuit)" }
+      ]
+    },
+    {
+      "start": "2027-01-05",
+      "end": "2027-01-19",
+      "status": "predicted",
+      "students": [
+        { "id": 10151, "name": "Anna" },
+        { "id": 20062, "name": "Erina" }
+      ]
+    },
+    {
+      "start": "2027-01-19",
+      "end": "2027-02-02",
+      "status": "predicted",
+      "students": [
+        { "id": 10152, "name": "Tsumugi" },
+        { "id": 10125, "name": "Eri" },
+        { "id": 10126, "name": "Kanoe" },
+        { "id": 10071, "name": "Miyako (Swimsuit)" },
+        { "id": 10072, "name": "Saki (Swimsuit)" }
+      ]
+    }
+  ]
+};

@@ -12,6 +12,8 @@ Hosted on GitHub Pages, no build step.
 - [planner-core.js](planner-core.js): the planning maths, ported from the sheet's formulas
 - [storage.js](storage.js): load/save, reset, and JSON backup import/export
 - [planner-ui.js](planner-ui.js): rendering and event handling
+- [banner-data.js](banner-data.js): the bundled forecast of upcoming Global banners
+- [banners-ui.js](banners-ui.js): the Upcoming banners cards, plus live checks against SchaleDB
 - [firebase-config.js](firebase-config.js): Firebase web config (placeholder)
 - [firebase-logic.js](firebase-logic.js): optional Firestore sync
 
@@ -35,6 +37,25 @@ in one place. Until you log one, the starting count in Settings is used instead.
 Banners whose End date has passed are moved to the Archive when the page loads, or
 on demand with the *Archive past banners* button. The Archive is read-only history;
 it is not part of the projection. This replaces the `ArchiveScript.gs` Apps Script.
+
+## Upcoming banners
+Global runs JP's banners in the same order a few months later, so the upcoming
+Global schedule can be read off JP's. The *Upcoming banners* section shows one
+card per banner with portraits, dates and limited/Fes tags, and *Add to planner*
+copies a banner into the planning table.
+
+- The forecast lives in [banner-data.js](banner-data.js), taken from
+  [Joe's Blue Archive Tools](https://ba.joexyz.online/global/banners), which
+  maps JP's schedule onto Global dates. Refresh it by hand every month or two and
+  bump `updated`.
+- On load the page asks [SchaleDB](https://schaledb.com) which banners are live.
+  The live Global banner is marked *Confirmed*, and JP's live banner is appended
+  as an estimate (`jpLagDays` later) when the bundled list does not reach it yet.
+  If SchaleDB cannot be reached, the bundled list is shown as is.
+- Portraits are loaded from SchaleDB by student id; a missing one shows the
+  student's initial instead.
+- A card says *In planner* when a planning row already names its first student
+  within a week of its start date.
 
 ## Data and backups
 Everything is saved to browser localStorage, so the planner works offline and

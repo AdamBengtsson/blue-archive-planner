@@ -213,6 +213,7 @@ function render() {
   renderSummary();
   renderPlanning();
   renderArchive();
+  if (typeof renderBanners === "function") renderBanners();
 }
 
 /* Actions -------------------------------------------------------------- */
