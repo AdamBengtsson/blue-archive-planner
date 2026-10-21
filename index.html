@@ -56,8 +56,9 @@
 
       <!--
         Current and upcoming banners, one row per banner, earliest first.
-        Rows that match the Global forecast show its portraits; forecast banners
-        not planned yet appear as faded rows with an "Add to plan" button.
+        Rows that match the Global forecast show its portraits and follow its
+        dates; forecast banners not planned yet appear as faded rows with an
+        "Add to plan" button. Only Units is typed in.
       -->
       <section class="box">
         <h2>Planning</h2>
@@ -65,9 +66,8 @@
           <table id="planningTable">
             <thead>
               <tr>
-                <th>Start</th>
-                <th>End</th>
-                <th>Banner / characters</th>
+                <th>When</th>
+                <th>Banner</th>
                 <th>Units</th>
                 <!-- Per-row cost disabled: planning always assumes the default cost. -->
                 <!-- <th>Cost / unit</th> -->
@@ -83,7 +83,6 @@
           </table>
         </div>
         <div class="toolbar">
-          <button id="addRow" class="primary">Add banner</button>
           <button id="archivePast">Archive past banners</button>
           <span class="spacer"></span>
           <span class="status" id="saveStatus"></span>

@@ -161,16 +161,37 @@ button.link:hover {
 
 /* Forecast inside the planning table ------------------------------- */
 
-.banner-details {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 14px;
-  margin-top: 6px;
+/* Each planning row reads like one of the old banner cards: dates on the
+   left, the roster in the middle, the numbers after it. */
+#planningTable td {
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
-tr.forecast .banner-details {
-  margin-top: 0;
+.col-when {
+  white-space: nowrap;
+  min-width: 140px;
+}
+
+.banner-dates {
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.banner-when {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.banner-name {
+  font-size: 0.95rem;
+}
+
+.banner-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .banner-meta {
@@ -178,17 +199,12 @@ tr.forecast .banner-details {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-}
-
-.banner-when,
-.banner-note {
   font-size: 0.78rem;
   color: var(--muted);
-  margin: 0;
 }
 
-.banner-note {
-  flex-basis: 100%;
+.banner-title {
+  color: var(--text);
 }
 
 /* Forecast banners not in the plan yet: present, but quieter than real rows. */
@@ -237,7 +253,7 @@ button.small {
 
 .student {
   position: relative;
-  width: 52px;
+  width: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -247,8 +263,8 @@ button.small {
 }
 
 .portrait {
-  width: 52px;
-  height: 58px;
+  width: 64px;
+  height: 72px;
   border-radius: 8px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.06);
@@ -271,7 +287,7 @@ button.small {
 }
 
 .student-name {
-  font-size: 0.62rem;
+  font-size: 0.66rem;
   line-height: 1.2;
   text-align: center;
 }
@@ -373,7 +389,7 @@ td .negative { color: var(--bad); }
    scrolling sideways; the banner column takes whatever width is left. */
 td input { padding: 7px 6px; }
 .col-date input { width: 132px; }
-.col-banner input { min-width: 220px; }
+.col-banner { min-width: 300px; }
 .col-num input { width: 64px; text-align: right; }
 .col-gems input { width: 88px; text-align: right; }
 .col-note input { min-width: 150px; }

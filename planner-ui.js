@@ -12,7 +12,7 @@ let state = loadState();
 const el = (id) => document.getElementById(id);
 const gems = (n) => (typeof n === "number" ? Math.round(n).toLocaleString("en-US") : "");
 
-/** An empty banner row, used by "Add banner". */
+/** An empty banner row, filled in by "Add to plan". */
 function blankRow() {
   return { start: "", end: "", banner: "", units: null, unitCost: null, note: "" };
 }
@@ -54,6 +54,31 @@ function logGems(date, gems) {
 
 /* Rendering ------------------------------------------------------------ */
 
+/** Running now / starts in N days, counted from today. */
+function describeWhen(banner) {
+  const start = parseDate(banner.start);
+  const end = parseDate(banner.end);
+  const now = today();
+  if (!start || !end) return "";
+  const plural = (n) => `${n} day${n === 1 ? "" : "s"}`;
+  if (start <= now) return `Running now · ends in ${plural(daysBetween(now, end))}`;
+  return `Starts in ${plural(daysBetween(now, start))}`;
+}
+
+/** "Oct 27 – Nov 3", with the year only where it changes from this year. */
+function describeDates(banner) {
+  if (!parseDate(banner.start) || !parseDate(banner.end)) return "No dates";
+  const thisYear = today().getFullYear();
+  const fmt = (value) => {
+    const date = parseDate(value);
+    const options = { month: "short", day: "numeric" };
+    if (date.getFullYear() !== thisYear) options.year = "numeric";
+    return date.toLocaleDateString("en-US", options);
+  };
+  return `${fmt(banner.start)} – ${fmt(banner.end)}`;
+}
+
+
 /** Builds one editable input cell bound to a field on a planning row or gem log entry. */
 function inputCell(row, field, type, className) {
   const td = document.createElement("td");
@@ -74,6 +99,20 @@ function inputCell(row, field, type, className) {
   });
 
   td.appendChild(input);
+  return td;
+}
+
+/** The dates as text, with how soon the banner starts or ends under them. */
+function whenCell(banner) {
+  const td = document.createElement("td");
+  td.className = "col-when";
+  const dates = document.createElement("div");
+  dates.className = "banner-dates";
+  dates.textContent = describeDates(banner);
+  const when = document.createElement("div");
+  when.className = "banner-when";
+  when.textContent = describeWhen(banner);
+  td.append(dates, when);
   return td;
 }
 
@@ -105,12 +144,20 @@ function renderPlanning(estimate) {
     if (item.isAnchorRow) tr.classList.add("anchor");
     tr.dataset.start = row.start || "";
 
-    tr.appendChild(inputCell(row, "start", "date", "col-date"));
-    tr.appendChild(inputCell(row, "end", "date", "col-date"));
-    const bannerCell = inputCell(row, "banner", "text", "col-banner");
-    // Portraits and timing from the forecast, once banners-ui.js has loaded.
+    tr.appendChild(whenCell(row));
+    // Portraits from the forecast once banners-ui.js has loaded; otherwise
+    // the name the row was saved with.
+    const bannerCell = document.createElement("td");
+    bannerCell.className = "col-banner";
     const details = typeof forecastDetails === "function" ? forecastDetails(row) : null;
-    if (details) bannerCell.appendChild(details);
+    if (details) {
+      bannerCell.appendChild(details);
+    } else {
+      const name = document.createElement("div");
+      name.className = "banner-name";
+      name.textContent = row.banner;
+      bannerCell.appendChild(name);
+    }
     tr.appendChild(bannerCell);
     tr.appendChild(inputCell(row, "units", "number", "col-num"));
     // Per-row cost disabled: planning always assumes the default cost.
@@ -151,9 +198,9 @@ function renderPlanning(estimate) {
   if (rows.length === 0) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
-    td.colSpan = 10;
+    td.colSpan = 9;
     td.className = "empty";
-    td.textContent = "No banners planned yet. Add one to get started.";
+    td.textContent = "No banners planned yet. Pick one from the forecast with Add to plan.";
     tr.appendChild(td);
     body.appendChild(tr);
   }
@@ -377,11 +424,6 @@ function bindLogForm() {
 }
 
 function bindToolbar() {
-  el("addRow").addEventListener("click", () => {
-    state.planning.push(blankRow());
-    commit();
-  });
-
   el("archivePast").addEventListener("click", () => archivePast(true));
 
   el("exportData").addEventListener("click", () => exportState(state));

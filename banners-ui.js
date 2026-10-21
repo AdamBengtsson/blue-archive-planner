@@ -1,7 +1,8 @@
 /**
- * Upcoming Global banners, shown inside the planning table: portraits under
+ * Upcoming Global banners, shown inside the planning table: portraits in
  * each planner row that matches a forecast banner, and a faded row with an
- * "Add to plan" button for each banner not planned yet.
+ * "Add to plan" button for each banner not planned yet. Matched rows follow
+ * the forecast's dates.
  *
  * The list starts from the bundled BANNER_DATA (see banner-data.js), so it
  * always renders, even offline. SchaleDB is then asked which banners are live
@@ -63,28 +64,6 @@ function findPlannedRow(banner) {
   });
 }
 
-/** Running now / starts in N days, counted from today. */
-function describeWhen(banner) {
-  const start = parseDate(banner.start);
-  const end = parseDate(banner.end);
-  const now = today();
-  const plural = (n) => `${n} day${n === 1 ? "" : "s"}`;
-  if (start <= now) return `Running now · ends in ${plural(daysBetween(now, end))}`;
-  return `Starts in ${plural(daysBetween(now, start))}`;
-}
-
-/** "Oct 27 – Nov 3", with the year only where it changes from this year. */
-function describeDates(banner) {
-  const thisYear = today().getFullYear();
-  const fmt = (value) => {
-    const date = parseDate(value);
-    const options = { month: "short", day: "numeric" };
-    if (date.getFullYear() !== thisYear) options.year = "numeric";
-    return date.toLocaleDateString("en-US", options);
-  };
-  return `${fmt(banner.start)} – ${fmt(banner.end)}`;
-}
-
 function studentTile(student) {
   const link = document.createElement("a");
   link.className = "student";
@@ -121,12 +100,8 @@ function studentTile(student) {
   return link;
 }
 
-/**
- * The portraits, badge and timing shown under a banner's name in the planning
- * table. row is the planner row it belongs to, if any; when that row's dates
- * differ from the forecast, a button offers to move it onto the forecast.
- */
-function bannerDetails(banner, row) {
+/** The portraits and badge shown in a planning row's Banner column. */
+function bannerDetails(banner) {
   const details = document.createElement("div");
   details.className = "banner-details";
 
@@ -140,39 +115,27 @@ function bannerDetails(banner, row) {
   const badge = document.createElement("span");
   badge.className = `badge ${banner.status}`;
   badge.textContent = banner.status === "confirmed" ? "Confirmed" : "Predicted";
-  const when = document.createElement("span");
-  when.className = "banner-when";
-  when.textContent = banner.title ? `${banner.title} · ${describeWhen(banner)}` : describeWhen(banner);
-  meta.append(badge, when);
-
-  if (row && (row.start !== banner.start || row.end !== banner.end)) {
-    // Hand-typed dates are guesses; offer to move the row onto the forecast.
-    const move = document.createElement("button");
-    move.className = "small";
-    move.textContent = `Use ${describeDates(banner)}`;
-    move.title = "The forecast has this banner on different dates. Click to move the row onto them.";
-    move.addEventListener("click", () => {
-      Object.assign(row, { start: banner.start, end: banner.end });
-      state.planning = sortRows(state.planning);
-      commit("Planner row moved to the forecast dates.");
-    });
-    meta.appendChild(move);
+  meta.appendChild(badge);
+  if (banner.title) {
+    const title = document.createElement("span");
+    title.className = "banner-title";
+    title.textContent = banner.title;
+    meta.appendChild(title);
   }
-  details.appendChild(meta);
-
   if (banner.note) {
-    const note = document.createElement("p");
+    const note = document.createElement("span");
     note.className = "banner-note";
     note.textContent = banner.note;
-    details.appendChild(note);
+    meta.appendChild(note);
   }
+  details.appendChild(meta);
   return details;
 }
 
 /** Called from renderPlanning() for each planner row: its forecast details, or null. */
 function forecastDetails(row) {
   const banner = banners.find((candidate) => findPlannedRow(candidate) === row);
-  return banner ? bannerDetails(banner, row) : null;
+  return banner ? bannerDetails(banner) : null;
 }
 
 /**
@@ -183,14 +146,12 @@ function forecastRow(banner) {
   const tr = document.createElement("tr");
   tr.className = "forecast";
   tr.dataset.start = banner.start;
+  tr.appendChild(whenCell(banner));
 
-  [banner.start, banner.end].forEach((date) => tr.appendChild(calcCell(date)));
-
-  // The portraits already name everyone, so no label until it is added.
-  const label = document.createElement("td");
-  label.className = "col-banner";
-  label.appendChild(bannerDetails(banner));
-  tr.appendChild(label);
+  const roster = document.createElement("td");
+  roster.className = "col-banner";
+  roster.appendChild(bannerDetails(banner));
+  tr.appendChild(roster);
 
   const units = document.createElement("td");
   units.colSpan = 7;
@@ -207,6 +168,25 @@ function forecastRow(banner) {
   units.appendChild(add);
   tr.appendChild(units);
   return tr;
+}
+
+/**
+ * Dates are not typed in any more, so a planner row that matches a forecast
+ * banner takes the forecast's dates whenever they differ. Saves only when a
+ * row actually moved.
+ */
+function followForecastDates() {
+  let moved = false;
+  banners.forEach((banner) => {
+    const row = findPlannedRow(banner);
+    if (!row || !state.planning.includes(row)) return;
+    if (row.start === banner.start && row.end === banner.end) return;
+    Object.assign(row, { start: banner.start, end: banner.end });
+    moved = true;
+  });
+  if (!moved) return;
+  state.planning = sortRows(state.planning);
+  saveState(state);
 }
 
 /**
@@ -314,9 +294,13 @@ function loadLiveBanners() {
       console.warn("Could not load live banners from SchaleDB.", error);
       liveStatus = "SchaleDB could not be reached, so the live banner is not confirmed.";
     })
-    .finally(render);
+    .finally(() => {
+      followForecastDates();
+      render();
+    });
 }
 
 // planner-ui.js rendered before this file loaded, so draw again with the forecast.
+followForecastDates();
 render();
 loadLiveBanners();

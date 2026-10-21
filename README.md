@@ -19,7 +19,8 @@ Hosted on GitHub Pages, no build step.
 - [firebase-logic.js](firebase-logic.js): optional Firestore sync
 
 ## How it works
-- One row per banner, earliest first: start date, end date, characters, units planned.
+- One row per banner, earliest first: dates, characters, units planned. Rows come
+  from the forecast with *Add to plan*; only Units is typed in.
 - **Units** is how many banners you want to spend on. Each costs 24,000 by default;
   type a cheaper figure in *Cost / unit* on a row when you get lucky.
 - **Income** is not typed in. It is estimated from your gem log: for each gap
@@ -64,8 +65,10 @@ Global runs JP's banners in the same order a few months later, so the upcoming
 Global schedule can be read off JP's. The forecast lives inside the Planning
 table rather than in a section of its own:
 
-- A planner row that matches a forecast banner shows its portraits, limited/Fes
-  tags, *Predicted* or *Confirmed*, and how soon it starts, under the banner name.
+- Dates and banner names are not typed in; only *Units* is. A planner row that
+  matches a forecast banner shows its portraits, limited/Fes tags and
+  *Predicted* or *Confirmed*, and takes the forecast's dates whenever they move.
+  Older hand-typed rows with no match show their saved name instead.
 - Each forecast banner not in the plan yet appears as a faded row in date order,
   with *Add to plan*. It has no units, so it changes none of the sums until added.
 
@@ -83,8 +86,7 @@ table rather than in a section of its own:
 - Portraits are loaded from SchaleDB by student id; a missing one shows the
   student's initial instead.
 - A planner row matches a banner when it names the banner's first student and
-  starts within a week of it. If its dates differ from the forecast, a *Use …*
-  button moves the row onto the forecast dates.
+  starts within a week of it.
 
 ## Data and backups
 Everything is saved to browser localStorage, so the planner works offline and
