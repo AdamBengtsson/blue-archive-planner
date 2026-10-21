@@ -276,7 +276,6 @@ function renderArchive() {
   const pulled = (row) => typeof row.units === "number" && row.units > 0;
   const onlyMine = Boolean(state.settings.archiveOnlyMine);
   el("archiveCount").textContent = state.archive.length;
-  el("archivePulledCount").textContent = state.archive.filter(pulled).length;
   el("archiveOnlyMine").checked = onlyMine;
 
   // Newest first: when looking back, recent banners are the interesting ones.
