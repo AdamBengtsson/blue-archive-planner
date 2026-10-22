@@ -52,6 +52,13 @@ function logGems(date, gems) {
   state.gemLog = sortGemLog(state.gemLog.filter((entry) => entry.date !== date).concat({ date, gems }));
 }
 
+/** "Aug 5, 2025" for a date shown to the user; stored dates stay yyyy-mm-dd. */
+function displayDate(value) {
+  const date = value instanceof Date ? value : parseDate(value);
+  if (!date) return value || "";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
 /* Rendering ------------------------------------------------------------ */
 
 /** Running now / starts in N days, counted from today. */
@@ -147,10 +154,15 @@ function whenCell(banner) {
   return td;
 }
 
-/** Builds one read-only calculated cell. */
-function calcCell(text, className) {
+/**
+ * Builds one read-only calculated cell. The label names the value on phones,
+ * where the table's header row is hidden and each row is a card.
+ */
+function calcCell(text, className, label) {
   const td = document.createElement("td");
   td.className = "calc";
+  if (label) td.dataset.label = label;
+  if (!text) return td;
   if (className) {
     const span = document.createElement("span");
     span.className = className;
@@ -196,27 +208,41 @@ function renderPlanning(estimate) {
     // Limited and Fes students leave the pool when the banner ends, so those rows stand out.
     if (details && details.dataset.limited) tr.classList.add("limited");
     tr.appendChild(unitsCell(row));
-    tr.appendChild(calcCell(item.plannedSpend ? gems(item.plannedSpend) : ""));
-    tr.appendChild(calcCell(item.income ? gems(item.income) : ""));
-    tr.appendChild(
-      calcCell(
-        item.expectedAfter === null ? "" : gems(item.expectedAfter),
-        item.expectedAfter !== null && item.expectedAfter < 0 ? "negative" : ""
-      )
+    tr.appendChild(calcCell(item.plannedSpend ? gems(item.plannedSpend) : "", "", "Planned spend"));
+    tr.appendChild(calcCell(item.income ? gems(item.income) : "", "", "Income"));
+    const expected = calcCell(
+      item.expectedAfter === null ? "" : gems(item.expectedAfter),
+      item.expectedAfter !== null && item.expectedAfter < 0 ? "negative" : "",
+      "Expected after"
     );
+    if (item.isLowPoint) {
+      tr.classList.add("low-point");
+      const note = document.createElement("div");
+      note.className = "low-point-note";
+      note.textContent = "Lowest point";
+      expected.appendChild(note);
+    }
+    tr.appendChild(expected);
+
     tr.appendChild(
       calcCell(
         item.lowestAhead === null ? "" : gems(item.lowestAhead),
-        item.lowestAhead !== null && item.lowestAhead < 0 ? "negative" : ""
+        item.lowestAhead !== null && item.lowestAhead < 0 ? "negative" : "",
+        "Lowest ahead"
       )
     );
     tr.appendChild(
-      calcCell(item.roomForExtra, item.roomForExtra.startsWith("Short") ? "short" : "room")
+      calcCell(
+        item.roomForExtra,
+        item.roomForExtra.startsWith("Short") ? "short" : "room",
+        "Room for extra?"
+      )
     );
 
     // Forecast rows come back on the next sync, so only rows of your own can
     // be deleted. Set Units to 0 to skip a forecast banner instead.
     const actions = document.createElement("td");
+    actions.className = "col-actions";
     if (!details) {
       const remove = document.createElement("button");
       remove.className = "link";
@@ -247,15 +273,20 @@ function renderPlanning(estimate) {
 function renderArchive() {
   const body = el("archiveBody");
   body.textContent = "";
+  const pulled = (row) => typeof row.units === "number" && row.units > 0;
+  const onlyMine = Boolean(state.settings.archiveOnlyMine);
   el("archiveCount").textContent = state.archive.length;
+  el("archiveOnlyMine").checked = onlyMine;
 
   // Newest first: when looking back, recent banners are the interesting ones.
   state.archive
     .slice()
     .reverse()
+    .filter((row) => !onlyMine || pulled(row))
     .forEach((row) => {
       const tr = document.createElement("tr");
-      [row.start, row.end, row.banner, row.units ?? "", row.note || ""].forEach(
+      if (pulled(row)) tr.classList.add("pulled");
+      [displayDate(row.start), displayDate(row.end), row.banner, row.units ?? "", row.note || ""].forEach(
         (value) => {
           const td = document.createElement("td");
           td.textContent = value === null || value === undefined ? "" : value;
@@ -326,8 +357,8 @@ function renderIncome(estimate) {
       if (!gap.used) tr.classList.add("past");
       const perMonth = gap.days > 0 ? (gap.earned / gap.days) * DAYS_PER_MONTH : null;
       [
-        formatDate(gap.from),
-        formatDate(gap.to),
+        displayDate(gap.from),
+        displayDate(gap.to),
         gap.days,
         gems(gap.change),
         gap.spend ? gems(gap.spend) : "",
@@ -354,7 +385,7 @@ function renderSummary(estimate) {
 
   el("statAnchor").textContent = gems(anchor.gems);
   el("statAnchorHint").textContent = anchor.logged
-    ? `Logged on ${formatDate(anchor.date)}.`
+    ? `Logged on ${displayDate(anchor.date)}.`
     : "From your starting count — log your gems to replace it.";
 
   const lowest = future.length ? future[0].lowestAhead : null;
@@ -366,7 +397,9 @@ function renderSummary(estimate) {
       ? "Nothing planned ahead yet."
       : lowest < 0
         ? `Short by ${gems(Math.abs(lowest))} at the worst point.`
-        : describeRoom(lowest, state.settings.defaultUnitCost) || "Everything planned fits.";
+        : (describeRoom(lowest, state.settings.defaultUnitCost) || "Everything planned fits") + ".";
+  const lowPoint = rows.find((item) => item.isLowPoint);
+  if (lowPoint) el("statLowestHint").textContent += ` Lowest after the ${describeDates(lowPoint.row)} banner.`;
 
   const incomeCell = el("statIncome");
   incomeCell.textContent = estimate.perMonth === null ? "—" : gems(estimate.perMonth);
@@ -374,7 +407,7 @@ function renderSummary(estimate) {
   el("statIncomeHint").textContent =
     estimate.perMonth === null
       ? "Log your gems twice to estimate it."
-      : `From your gem logs since ${formatDate(estimate.since)}.`;
+      : `From your gem logs since ${displayDate(estimate.since)}.`;
 
   const units = future.reduce((sum, item) => sum + item.units, 0);
   el("statUnits").textContent = units;
@@ -461,6 +494,11 @@ function bindLogForm() {
 
 function bindToolbar() {
   el("archivePast").addEventListener("click", () => archivePast(true));
+
+  el("archiveOnlyMine").addEventListener("change", (event) => {
+    state.settings.archiveOnlyMine = event.target.checked;
+    commit();
+  });
 
   el("exportData").addEventListener("click", () => exportState(state));
 

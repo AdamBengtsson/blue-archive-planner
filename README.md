@@ -40,7 +40,9 @@ Hosted on GitHub Pages, no build step.
   high. That is accepted: tracking the real spend per banner is too much work.
 - **Expected after** is your gem anchor + income so far &minus; planned spend so far.
 - **Lowest ahead** is the lowest the balance is projected to get between that row and
-  the end of the plan. At or above 0 means everything planned fits.
+  the end of the plan. At or above 0 means everything planned fits. The row where
+  the balance bottoms out is marked *Lowest point*: that banner is what limits
+  planning more.
 - **Room for extra?** appears when that lowest point still covers another unit.
 
 ### Your gem anchor
@@ -57,7 +59,8 @@ from then is moved into the gem log automatically, dated on each row's End date.
 ### Archiving
 Banners whose End date has passed are moved to the Archive when the page loads, or
 on demand with the *Archive past banners* button. The Archive is read-only history;
-it is not part of the projection. This replaces the `ArchiveScript.gs` Apps Script.
+it is not part of the projection. Banners you pulled on are highlighted, and
+*Only banners I pulled on* hides the rest. This replaces the `ArchiveScript.gs` Apps Script.
 
 ## Upcoming banners
 Global runs JP's banners in the same order a few months later, so the upcoming

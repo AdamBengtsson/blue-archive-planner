@@ -14,12 +14,9 @@
   </head>
   <body>
     <main class="container">
-      <section class="box">
-        <h1>Blue Archive Gem Planner</h1>
-      </section>
-
-      <!-- The numbers worth seeing without reading the table. -->
+      <!-- The title and the numbers worth seeing without reading the table. -->
       <section class="box summary" id="summary">
+        <h1>Blue Archive Gem Planner</h1>
         <div class="stat">
           <label>Gems right now</label>
           <div class="value" id="statAnchor">&mdash;</div>
@@ -102,6 +99,10 @@
       <section class="box">
         <details id="archiveSection">
           <summary>Archive (<span id="archiveCount">0</span> past banners)</summary>
+          <label class="check">
+            <input id="archiveOnlyMine" type="checkbox" />
+            Only banners I pulled on
+          </label>
           <div class="table-scroll">
             <table>
               <thead>
@@ -207,7 +208,7 @@
               <li><strong>Units</strong> is how many banners you want to spend on: 0 to skip, 1 or 2 (or more) otherwise. Each costs the default 24,000 from Settings, the worst case.</li>
               <li><strong>Income</strong> is estimated from your gem log: how much your count rose between logs, plus the units you spent in between at the default cost, averaged over the last 12 months (change it in Settings). Each banner then earns that rate for its days. The more often you log, the better the estimate; units you spent but did not enter make it read low.</li>
               <li><strong>Expected after</strong> is anchor + income so far &minus; planned spend so far. Red means it would go below zero.</li>
-              <li><strong>Lowest ahead</strong> looks all the way to the end of your plan. At or above 0 means everything you have planned fits.</li>
+              <li><strong>Lowest ahead</strong> looks all the way to the end of your plan. At or above 0 means everything you have planned fits. The row marked <em>Lowest point</em> is the one that limits what more you can plan.</li>
               <li><strong>Room for extra?</strong> appears when that lowest point still covers another unit &mdash; you could add a banner without going short later.</li>
               <li><strong>Portraits</strong> come from the Global forecast. Every upcoming banner in the forecast gets a row by itself, and its dates move when the forecast does. Type Units on the ones you want, or use the &minus; and + buttons; leave it empty to skip. Rows with a Limited or Fes student are tinted red.</li>
               <li>Banners whose End date has passed are moved to the Archive automatically when you open the page. Log your gems now and then so the plan picks up your real count.</li>
