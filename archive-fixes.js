@@ -551,6 +551,11 @@ const ARCHIVE_FIXES = [
       units: null,
       note: "Break, not tracked"
     }
+  },
+  {
+    // Adam pulled Niko and Kurumi here (2026-10-22).
+    match: { start: "2026-08-18", end: "2026-09-01", banner: "SRT FOX" },
+    set: { units: 2 }
   }
 ];
 
