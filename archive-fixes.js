@@ -553,9 +553,9 @@ const ARCHIVE_FIXES = [
     }
   },
   {
-    // Adam pulled Niko and Kurumi here (2026-10-22).
+    // Adam rolled for one unit here; the other came free as a bonus (2026-10-22).
     match: { start: "2026-08-18", end: "2026-09-01", banner: "SRT FOX" },
-    set: { units: 2 }
+    set: { units: 1 }
   }
 ];
 
