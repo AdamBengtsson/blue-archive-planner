@@ -15,24 +15,9 @@
  *   banners     earliest first. tag marks a limited unit ("Limited" or "Fes").
  */
 const BANNER_DATA = {
-  "updated": "2026-10-21",
+  "updated": "2026-10-28",
   "jpLagDays": 104,
   "banners": [
-    {
-      "start": "2026-10-13",
-      "end": "2026-10-27",
-      "status": "predicted",
-      "students": [
-        {
-          "id": 10145,
-          "name": "Kisaki (Swimsuit)"
-        },
-        {
-          "id": 10143,
-          "name": "Shun (Swimsuit)"
-        }
-      ]
-    },
     {
       "start": "2026-10-27",
       "end": "2026-11-03",
