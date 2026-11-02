@@ -346,6 +346,8 @@ function renderGemLog(estimate) {
       const actions = document.createElement("td");
       actions.appendChild(
         deleteButton("Delete this gem count", () => {
+          const what = `${gems(entry.gems)} gems on ${displayDate(entry.date)}`;
+          if (!window.confirm(`Delete the gem count of ${what}?`)) return;
           state.gemLog = state.gemLog.filter((other) => other !== entry);
           commit("Gem count deleted.");
         })
