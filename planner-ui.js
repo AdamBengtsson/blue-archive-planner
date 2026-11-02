@@ -606,6 +606,8 @@ const cloudCallbacks = {
     appMode = "owner";
     state = normaliseState(cloudState);
     prepareState();
+    // Saves only if loading changed anything, or the document is in the old format.
+    saveState(state);
     showMode("owner");
     if (!first) flash("Updated from another device.");
   },

@@ -6,8 +6,15 @@
  * passphrase is ever typed. The account is created by hand in the Firebase
  * console; the page never offers sign-up.
  *
- * Everything personal (gem log, units, archive, settings) lives in one
- * Firestore document per account: users/{uid}. The Firestore rules in
+ * Everything personal lives in one Firestore document per account,
+ * users/{uid}, as plain fields:
+ *   settings   a map of the Settings values
+ *   gemLog     a list of { date, gems }
+ *   planning   a list of banner rows { start, end, banner, units, note }
+ *   archive    the same, for past banners
+ *   updatedAt  when it was last saved
+ * One document keeps every save a single write; the data is far below
+ * Firestore's 1 MB document limit. The Firestore rules in
  * firestore.rules let only the owner's account read or write it, so the page
  * itself can be public. Signed out, it shows only the banner forecast.
  *
@@ -91,15 +98,20 @@ function listen(user, callbacks) {
         callbacks.empty(user);
         return;
       }
-      const payload = snapshot.data().payload;
-      if (!payload || payload === cloud.lastPayload) return;
-      cloud.lastPayload = payload;
+      let state;
+      let legacy = false;
       try {
-        callbacks.loaded(JSON.parse(payload), user);
+        ({ state, legacy } = readDocument(snapshot.data()));
       } catch (error) {
         console.warn("The saved planner data could not be read.", error);
         callbacks.status("Your saved data could not be read.");
+        return;
       }
+      const key = stableStringify(state);
+      if (key === cloud.lastPayload) return;
+      // An old text-block document is rewritten as fields on the next save.
+      cloud.lastPayload = legacy ? null : key;
+      callbacks.loaded(state, user);
     },
     (error) => {
       if (error.code === "permission-denied") {
@@ -112,6 +124,32 @@ function listen(user, callbacks) {
   );
 }
 
+/**
+ * The planner state in a saved document. The first version kept everything
+ * as one JSON string in `payload`; that is still read, and reports itself as
+ * legacy so the caller saves it back as fields.
+ */
+function readDocument(data) {
+  if (typeof data.payload === "string") return { state: JSON.parse(data.payload), legacy: true };
+  const { settings, gemLog, planning, archive } = data;
+  return { state: { settings, gemLog, planning, archive }, legacy: false };
+}
+
+/**
+ * JSON with object keys sorted, so the same data always gives the same text
+ * whichever order Firestore hands the fields back in. Used to tell whether
+ * anything actually changed.
+ */
+function stableStringify(value) {
+  return JSON.stringify(value, (key, inner) =>
+    inner && typeof inner === "object" && !Array.isArray(inner)
+      ? Object.keys(inner)
+          .sort()
+          .reduce((sorted, name) => ((sorted[name] = inner[name]), sorted), {})
+      : inner
+  );
+}
+
 function stopListening() {
   flushCloudSave();
   if (cloud.stopListening) cloud.stopListening();
@@ -120,12 +158,16 @@ function stopListening() {
 
 /**
  * Saves the state to the signed-in account. Writes are delayed a little and
- * skipped when nothing changed. The state is stored as one JSON string, so
- * Firestore's limits on nested arrays never come into play.
+ * skipped when nothing changed.
  */
 function cloudSave(state, immediately) {
   if (!cloud.doc) return;
-  const payload = JSON.stringify(state);
+  const payload = stableStringify({
+    settings: state.settings,
+    gemLog: state.gemLog,
+    planning: state.planning,
+    archive: state.archive
+  });
   if (payload === cloud.lastPayload && !cloud.saveTimer) return;
   cloud.lastPayload = payload;
   cloud.pending = payload;
@@ -139,10 +181,13 @@ function flushCloudSave() {
   if (!cloud.saveTimer || !cloud.doc) return;
   clearTimeout(cloud.saveTimer);
   cloud.saveTimer = null;
-  const payload = cloud.pending;
+  // Back through JSON so the fields hold only what Firestore accepts:
+  // no undefined values, plain objects only. set() replaces the whole
+  // document, which also drops the old `payload` field.
+  const fields = JSON.parse(cloud.pending);
   const report = cloud.status || (() => {});
   cloud.doc
-    .set({ payload, updatedAt: new Date().toISOString() })
+    .set(Object.assign(fields, { updatedAt: new Date().toISOString() }))
     .then(() => report("Saved to the cloud."))
     .catch((error) => {
       console.warn("Could not save planner state to Firestore.", error);
