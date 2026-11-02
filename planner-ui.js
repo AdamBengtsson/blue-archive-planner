@@ -290,7 +290,12 @@ function renderPlanning(estimate) {
     // the name the row was saved with.
     const details = typeof forecastDetails === "function" ? forecastDetails(row) : null;
     const when = whenCell(row);
-    if (details) when.appendChild(statusBadge(details.dataset.status));
+    if (details) {
+      when.appendChild(statusBadge(details.dataset.status));
+      // Title and notes (free pulls, recollection) read best under the dates.
+      const meta = details.querySelector(".banner-meta");
+      if (meta) when.appendChild(meta);
+    }
     tr.appendChild(when);
     const bannerCell = document.createElement("td");
     bannerCell.className = "col-banner";
