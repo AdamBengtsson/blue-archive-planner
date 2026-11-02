@@ -4,7 +4,7 @@
  *
  * The state shape is { settings, planning, archive, gemLog } — see
  * seed-data.js and storage.js. Planning rows are the only editable banners;
- * archive rows are read-only. The gem log is edited in its own section.
+ * archive rows are read-only. Gem counts are edited in the gem log.
  */
 
 /** What the visitor may see; see storage.js. Signed out until Firebase says otherwise. */
@@ -93,7 +93,7 @@ function describeDates(banner) {
 }
 
 
-/** Builds one editable input cell bound to a field on a planning row or gem log entry. */
+/** Builds one editable input cell bound to a field on a planning row or gem count. */
 function inputCell(row, field, type, className) {
   const td = document.createElement("td");
   td.className = className;
@@ -106,9 +106,6 @@ function inputCell(row, field, type, className) {
 
   input.addEventListener("change", () => {
     row[field] = type === "number" ? numberOrNull(input.value) : input.value;
-    // Re-sorting on every keystroke would move the field out from under the
-    // cursor, so dates only trigger a sort once the field is left.
-    if (field === "start" || field === "end") state.planning = sortRows(state.planning);
     commit();
   });
 
@@ -257,30 +254,40 @@ function renderPlanning(estimate) {
     const actions = document.createElement("td");
     actions.className = "col-actions";
     if (!details) {
-      const remove = document.createElement("button");
-      remove.className = "link";
-      remove.textContent = "✕";
-      remove.title = "Delete this banner";
-      remove.addEventListener("click", () => {
-        state.planning.splice(index, 1);
-        commit("Banner deleted.");
-      });
-      actions.appendChild(remove);
+      actions.appendChild(
+        deleteButton("Delete this banner", () => {
+          state.planning.splice(index, 1);
+          commit("Banner deleted.");
+        })
+      );
     }
     tr.appendChild(actions);
 
     body.appendChild(tr);
   });
 
-  if (rows.length === 0) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 9;
-    td.className = "empty";
-    td.textContent = "No upcoming banners in the forecast.";
-    tr.appendChild(td);
-    body.appendChild(tr);
-  }
+  if (rows.length === 0) emptyRow(body, 9, "No upcoming banners in the forecast.");
+}
+
+/** A one-cell row saying a table has nothing to show. */
+function emptyRow(body, columns, text) {
+  const tr = document.createElement("tr");
+  const td = document.createElement("td");
+  td.colSpan = columns;
+  td.className = "empty";
+  td.textContent = text;
+  tr.appendChild(td);
+  body.appendChild(tr);
+}
+
+/** A ✕ button that runs `onClick`. */
+function deleteButton(title, onClick) {
+  const button = document.createElement("button");
+  button.className = "link";
+  button.textContent = "✕";
+  button.title = title;
+  button.addEventListener("click", onClick);
+  return button;
 }
 
 function renderArchive() {
@@ -299,107 +306,65 @@ function renderArchive() {
     .forEach((row) => {
       const tr = document.createElement("tr");
       if (pulled(row)) tr.classList.add("pulled");
-      [displayDate(row.start), displayDate(row.end), row.banner, row.units ?? "", row.note || ""].forEach(
-        (value) => {
-          const td = document.createElement("td");
-          td.textContent = value === null || value === undefined ? "" : value;
-          tr.appendChild(td);
-        }
-      );
+      [displayDate(row.start), displayDate(row.end), row.banner, row.units ?? "", row.note || ""].forEach((value) => {
+        const td = document.createElement("td");
+        td.textContent = value;
+        tr.appendChild(td);
+      });
       body.appendChild(tr);
     });
 }
 
-/** The gem log, newest first, with each count editable in place. */
-function renderGemLog() {
+/**
+ * The gem log, newest first, each count editable in place. Next to it is the
+ * income-estimate gap that ends on that count, so the estimate's working
+ * needs no table of its own.
+ */
+function renderGemLog(estimate) {
   const body = el("gemLogBody");
   body.textContent = "";
   el("gemLogCount").textContent = state.gemLog.length;
+  const gaps = new Map(estimate.gaps.map((gap) => [formatDate(gap.to), gap]));
+  const signed = (n) => (n > 0 ? "+" : "") + gems(n);
 
   // Sorted here rather than on edit, so a corrected date lands in place.
   sortGemLog(state.gemLog)
     .reverse()
-    .forEach((entry, i, newestFirst) => {
+    .forEach((entry) => {
       const tr = document.createElement("tr");
-      tr.appendChild(inputCell(entry, "date", "date", "col-date"));
-      tr.appendChild(inputCell(entry, "gems", "number", "col-gems"));
+      tr.append(inputCell(entry, "date", "date", "col-date"), inputCell(entry, "gems", "number", "col-gems"));
 
-      const previous = newestFirst[i + 1];
-      const change =
-        previous && typeof entry.gems === "number" && typeof previous.gems === "number"
-          ? entry.gems - previous.gems
-          : null;
-      tr.appendChild(
-        calcCell(change === null ? "" : (change > 0 ? "+" : "") + gems(change), change < 0 ? "negative" : "")
+      const gap = gaps.get(formatDate(parseDate(entry.date)));
+      const perMonth = gap && gap.days > 0 ? (gap.earned / gap.days) * DAYS_PER_MONTH : null;
+      tr.append(
+        calcCell(gap ? signed(gap.change) : "", gap && gap.change < 0 ? "negative" : ""),
+        calcCell(gap && gap.spend ? gems(gap.spend) : ""),
+        calcCell(gap ? gems(gap.earned) : ""),
+        calcCell(perMonth === null ? "" : gems(perMonth), gap && !gap.used ? "unused" : "")
       );
 
       const actions = document.createElement("td");
-      const remove = document.createElement("button");
-      remove.className = "link";
-      remove.textContent = "✕";
-      remove.title = "Delete this entry";
-      remove.addEventListener("click", () => {
-        state.gemLog = state.gemLog.filter((other) => other !== entry);
-        commit("Gem count deleted.");
-      });
-      actions.appendChild(remove);
+      actions.appendChild(
+        deleteButton("Delete this gem count", () => {
+          state.gemLog = state.gemLog.filter((other) => other !== entry);
+          commit("Gem count deleted.");
+        })
+      );
       tr.appendChild(actions);
-
       body.appendChild(tr);
     });
 
-  if (state.gemLog.length === 0) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 4;
-    td.className = "empty";
-    td.textContent = "Nothing logged yet. Log your gem count above.";
-    tr.appendChild(td);
-    body.appendChild(tr);
-  }
-}
-
-function renderIncome(estimate) {
-  const body = el("incomeBody");
-  body.textContent = "";
-  estimate.gaps
-    .slice()
-    .reverse()
-    .forEach((gap) => {
-      const tr = document.createElement("tr");
-      if (!gap.used) tr.classList.add("past");
-      const perMonth = gap.days > 0 ? (gap.earned / gap.days) * DAYS_PER_MONTH : null;
-      [
-        displayDate(gap.from),
-        displayDate(gap.to),
-        gap.days,
-        gems(gap.change),
-        gap.spend ? gems(gap.spend) : "",
-        gems(gap.earned),
-        gems(perMonth)
-      ].forEach((value) => tr.appendChild(calcCell(String(value))));
-      body.appendChild(tr);
-    });
-
-  if (estimate.gaps.length === 0) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 7;
-    td.className = "empty";
-    td.textContent = "Log your gem count at least twice to get an estimate.";
-    tr.appendChild(td);
-    body.appendChild(tr);
-  }
+  if (state.gemLog.length === 0) emptyRow(body, 7, "Nothing logged yet. Log your gem count above.");
 }
 
 function renderSummary(estimate) {
   const { rows, anchor } = computePlan(state.planning, state.gemLog, state.settings, estimate.perDay);
   const future = rows.filter((item) => item.expectedAfter !== null);
 
-  el("statAnchor").textContent = gems(anchor.gems);
-  el("statAnchorHint").textContent = anchor.logged
+  el("statAnchor").textContent = gems(anchor.gems) || "—";
+  el("statAnchorHint").textContent = anchor.date
     ? `Logged on ${displayDate(anchor.date)}.`
-    : "From your starting count — log your gems to replace it.";
+    : "Log your gems to start planning.";
 
   const lowest = future.length ? future[0].lowestAhead : null;
   const lowestCell = el("statLowest");
@@ -439,8 +404,6 @@ function renderSummary(estimate) {
 }
 
 function renderSettings() {
-  el("startingGems").value = state.settings.startingGems ?? "";
-  el("startingDate").value = state.settings.startingDate ?? "";
   el("incomeLookbackMonths").value = state.settings.incomeLookbackMonths ?? "";
   el("defaultUnitCost").value = state.settings.defaultUnitCost ?? "";
 }
@@ -468,8 +431,7 @@ function render() {
   const estimate = currentEstimate();
   renderSummary(estimate);
   renderPlanning(estimate);
-  renderGemLog();
-  renderIncome(estimate);
+  renderGemLog(estimate);
   renderArchive();
   if (typeof renderBanners === "function") renderBanners();
 }
@@ -477,12 +439,9 @@ function render() {
 /* Actions -------------------------------------------------------------- */
 
 /** Moves every row whose End date has passed into the archive. */
-function archivePast(announce) {
+function archivePast() {
   const { keep, past } = splitPastRows(state.planning);
-  if (past.length === 0) {
-    if (announce) flash("Nothing to archive — no banner has ended yet.");
-    return;
-  }
+  if (past.length === 0) return;
   const stamp = formatDate(today());
   past.forEach((row) => {
     row.note = [row.note, `Archived ${stamp}`].filter(Boolean).join(" · ");
@@ -494,15 +453,9 @@ function archivePast(announce) {
 }
 
 function bindSettings() {
-  const fields = [
-    ["startingGems", "number"],
-    ["startingDate", "text"],
-    ["incomeLookbackMonths", "number"],
-    ["defaultUnitCost", "number"]
-  ];
-  fields.forEach(([id, type]) => {
+  ["incomeLookbackMonths", "defaultUnitCost"].forEach((id) => {
     el(id).addEventListener("change", (event) => {
-      state.settings[id] = type === "number" ? numberOrNull(event.target.value) : event.target.value;
+      state.settings[id] = numberOrNull(event.target.value);
       commit("Settings saved.");
     });
   });
@@ -526,8 +479,6 @@ function bindLogForm() {
 }
 
 function bindToolbar() {
-  el("archivePast").addEventListener("click", () => archivePast(true));
-
   el("archiveOnlyMine").addEventListener("change", (event) => {
     state.settings.archiveOnlyMine = event.target.checked;
     commit();
@@ -556,16 +507,6 @@ function bindToolbar() {
   });
 
   el("emptyImport").addEventListener("click", () => el("importFile").click());
-
-  el("resetData").addEventListener("click", () => {
-    const warning =
-      "Clear all your data? Your gem log, units, notes and settings will be lost" +
-      " on every device you sign in on. Export a backup first if you might want them back.";
-    if (!window.confirm(warning)) return;
-    state = seedState();
-    renderSettings();
-    commit("Data cleared.");
-  });
 }
 
 /**
@@ -574,7 +515,7 @@ function bindToolbar() {
  */
 function prepareState() {
   state.planning = sortRows(state.planning);
-  archivePast(false);
+  archivePast();
   if (typeof syncPlanWithForecast === "function") syncPlanWithForecast();
 }
 
@@ -585,14 +526,20 @@ function showMode(mode) {
   render();
 }
 
+/**
+ * Shows the seed data in a mode that saves nothing. The mode is set first so
+ * archiving the seed's ended banners can never save over an account.
+ */
+function showSeed(mode) {
+  appMode = mode;
+  state = seedState();
+  prepareState();
+  showMode(mode);
+}
+
 /** What the page does for each sign-in situation; see firebase-logic.js. */
 const cloudCallbacks = {
-  signedOut() {
-    appMode = "public";
-    state = seedState();
-    prepareState();
-    showMode("public");
-  },
+  signedOut: () => showSeed("public"),
   loaded(cloudState) {
     const first = appMode !== "owner";
     appMode = "owner";
@@ -603,20 +550,10 @@ const cloudCallbacks = {
     showMode("owner");
     if (!first) flash("Updated from another device.");
   },
-  empty() {
-    // Nothing is saved until a backup is imported, so a blank start can never
-    // overwrite real data.
-    appMode = "empty";
-    state = seedState();
-    prepareState();
-    showMode("empty");
-  },
-  denied() {
-    appMode = "denied";
-    state = seedState();
-    prepareState();
-    showMode("denied");
-  },
+  // Nothing is saved until a backup is imported, so a blank start can never
+  // overwrite real data.
+  empty: () => showSeed("empty"),
+  denied: () => showSeed("denied"),
   status(text) {
     el("cloudStatus").textContent = text;
   }

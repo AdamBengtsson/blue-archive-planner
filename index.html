@@ -109,7 +109,6 @@
           </table>
         </div>
         <div class="toolbar">
-          <button id="archivePast" class="private">Archive past banners</button>
           <span class="spacer"></span>
           <span class="status" id="saveStatus"></span>
         </div>
@@ -146,10 +145,18 @@
         </details>
       </section>
 
-      <!-- Every gem count you have logged. Edit or delete one to fix a mistake. -->
+      <!--
+        Every gem count you have logged, editable in place, with what you
+        earned since the count before: the working behind the income estimate.
+      -->
       <section class="box private">
         <details id="gemLogSection">
-          <summary>Gem log (<span id="gemLogCount">0</span> entries)</summary>
+          <summary>Gem log and income (<span id="gemLogCount">0</span> counts)</summary>
+          <p class="help">
+            <em>Earned</em> is how much your count changed since the one before, plus what
+            the banners in between cost (their units at the default cost). Faded rates are
+            older than the lookback below and are not counted in the income estimate.
+          </p>
           <div class="table-scroll">
             <table>
               <thead>
@@ -157,6 +164,9 @@
                   <th>Date</th>
                   <th>Gems</th>
                   <th>Change</th>
+                  <th>Spend counted</th>
+                  <th>Earned</th>
+                  <th>Per month</th>
                   <th></th>
                 </tr>
               </thead>
@@ -166,46 +176,11 @@
         </details>
       </section>
 
-      <!-- The working behind the income estimate: one row per gap between gem logs. -->
-      <section class="box private">
-        <details id="incomeSection">
-          <summary>Income estimate</summary>
-          <p class="help">
-            Each row is the gap between two gem counts you logged. <em>Earned</em> is how much
-            the count changed plus what the banners in between cost (their units at the default
-            cost). Faded rows are older than the lookback in Settings and are not counted.
-          </p>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>From</th>
-                  <th>To</th>
-                  <th>Days</th>
-                  <th>Gem change</th>
-                  <th>Spend counted</th>
-                  <th>Earned</th>
-                  <th>Per month</th>
-                </tr>
-              </thead>
-              <tbody id="incomeBody"></tbody>
-            </table>
-          </div>
-        </details>
-      </section>
-
+      <!-- Settings, backups and how the numbers work, all in one place. -->
       <section class="box private">
         <details>
-          <summary>Settings</summary>
+          <summary>Settings and help</summary>
           <div class="settings-grid">
-            <div class="field">
-              <label for="startingGems">Starting gem count</label>
-              <input id="startingGems" class="entry" type="number" step="1" />
-            </div>
-            <div class="field">
-              <label for="startingDate">Starting count date</label>
-              <input id="startingDate" class="entry" type="date" />
-            </div>
             <div class="field">
               <label for="incomeLookbackMonths">Estimate income from the last (months)</label>
               <input id="incomeLookbackMonths" class="entry" type="number" step="1" min="1" />
@@ -219,27 +194,17 @@
             <button id="exportData">Export backup</button>
             <button id="importData">Import backup</button>
             <input id="importFile" class="hidden" type="file" accept="application/json" />
-            <span class="spacer"></span>
-            <button id="resetData" class="link">Clear my data</button>
           </div>
-        </details>
-      </section>
-
-      <section class="box private">
-        <details>
-          <summary>How this works</summary>
-          <div class="help">
-            <ul>
-              <li><strong>Your gem anchor</strong> is the most recent count you logged with <em>Log your gems</em>. The plan counts forward from that date, and a banner that had already started on that day is treated as paid for. Until you log one, the starting count in Settings is used. Fix or delete an old count in the <em>Gem log</em>.</li>
-              <li><strong>Units</strong> is how many banners you want to spend on: 0 to skip, 1 or 2 (or more) otherwise. Each costs the default 24,000 from Settings, the worst case.</li>
-              <li><strong>Income</strong> is estimated from your gem log: how much your count rose between logs, plus the units you spent in between at the default cost, averaged over the last 12 months (change it in Settings). Each banner then earns that rate for its days. The more often you log, the better the estimate; units you spent but did not enter make it read low.</li>
-              <li><strong>Expected after</strong> is anchor + income so far &minus; planned spend so far. Red means it would go below zero.</li>
-              <li><strong>Lowest ahead</strong> looks all the way to the end of your plan. At or above 0 means everything you have planned fits. The row marked <em>Lowest point</em> is the one that limits what more you can plan.</li>
-              <li><strong>Room for extra?</strong> appears when that lowest point still covers another unit &mdash; you could add a banner without going short later.</li>
-              <li><strong>Portraits</strong> come from the Global forecast. Every upcoming banner in the forecast gets a row by itself, and its dates move when the forecast does. Type Units on the ones you want, or use the &minus; and + buttons; leave it empty to skip. Rows with a Limited or Fes student are tinted red.</li>
-              <li>Banners whose End date has passed are moved to the Archive automatically when you open the page. Log your gems now and then so the plan picks up your real count.</li>
-            </ul>
-          </div>
+          <h3>How this works</h3>
+          <ul class="help">
+            <li><strong>Your gem anchor</strong> is the most recent count you logged with <em>Log your gems</em>. The plan counts forward from that date, and a banner that had already started on that day is treated as paid for. Fix or delete an old count in the <em>Gem log</em>.</li>
+            <li><strong>Units</strong> is how many banners you want to spend on: 0 to skip, 1 or 2 (or more) otherwise. Each costs the default cost above, the worst case.</li>
+            <li><strong>Income</strong> is estimated from your gem log: how much your count rose between logs, plus the units you spent in between at the default cost, averaged over the lookback above. Each banner then earns that rate for its days. Units you spent but did not enter make it read low.</li>
+            <li><strong>Expected after</strong> is anchor + income so far &minus; planned spend so far. Red means it would go below zero.</li>
+            <li><strong>Lowest ahead</strong> looks all the way to the end of your plan. At or above 0 means everything you have planned fits. The row marked <em>Lowest point</em> is the one that limits what more you can plan.</li>
+            <li><strong>Room for extra?</strong> appears when that lowest point still covers another unit.</li>
+            <li><strong>Banners</strong> come from the Global forecast and follow its dates. Type Units on the ones you want, or use &minus; and +. Ended banners move to the Archive when you open the page.</li>
+          </ul>
         </details>
       </section>
     </main>

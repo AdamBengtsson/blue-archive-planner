@@ -31,8 +31,8 @@ Hosted on GitHub Pages, no build step.
   on banners that started in between (at the default cost).
   The monthly rate is the total earned over the total days, for the gaps in the
   last 12 months (*Estimate income from the last* in Settings). Each banner row
-  then earns that rate for its days, and the *Income estimate* panel shows the
-  working.
+  then earns that rate for its days, and the *Gem log and income* section
+  shows the working next to each count.
 - The estimate is only as good as the logs. Units you spent but did not enter
   make it read low. Pyroxene spent on anything other than banners is assumed to
   be negligible.
@@ -50,15 +50,14 @@ Hosted on GitHub Pages, no build step.
 Type your real gem count into *Log your gems* under the summary. It is saved for
 today (or another date, to fill in a count you forgot), and the latest one is the
 anchor the plan counts forward from. A banner that had already started on the day
-you logged is assumed to be paid for already. Until you log one, the starting count
-in Settings is used instead. Every count is listed in the *Gem log* section, where
-a wrong one can be corrected or deleted.
+you logged is assumed to be paid for already. Every count is listed in the
+*Gem log and income* section, where a wrong one can be corrected or deleted.
 
 ### Archiving
-Banners whose End date has passed are moved to the Archive when the page loads, or
-on demand with the *Archive past banners* button. The Archive is read-only history;
-it is not part of the projection. Banners you pulled on are highlighted, and
-*Only banners I pulled on* hides the rest. This replaces the `ArchiveScript.gs` Apps Script.
+Banners whose End date has passed are moved to the Archive when the page loads
+(this replaces the `ArchiveScript.gs` Apps Script). The Archive is read-only
+history; it is not part of the projection. Banners you pulled on are highlighted,
+and *Only banners I pulled on* hides the rest.
 
 ## Upcoming banners
 Global runs JP's banners in the same order a few months later, so the upcoming
@@ -105,7 +104,8 @@ public banner list, so a signed-out visitor never receives anyone's data.
   signing in shows a notice instead of starting blank, so it can never
   overwrite real data. Import a backup there.
 - *Export backup* writes a `.json` file; *Import backup* reads one back.
-  *Clear my data* empties the account.
+  There is no clear button: to wipe the data, delete the document in the
+  Firebase console.
 
 ## Firebase setup
 1. Create a Firebase project and add a web app to it. Paste the config it gives

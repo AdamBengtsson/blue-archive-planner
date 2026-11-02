@@ -5,17 +5,15 @@
  * notes. Those are saved per account in the cloud (see firebase-logic.js), so
  * a visitor who is not signed in never receives them.
  *
- * It is what a new account, a cleared account, or a browser without Firebase
+ * It is what a new account, or a browser without Firebase
  * starts from:
  *
- *   settings  defaults: no starting count yet, income lookback, unit cost
+ *   settings  defaults: income lookback, unit cost
  *   planning  current and upcoming banners, earliest first
  *   archive   past banners, kept only for looking back at
  */
 const SEED_DATA = {
   "settings": {
-    "startingGems": null,
-    "startingDate": "",
     "incomeLookbackMonths": 12,
     "defaultUnitCost": 24000,
     "staleDays": 14
