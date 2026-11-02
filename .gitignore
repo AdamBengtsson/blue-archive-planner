@@ -1,0 +1,24 @@
+# Screenshots and mockups taken while designing or testing stay out of the repo.
+# Put real app images (portraits, icons) in assets/, which is allowed below.
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+!assets/**
+
+# The original spreadsheet and JSON backups exported from the app hold
+# personal data and live outside the repo.
+*.xlsx
+*.xls
+blue-archive-planner-*.json
+
+# Editor, OS and tool clutter.
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+node_modules/
+*.log
+.env
+.env.*
