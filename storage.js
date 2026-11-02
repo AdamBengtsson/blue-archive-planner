@@ -25,8 +25,22 @@ function normaliseState(state) {
   const planning = copy(Array.isArray(state.planning) ? state.planning : base.planning);
   const archive = copy(Array.isArray(state.archive) ? state.archive : base.archive);
   const gemLog = copy(Array.isArray(state.gemLog) ? state.gemLog : []);
+  moveStartingCount(settings, gemLog);
   const fixed = applyArchiveFixes(archive, gemLog);
   return { settings, planning, archive: fixed.archive, gemLog: sortGemLog(fixed.gemLog) };
+}
+
+/**
+ * The old one-off "starting gem count" setting becomes an ordinary gem log
+ * entry, unless a count was already logged that day.
+ */
+function moveStartingCount(settings, gemLog) {
+  const date = formatDate(parseDate(settings.startingDate));
+  if (date && typeof settings.startingGems === "number" && !gemLog.some((entry) => entry.date === date)) {
+    gemLog.push({ date, gems: settings.startingGems });
+  }
+  delete settings.startingGems;
+  delete settings.startingDate;
 }
 
 /** Oldest first, the order every gem log calculation expects. */

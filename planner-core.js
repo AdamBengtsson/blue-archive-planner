@@ -5,8 +5,7 @@
  * Blue_Archive_Gem_Planner.xlsx, so the rules it encodes are the ones from the
  * spreadsheet's "How to use" tab:
  *
- *  - Your gem anchor is the most recent entry in the gem log, falling back
- *    to the one-time starting count until you have logged anything. A banner
+ *  - Your gem anchor is the most recent entry in the gem log. A banner
  *    that had already started on the day you logged counts as paid for.
  *  - Income is not typed in. It is estimated from your own gem logs: how much
  *    the count rose between logs, plus what the banners in between cost (see
@@ -56,35 +55,18 @@ function daysBetween(from, to) {
   return Math.floor((to - from) / 86400000);
 }
 
-/**
- * Every gem count you have logged, oldest first, as { date, gems, logged }:
- * the starting count from settings plus each gem log entry. Two counts on the
- * same day keep the gem log one.
- */
-function collectGemLogs(gemLog, settings) {
-  const byDate = new Map();
-  const start = parseDate(settings.startingDate);
-  if (start && typeof settings.startingGems === "number") {
-    byDate.set(formatDate(start), { date: start, gems: settings.startingGems, logged: false });
-  }
-  (gemLog || []).forEach((entry) => {
-    const date = parseDate(entry.date);
-    if (date && typeof entry.gems === "number") {
-      byDate.set(formatDate(date), { date, gems: entry.gems, logged: true });
-    }
-  });
-  return Array.from(byDate.values()).sort((a, b) => a.date - b.date);
+/** Every gem count you have logged with a valid date, oldest first, as { date, gems }. */
+function collectGemLogs(gemLog) {
+  return (gemLog || [])
+    .map((entry) => ({ date: parseDate(entry.date), gems: entry.gems }))
+    .filter((log) => log.date && typeof log.gems === "number")
+    .sort((a, b) => a.date - b.date);
 }
 
-/**
- * Finds the gem anchor: the latest logged count, or the one-time starting
- * count from settings when nothing newer has been logged.
- */
-function findAnchor(gemLog, settings) {
-  const logs = collectGemLogs(gemLog, settings);
-  const latest = logs[logs.length - 1];
-  if (latest) return latest;
-  return { gems: settings.startingGems, date: parseDate(settings.startingDate), logged: false };
+/** The gem anchor the plan counts forward from: the latest logged count. */
+function findAnchor(gemLog) {
+  const logs = collectGemLogs(gemLog);
+  return logs[logs.length - 1] || { gems: null, date: null };
 }
 
 /**
@@ -111,7 +93,7 @@ function spendDate(row) {
  * two logs.
  */
 function estimateIncome(rows, gemLog, settings) {
-  const logs = collectGemLogs(gemLog, settings);
+  const logs = collectGemLogs(gemLog);
   const spent = rows
     .map((row) => ({ date: spendDate(row), units: typeof row.units === "number" ? row.units : 0 }))
     .filter((item) => item.date && item.units > 0);
@@ -163,7 +145,7 @@ function estimateIncome(rows, gemLog, settings) {
  * Rows are expected to already be in date order, earliest first.
  */
 function computePlan(rows, gemLog, settings, perDay) {
-  const anchor = findAnchor(gemLog, settings);
+  const anchor = findAnchor(gemLog);
   const now = today();
   const rate = perDay > 0 ? perDay : 0;
 

@@ -50,9 +50,8 @@ Hosted on GitHub Pages, no build step.
 Type your real gem count into *Log your gems* under the summary. It is saved for
 today (or another date, to fill in a count you forgot), and the latest one is the
 anchor the plan counts forward from. A banner that had already started on the day
-you logged is assumed to be paid for already. Until you log one, the starting count
-in Settings is used instead. Every count is listed in the *Gem log and income*
-section, where a wrong one can be corrected or deleted.
+you logged is assumed to be paid for already. Every count is listed in the
+*Gem log and income* section, where a wrong one can be corrected or deleted.
 
 ### Archiving
 Banners whose End date has passed are moved to the Archive when the page loads

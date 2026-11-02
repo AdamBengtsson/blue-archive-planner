@@ -361,10 +361,10 @@ function renderSummary(estimate) {
   const { rows, anchor } = computePlan(state.planning, state.gemLog, state.settings, estimate.perDay);
   const future = rows.filter((item) => item.expectedAfter !== null);
 
-  el("statAnchor").textContent = gems(anchor.gems);
-  el("statAnchorHint").textContent = anchor.logged
+  el("statAnchor").textContent = gems(anchor.gems) || "—";
+  el("statAnchorHint").textContent = anchor.date
     ? `Logged on ${displayDate(anchor.date)}.`
-    : "From your starting count — log your gems to replace it.";
+    : "Log your gems to start planning.";
 
   const lowest = future.length ? future[0].lowestAhead : null;
   const lowestCell = el("statLowest");
@@ -404,8 +404,6 @@ function renderSummary(estimate) {
 }
 
 function renderSettings() {
-  el("startingGems").value = state.settings.startingGems ?? "";
-  el("startingDate").value = state.settings.startingDate ?? "";
   el("incomeLookbackMonths").value = state.settings.incomeLookbackMonths ?? "";
   el("defaultUnitCost").value = state.settings.defaultUnitCost ?? "";
 }
@@ -455,15 +453,9 @@ function archivePast() {
 }
 
 function bindSettings() {
-  const fields = [
-    ["startingGems", "number"],
-    ["startingDate", "text"],
-    ["incomeLookbackMonths", "number"],
-    ["defaultUnitCost", "number"]
-  ];
-  fields.forEach(([id, type]) => {
+  ["incomeLookbackMonths", "defaultUnitCost"].forEach((id) => {
     el(id).addEventListener("change", (event) => {
-      state.settings[id] = type === "number" ? numberOrNull(event.target.value) : event.target.value;
+      state.settings[id] = numberOrNull(event.target.value);
       commit("Settings saved.");
     });
   });
