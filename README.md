@@ -118,8 +118,8 @@ public banner list, so a signed-out visitor never receives anyone's data.
    fixed account in [firebase-logic.js](firebase-logic.js); it is not a real
    mailbox) and the passphrase as the password. Copy the user's UID from the list.
 3. Create a Firestore database in production mode.
-4. Put that UID in place of `OWNER_UID` in [firestore.rules](firestore.rules),
-   paste the rules into Firestore > Rules, and publish. (Signing in before this
+4. Put that UID in [firestore.rules](firestore.rules) (it holds the current
+   owner's), paste the rules into Firestore > Rules, and publish. (Signing in before this
    step shows the same rules, filled in, on the page.)
 
 Signing in is one passphrase box. Firebase slows down repeated wrong guesses, so

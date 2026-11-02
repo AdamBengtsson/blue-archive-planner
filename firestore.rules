@@ -5,14 +5,14 @@ rules_version = '2';
 // here so the rules are versioned with the code.
 //
 // Each account's data is one document, users/{uid}. Only the owner's
-// account may read or write it, and every other path is closed. Replace
-// OWNER_UID with the passphrase account's UID from Authentication > Users.
+// account (the passphrase account's UID, from Authentication > Users) may
+// read or write it, and every other path is closed.
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
       allow read, write: if request.auth != null
         && request.auth.uid == userId
-        && userId == "OWNER_UID";
+        && userId == "JFecCAUCusUKqdXy4SxePfEKLdm1";
     }
   }
 }
