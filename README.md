@@ -99,6 +99,9 @@ signing in with the passphrase, and is saved to that account's Firestore documen
 read or write it. The page's code and [seed-data.js](seed-data.js) hold only the
 public banner list, so a signed-out visitor never receives anyone's data.
 
+- The document holds plain fields you can read in the Firebase console:
+  `settings` (a map), `gemLog`, `planning` and `archive` (lists of entries) and
+  `updatedAt`. Everything is one document, so a save is one write.
 - Changes save to the cloud a moment after each edit, and show up on other
   signed-in devices without a reload.
 - The first sign-in moves data saved in that browser by the old, browser-only
