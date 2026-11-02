@@ -4,7 +4,7 @@
  *
  * The state shape is { settings, planning, archive, gemLog } — see
  * seed-data.js and storage.js. Planning rows are the only editable banners;
- * archive rows are read-only. Gem counts are edited in the History.
+ * archive rows are read-only. Gem counts are edited in the gem log.
  */
 
 /** What the visitor may see; see storage.js. Signed out until Firebase says otherwise. */
@@ -290,84 +290,71 @@ function deleteButton(title, onClick) {
   return button;
 }
 
-/**
- * The History: past banners and gem counts in one list, newest first. Each
- * count carries the income-estimate gap that ends on it, and the banners
- * between two counts are the ones whose spend that gap counted.
- */
-function renderHistory(estimate) {
-  const body = el("historyBody");
+function renderArchive() {
+  const body = el("archiveBody");
   body.textContent = "";
   const pulled = (row) => typeof row.units === "number" && row.units > 0;
   const onlyMine = Boolean(state.settings.archiveOnlyMine);
+  el("archiveCount").textContent = state.archive.length;
   el("archiveOnlyMine").checked = onlyMine;
 
-  const key = (date) => (date ? formatDate(date) : "");
-  const entries = new Map(state.gemLog.map((entry) => [key(parseDate(entry.date)), entry]));
-  const gaps = new Map(estimate.gaps.map((gap) => [key(gap.to), gap]));
-  const counts = collectGemLogs(state.gemLog, state.settings).map((count) => ({ date: key(count.date), count }));
-  const pastBanners = state.archive
+  // Newest first: when looking back, recent banners are the interesting ones.
+  state.archive
+    .slice()
+    .reverse()
     .filter((row) => !onlyMine || pulled(row))
-    .map((row) => ({ date: key(spendDate(row)), row }));
-  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
-  el("historyCount").textContent = `${plural(state.archive.length, "banner")}, ${plural(counts.length, "gem count")}`;
-
-  // Newest first. A count goes above the banners that started that same day,
-  // since they count as paid by then.
-  const items = counts.concat(pastBanners).sort((a, b) => b.date.localeCompare(a.date) || (b.count ? 1 : 0) - (a.count ? 1 : 0));
-
-  items.forEach(({ date, count, row }) => {
-    const tr = document.createElement("tr");
-    if (row) {
-      tr.classList.add("banner-row");
+    .forEach((row) => {
+      const tr = document.createElement("tr");
       if (pulled(row)) tr.classList.add("pulled");
-      const name = document.createElement("td");
-      name.textContent = row.banner;
-      if (row.note) {
-        const note = document.createElement("div");
-        note.className = "banner-when";
-        note.textContent = row.note;
-        name.appendChild(note);
-      }
-      const rest = document.createElement("td");
-      rest.colSpan = 4;
-      tr.append(calcCell(describeDates(row)), name, calcCell(String(row.units ?? ""), "", "Units"), rest);
+      [displayDate(row.start), displayDate(row.end), row.banner, row.units ?? "", row.note || ""].forEach((value) => {
+        const td = document.createElement("td");
+        td.textContent = value;
+        tr.appendChild(td);
+      });
       body.appendChild(tr);
-      return;
-    }
+    });
+}
 
-    tr.classList.add("count-row");
-    const entry = entries.get(date);
-    if (entry) {
+/**
+ * The gem log, newest first, each count editable in place. Next to it is the
+ * income-estimate gap that ends on that count, so the estimate's working
+ * needs no table of its own.
+ */
+function renderGemLog(estimate) {
+  const body = el("gemLogBody");
+  body.textContent = "";
+  el("gemLogCount").textContent = state.gemLog.length;
+  const gaps = new Map(estimate.gaps.map((gap) => [formatDate(gap.to), gap]));
+  const signed = (n) => (n > 0 ? "+" : "") + gems(n);
+
+  // Sorted here rather than on edit, so a corrected date lands in place.
+  sortGemLog(state.gemLog)
+    .reverse()
+    .forEach((entry) => {
+      const tr = document.createElement("tr");
       tr.append(inputCell(entry, "date", "date", "col-date"), inputCell(entry, "gems", "number", "col-gems"));
-    } else {
-      tr.append(calcCell(displayDate(date)), calcCell(`${gems(count.gems)} (starting count in Settings)`));
-    }
-    tr.appendChild(calcCell(""));
 
-    const gap = gaps.get(date);
-    const signed = (n) => (n > 0 ? "+" : "") + gems(n);
-    const perMonth = gap && gap.days > 0 ? (gap.earned / gap.days) * DAYS_PER_MONTH : null;
-    tr.append(
-      calcCell(gap ? signed(gap.change) : "", gap && gap.change < 0 ? "negative" : "", "Change"),
-      calcCell(gap ? gems(gap.earned) : "", "", "Earned"),
-      calcCell(perMonth === null ? "" : gems(perMonth), gap && !gap.used ? "unused" : "", "Per month")
-    );
+      const gap = gaps.get(formatDate(parseDate(entry.date)));
+      const perMonth = gap && gap.days > 0 ? (gap.earned / gap.days) * DAYS_PER_MONTH : null;
+      tr.append(
+        calcCell(gap ? signed(gap.change) : "", gap && gap.change < 0 ? "negative" : ""),
+        calcCell(gap && gap.spend ? gems(gap.spend) : ""),
+        calcCell(gap ? gems(gap.earned) : ""),
+        calcCell(perMonth === null ? "" : gems(perMonth), gap && !gap.used ? "unused" : "")
+      );
 
-    const actions = document.createElement("td");
-    if (entry) {
+      const actions = document.createElement("td");
       actions.appendChild(
         deleteButton("Delete this gem count", () => {
           state.gemLog = state.gemLog.filter((other) => other !== entry);
           commit("Gem count deleted.");
         })
       );
-    }
-    tr.appendChild(actions);
-    body.appendChild(tr);
-  });
+      tr.appendChild(actions);
+      body.appendChild(tr);
+    });
 
-  if (items.length === 0) emptyRow(body, 7, "Nothing here yet. Log your gem count above.");
+  if (state.gemLog.length === 0) emptyRow(body, 7, "Nothing logged yet. Log your gem count above.");
 }
 
 function renderSummary(estimate) {
@@ -446,7 +433,8 @@ function render() {
   const estimate = currentEstimate();
   renderSummary(estimate);
   renderPlanning(estimate);
-  renderHistory(estimate);
+  renderGemLog(estimate);
+  renderArchive();
   if (typeof renderBanners === "function") renderBanners();
 }
 

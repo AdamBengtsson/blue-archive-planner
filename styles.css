@@ -62,7 +62,8 @@ h1 {
   text-transform: uppercase;
 }
 
-h2 {
+h2,
+h3 {
   font-size: 0.85rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -456,27 +457,26 @@ tr.low-point td.calc:nth-child(6) {
   margin-top: 3px;
 }
 
-/* History: gem counts are the checkpoints; between them, banners you spent
-   on stand out from the ones you skipped. */
-#historySection tr.count-row td {
-  background: rgba(255, 255, 255, 0.04);
-}
-
-#historySection tr.banner-row td {
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-#historySection tr.pulled td {
+/* Archive banners you spent on stand out from the ones you skipped. */
+#archiveSection tr.pulled td {
   color: var(--text);
 }
 
-#historySection tr.pulled td:nth-child(3) {
+#archiveSection tr:not(.pulled) td {
+  color: var(--muted);
+}
+
+#archiveSection td:nth-child(-n + 2) {
+  white-space: nowrap;
+}
+
+#archiveSection tr.pulled td:nth-child(4) {
   color: var(--accent);
   font-weight: bold;
 }
 
-#historySection .unused {
+/* Gem log rates outside the lookback, which the estimate leaves out. */
+.unused {
   opacity: 0.45;
 }
 
@@ -603,6 +603,18 @@ details[open] summary {
   margin-bottom: 8px;
 }
 
+/* How this works, under the settings it explains. */
+details h3 {
+  margin: 28px 0 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+ul.help {
+  margin: 0;
+  padding-left: 20px;
+}
+
 .hidden {
   display: none;
 }
@@ -658,51 +670,13 @@ details[open] summary {
     min-width: 0;
   }
 
-  #planningTable thead,
-  #historyTable thead {
+  #planningTable thead {
     display: none;
   }
 
   #planningTable,
-  #planningTable tbody,
-  #historyTable,
-  #historyTable tbody {
+  #planningTable tbody {
     display: block;
-  }
-
-  /* History rows wrap: a banner's name gets a line of its own, and a gem
-     count's numbers sit under its inputs. */
-  #historyTable tr {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 14px;
-    padding: 8px 6px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  #historyTable td {
-    display: block;
-    padding: 0;
-    border: none;
-    background: none !important;
-  }
-
-  #historyTable td:empty {
-    display: none;
-  }
-
-  #historyTable tr.banner-row td:nth-child(2) {
-    order: 1;
-    flex-basis: 100%;
-  }
-
-  #historyTable tr.count-row {
-    background: rgba(255, 255, 255, 0.04);
-  }
-
-  #historyTable tr.count-row td:last-child {
-    margin-left: auto;
   }
 
   #planningTable tr {
@@ -748,8 +722,7 @@ details[open] summary {
     display: none;
   }
 
-  #planningTable td.calc::before,
-  #historyTable td.calc[data-label]::before {
+  #planningTable td.calc::before {
     content: attr(data-label);
     display: block;
     font-size: 0.62rem;
