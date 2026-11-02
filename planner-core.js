@@ -242,7 +242,7 @@ function describeRoom(lowest, unitCost) {
   if (lowest < 0) return `Short by ${Math.abs(lowest).toLocaleString("en-US")}`;
   const spare = Math.floor(lowest / unitCost);
   if (spare < 1) return "";
-  return `Room for +${spare} ${spare > 1 ? "units" : "unit"}`;
+  return `+${spare} ${spare > 1 ? "units" : "unit"}`;
 }
 
 /**

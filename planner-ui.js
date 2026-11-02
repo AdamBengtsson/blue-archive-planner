@@ -512,7 +512,9 @@ function renderSummary(estimate) {
       ? "Nothing planned ahead yet."
       : lowest < 0
         ? `Short by ${gems(Math.abs(lowest))} at the worst point.`
-        : (describeRoom(lowest, state.settings.defaultUnitCost) || "Everything planned fits") + ".";
+        : (lowest >= state.settings.defaultUnitCost
+            ? `Room for ${describeRoom(lowest, state.settings.defaultUnitCost)}`
+            : "Everything planned fits") + ".";
   const lowPoint = rows.find((item) => item.isLowPoint);
   if (lowPoint) el("statLowestHint").textContent += ` Lowest after the ${describeDates(lowPoint.row)} banner.`;
 
