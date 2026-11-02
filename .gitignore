@@ -1,0 +1,8 @@
+# Screenshots and mockups taken while designing or testing stay out of the repo.
+# Put real app images (portraits, icons) in assets/, which is allowed below.
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+!assets/**
