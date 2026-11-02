@@ -552,6 +552,9 @@ button.step:disabled {
 }
 
 .spent {
+  display: flex;
+  align-items: center;
+  gap: 2px;
   font-size: 0.78rem;
   color: var(--good);
   white-space: nowrap;
@@ -575,6 +578,11 @@ button.pull-button {
 .col-units .pull-form input {
   width: 100%;
   text-align: right;
+}
+
+.spent button.link {
+  padding: 0 4px;
+  font-size: 0.72rem;
 }
 
 .pull-form button.link {
