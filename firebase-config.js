@@ -1,9 +1,8 @@
 /**
  * Firebase web configuration for this planner.
  *
- * With these empty, the app runs without sign-in, saving to browser storage
- * only. The full setup, sign-in and rules included, is in the
- * README under "Firebase setup".
+ * The full setup, sign-in and rules included, is in the README under
+ * "Firebase setup".
  *
  * These values are public by design; they identify the project, they do not
  * grant access. Firestore rules are what actually protect the data.

@@ -7,13 +7,13 @@
  * archive rows are read-only. The gem log is edited in its own section.
  */
 
-/** Which store is in use and what the visitor may see; see storage.js. */
-let appMode = cloudConfigured() ? "public" : "local";
-let state = appMode === "local" ? loadState() : seedState();
+/** What the visitor may see; see storage.js. Signed out until Firebase says otherwise. */
+let appMode = "public";
+let state = seedState();
 
 /** True when the visitor sees their own gems, units and settings, not just the forecast. */
 function isPrivateView() {
-  return appMode === "local" || appMode === "owner";
+  return appMode === "owner";
 }
 
 const el = (id) => document.getElementById(id);
@@ -449,25 +449,18 @@ function renderSettings() {
 function renderAccount() {
   document.body.classList.toggle("public-view", !isPrivateView());
   el("planningHeading").textContent = isPrivateView() ? "Planning" : "Upcoming banners";
-  const user = typeof cloud !== "undefined" ? cloud.user : null;
   const text = {
-    local: "",
     public: "Upcoming Blue Archive banners on Global. Sign in to see your gems and plan your pulls.",
     owner: "Signed in.",
     empty: "Signed in.",
     denied: "Signed in."
   }[appMode];
-  el("account").classList.toggle("hidden", appMode === "local");
   el("accountText").textContent = text;
   el("signIn").classList.toggle("hidden", appMode !== "public");
-  el("signOut").classList.toggle("hidden", appMode === "public" || appMode === "local");
+  el("signOut").classList.toggle("hidden", appMode === "public");
   if (appMode !== "owner") el("cloudStatus").textContent = "";
   el("emptyNotice").classList.toggle("hidden", appMode !== "empty");
   el("deniedNotice").classList.toggle("hidden", appMode !== "denied");
-  if (appMode === "denied" && user) {
-    el("deniedUid").textContent = user.uid;
-    el("deniedRules").textContent = ownerRules(user.uid);
-  }
 }
 
 function render() {
@@ -567,10 +560,9 @@ function bindToolbar() {
   el("resetData").addEventListener("click", () => {
     const warning =
       "Clear all your data? Your gem log, units, notes and settings will be lost" +
-      (appMode === "owner" ? " on every device you sign in on." : ".") +
-      " Export a backup first if you might want them back.";
+      " on every device you sign in on. Export a backup first if you might want them back.";
     if (!window.confirm(warning)) return;
-    state = resetToSeed();
+    state = seedState();
     renderSettings();
     commit("Data cleared.");
   });
@@ -606,28 +598,18 @@ const cloudCallbacks = {
     appMode = "owner";
     state = normaliseState(cloudState);
     prepareState();
-    // Saves only if loading changed anything, or the document is in the old format.
+    // Saves only if loading changed anything, such as a banner archived.
     saveState(state);
     showMode("owner");
     if (!first) flash("Updated from another device.");
   },
   empty() {
-    // Data saved in this browser before sign-in existed moves into the account.
-    const local = loadLocalState();
-    if (!local) {
-      appMode = "empty";
-      state = seedState();
-      prepareState();
-      showMode("empty");
-      return;
-    }
-    appMode = "owner";
-    state = local;
+    // Nothing is saved until a backup is imported, so a blank start can never
+    // overwrite real data.
+    appMode = "empty";
+    state = seedState();
     prepareState();
-    cloudSave(state, true);
-    markMovedToCloud();
-    showMode("owner");
-    flash("Moved the data saved in this browser to your account.");
+    showMode("empty");
   },
   denied() {
     appMode = "denied";
@@ -665,7 +647,7 @@ function init() {
   bindToolbar();
   bindAccount();
   render();
-  if (appMode !== "local" && !startCloud(cloudCallbacks)) {
+  if (!startCloud(cloudCallbacks)) {
     // Firebase failed to load; say so rather than showing a sign-in that cannot work.
     el("accountText").textContent = "Sign-in could not start. Reload the page to try again.";
     el("signIn").classList.add("hidden");

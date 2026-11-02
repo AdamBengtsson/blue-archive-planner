@@ -19,7 +19,7 @@
         <h1>Blue Archive Gem Planner</h1>
 
         <!-- Sign-in. Signed out, the page shows only the banner forecast. -->
-        <div class="account hidden" id="account">
+        <div class="account" id="account">
           <span class="account-text" id="accountText"></span>
           <span class="status" id="cloudStatus"></span>
           <span class="spacer"></span>
@@ -33,23 +33,14 @@
           <button id="signOut" class="hidden">Sign out</button>
         </div>
         <div class="notice hidden" id="emptyNotice">
-          <p>
-            Nothing is saved for this account yet. Open the planner in the browser you have been
-            using and sign in there, and its data moves across by itself. Or import a backup file.
-          </p>
+          <p>Nothing is saved for this account yet. Import a backup file to start from it.</p>
           <button id="emptyImport">Import backup</button>
         </div>
         <div class="notice hidden" id="deniedNotice">
-          <p>This account does not have access to the planner data yet.</p>
-          <details>
-            <summary>Setting up the planner?</summary>
-            <p class="help">
-              The Firestore rules decide which account can read and write. This account's id is
-              <code id="deniedUid"></code>. To give it access, paste these rules into the Firebase
-              console under Firestore Database, Rules, then click Publish and reload this page.
-            </p>
-            <pre id="deniedRules"></pre>
-          </details>
+          <p>
+            This account does not have access to the planner data. Check that the rules in
+            firestore.rules are published in the Firebase console.
+          </p>
         </div>
 
         <div class="stat private">

@@ -225,20 +225,6 @@ body.public-view .private {
   margin: 0 0 10px;
 }
 
-.notice pre {
-  overflow-x: auto;
-  padding: 10px;
-  border-radius: 8px;
-  background: var(--panel-soft);
-  font-size: 0.78rem;
-  user-select: all;
-}
-
-.notice code {
-  user-select: all;
-  word-break: break-all;
-}
-
 /* Forecast inside the planning table ------------------------------- */
 
 /* Each planning row reads like one of the old banner cards: dates on the
