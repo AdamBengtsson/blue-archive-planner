@@ -162,6 +162,13 @@ function pullControls(row) {
     const line = document.createElement("div");
     line.className = "spent";
     line.textContent = `Spent ${gems(spent)}`;
+    line.appendChild(
+      deleteButton("Remove the recorded spend", () => {
+        if (!window.confirm(`Remove the ${gems(spent)} gems spent recorded on this banner? Your gem counts stay.`)) return;
+        delete row.spent;
+        commit("Recorded spend removed.");
+      })
+    );
     box.appendChild(line);
   }
 
@@ -232,12 +239,34 @@ function pullControls(row) {
       return;
     }
     logGems(date, count);
-    if (used > 0) row.spent = (row.spent || []).concat({ date, gems: used });
+    if (used > 0) row.spent = (row.spent || []).concat({ date, gems: used, pull: true });
     delete row.pulling;
     commit(used > 0 ? `Recorded ${gems(used)} spent on this banner.` : "Nothing spent, nothing recorded.");
   });
   box.appendChild(form);
   return box;
+}
+
+/**
+ * Spend that Pull/Done recorded together with the gem count on `date`, as
+ * [{ row, spend }]. Spend typed into the Archive is left alone. Entries saved
+ * before the pull flag existed are matched on running banners only.
+ */
+function pullSpendOn(date) {
+  const found = [];
+  const check = (row, planning) =>
+    (row.spent || []).forEach((spend) => {
+      if (spend.date === date && (spend.pull || planning)) found.push({ row, spend });
+    });
+  state.planning.forEach((row) => check(row, true));
+  state.archive.forEach((row) => check(row, false));
+  return found;
+}
+
+/** Takes one spend entry off a banner; with none left, its units count again. */
+function removeSpend(row, spend) {
+  row.spent = row.spent.filter((other) => other !== spend);
+  if (row.spent.length === 0) delete row.spent;
 }
 
 /** The dates as text, with how soon the banner starts or ends under them. */
@@ -482,9 +511,14 @@ function renderGemLog(estimate) {
       actions.appendChild(
         deleteButton("Delete this gem count", () => {
           const what = `${gems(entry.gems)} gems on ${displayDate(entry.date)}`;
-          if (!window.confirm(`Delete the gem count of ${what}?`)) return;
+          const linked = pullSpendOn(entry.date);
+          const also = linked.length
+            ? `\n\nThis also removes the ${gems(linked.reduce((sum, item) => sum + item.spend.gems, 0))} gems spent that Pull/Done recorded with it.`
+            : "";
+          if (!window.confirm(`Delete the gem count of ${what}?${also}`)) return;
           state.gemLog = state.gemLog.filter((other) => other !== entry);
-          commit("Gem count deleted.");
+          linked.forEach(({ row, spend }) => removeSpend(row, spend));
+          commit(linked.length ? "Gem count and its spend deleted." : "Gem count deleted.");
         })
       );
       tr.appendChild(actions);
