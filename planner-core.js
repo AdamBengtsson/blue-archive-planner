@@ -5,8 +5,9 @@
  * Blue_Archive_Gem_Planner.xlsx, so the rules it encodes are the ones from the
  * spreadsheet's "How to use" tab:
  *
- *  - Your gem anchor is the most recent entry in the gem log. A banner
- *    that had already started on the day you logged counts as paid for.
+ *  - Your gem anchor is the most recent entry in the gem log. Spend dated on
+ *    or before it is already in that count. Planned units are dated on the
+ *    banner's End, so a running banner is not paid until you record it.
  *  - Income is not typed in. It is estimated from your own gem logs: how much
  *    the count rose between logs, plus what the banners in between cost (see
  *    estimateIncome). Each row then earns that daily rate for the days since
@@ -70,20 +71,38 @@ function findAnchor(gemLog) {
 }
 
 /**
- * The date a banner's spend is booked on: its start, since a banner that is
- * live when you log is assumed to be pulled on already. Falls back to the end
- * for rows with no start date.
+ * What a banner cost or will cost, as dated amounts: [{ date, gems }].
+ *
+ *  - Spend you recorded (row.spent, from Pull/Done or typed in the Archive)
+ *    replaces the units: it is what the banner really cost, on the dates
+ *    you recorded it. Pulling again later adds another entry.
+ *  - Units with nothing recorded cost the default each, the worst case,
+ *    booked on the banner's End date: a banner still running counts as not
+ *    yet paid, whatever you logged during it.
  */
-function spendDate(row) {
-  return parseDate(row.start) || parseDate(row.end);
+function rowSpend(row, unitCost) {
+  if (Array.isArray(row.spent) && row.spent.length) {
+    return row.spent
+      .map((entry) => ({ date: parseDate(entry.date), gems: entry.gems }))
+      .filter((entry) => entry.date && typeof entry.gems === "number" && entry.gems > 0);
+  }
+  const units = typeof row.units === "number" ? row.units : 0;
+  const date = parseDate(row.end) || parseDate(row.start);
+  return units > 0 && date ? [{ date, gems: units * unitCost }] : [];
+}
+
+/** Total spend recorded on a banner, or null when none is. */
+function recordedSpend(row) {
+  if (!Array.isArray(row.spent) || row.spent.length === 0) return null;
+  return row.spent.reduce((sum, entry) => sum + (typeof entry.gems === "number" ? entry.gems : 0), 0);
 }
 
 /**
  * Estimates income from the gem logs.
  *
  * Between two logs, earned = (later count - earlier count) + spend, where
- * spend is the units on every banner that started in between at the default
- * cost. The rate is the total earned over the total days, across the gaps
+ * spend is what the banners cost in between (see rowSpend): your recorded
+ * spend where there is one, otherwise units at the default cost. The rate is the total earned over the total days, across the gaps
  * that end inside the lookback window, so a long gap weighs more than a short
  * one and one odd week cannot swing the whole plan.
  *
@@ -94,9 +113,7 @@ function spendDate(row) {
  */
 function estimateIncome(rows, gemLog, settings) {
   const logs = collectGemLogs(gemLog);
-  const spent = rows
-    .map((row) => ({ date: spendDate(row), units: typeof row.units === "number" ? row.units : 0 }))
-    .filter((item) => item.date && item.units > 0);
+  const spent = rows.flatMap((row) => rowSpend(row, settings.defaultUnitCost));
 
   const gaps = [];
   for (let i = 1; i < logs.length; i += 1) {
@@ -105,7 +122,7 @@ function estimateIncome(rows, gemLog, settings) {
     const days = calendarDays(from.date, to.date);
     const spend = spent
       .filter((item) => item.date > from.date && item.date <= to.date)
-      .reduce((sum, item) => sum + item.units * settings.defaultUnitCost, 0);
+      .reduce((sum, item) => sum + item.gems, 0);
     const change = to.gems - from.gems;
     gaps.push({ from: from.date, to: to.date, days, change, spend, earned: change + spend, used: false });
   }
@@ -158,8 +175,6 @@ function computePlan(rows, gemLog, settings, perDay) {
     const start = parseDate(row.start);
     const end = parseDate(row.end);
     const units = typeof row.units === "number" ? row.units : 0;
-    // Every unit costs the default, the worst case.
-    const unitCost = settings.defaultUnitCost;
 
     // Each row earns the daily rate for the days since the latest End date
     // already counted. A row ending inside an earlier, longer banner earns
@@ -171,17 +186,17 @@ function computePlan(rows, gemLog, settings, perDay) {
       highWater = end;
     }
 
-    // Banners that had started by the anchor date are already paid for: their
-    // cost is assumed to be reflected in the logged gem count already.
-    const paidFrom = spendDate(row);
-    const countsSpend = Boolean(paidFrom) && Boolean(anchor.date) && paidFrom > anchor.date;
+    // Spend dated on or before the anchor is already in the logged count;
+    // only what comes after it is still to pay.
+    const plannedSpend = rowSpend(row, settings.defaultUnitCost)
+      .filter((item) => !anchor.date || item.date > anchor.date)
+      .reduce((sum, item) => sum + item.gems, 0);
     // Rows that ended before the anchor are history and show no projection.
     // A row live on the anchor date still shows one.
     const inProjection = !end || !anchor.date || end >= anchor.date;
-    const plannedSpend = units * unitCost;
 
     incomeSoFar += income;
-    if (countsSpend) spendSoFar += plannedSpend;
+    spendSoFar += plannedSpend;
 
     const expectedAfter = inProjection ? anchor.gems + incomeSoFar - spendSoFar : null;
 
@@ -190,8 +205,8 @@ function computePlan(rows, gemLog, settings, perDay) {
       start,
       end,
       units,
-      unitCost,
       plannedSpend,
+      spent: recordedSpend(row),
       income,
       expectedAfter,
       isPast: Boolean(end && end < now),

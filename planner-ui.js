@@ -3,8 +3,9 @@
  * and saving after each change.
  *
  * The state shape is { settings, planning, archive, gemLog } — see
- * seed-data.js and storage.js. Planning rows are the only editable banners;
- * archive rows are read-only. Gem counts are edited in the gem log.
+ * seed-data.js and storage.js. On planning rows you set Units and record
+ * pull sessions; on archive rows only the gems spent can be corrected. Gem
+ * counts are edited in the gem log.
  */
 
 /** What the visitor may see; see storage.js. Signed out until Firebase says otherwise. */
@@ -144,6 +145,101 @@ function unitsCell(row) {
   return td;
 }
 
+/** Rows whose pull box is open, waiting for "Gems now". Not saved. */
+const pullOpen = new Set();
+
+/**
+ * Pull / Done for a running banner. Pull logs your count before pulling;
+ * Done logs the count after, and the drop is saved on the banner as gems
+ * spent (row.spent), dated today. A banner pulled on in several sittings
+ * adds them up. row.pulling holds the "before" count in between.
+ */
+function pullControls(row) {
+  const box = document.createElement("div");
+  box.className = "pull";
+  const spent = recordedSpend(row);
+  if (spent !== null) {
+    const line = document.createElement("div");
+    line.className = "spent";
+    line.textContent = `Spent ${gems(spent)}`;
+    box.appendChild(line);
+  }
+
+  const start = parseDate(row.start);
+  const end = parseDate(row.end);
+  const now = today();
+  if (!start || !end || start > now || end < now) return box;
+
+  const button = (label, title) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "pull-button";
+    b.textContent = label;
+    b.title = title;
+    return b;
+  };
+
+  if (!row.pulling && !pullOpen.has(row)) {
+    const pull = button("Pull", "Log your gems before pulling on this banner");
+    pull.addEventListener("click", () => {
+      pullOpen.add(row);
+      render();
+      const input = document.querySelector(".pull-form input");
+      if (input) input.focus();
+    });
+    box.appendChild(pull);
+    return box;
+  }
+
+  const form = document.createElement("form");
+  form.className = "pull-form";
+  const input = document.createElement("input");
+  input.type = "number";
+  input.className = "entry";
+  input.min = "0";
+  input.step = "1";
+  input.placeholder = row.pulling ? "Gems after" : "Gems now";
+  input.setAttribute("aria-label", input.placeholder);
+  const go = button(row.pulling ? "Done" : "Start", "");
+  go.type = "submit";
+  const cancel = button("✕", row.pulling ? "Stop without recording spend" : "Never mind");
+  cancel.classList.add("link");
+  cancel.addEventListener("click", () => {
+    pullOpen.delete(row);
+    delete row.pulling;
+    commit();
+  });
+  form.append(input, go, cancel);
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const count = numberOrNull(input.value);
+    if (count === null) {
+      flash("Type your gem count first.");
+      return;
+    }
+    const date = formatDate(now);
+    if (!row.pulling) {
+      pullOpen.delete(row);
+      logGems(date, count);
+      row.pulling = { date, gems: count };
+      commit(`Logged ${gems(count)} gems. Go pull, then press Done.`);
+      return;
+    }
+    const used = row.pulling.gems - count;
+    if (used < 0) {
+      flash(`That is more than the ${gems(row.pulling.gems)} you started with.`);
+      return;
+    }
+    logGems(date, count);
+    if (used > 0) row.spent = (row.spent || []).concat({ date, gems: used });
+    delete row.pulling;
+    commit(used > 0 ? `Recorded ${gems(used)} spent on this banner.` : "Nothing spent, nothing recorded.");
+  });
+  box.appendChild(form);
+  return box;
+}
+
 /** The dates as text, with how soon the banner starts or ends under them. */
 function whenCell(banner) {
   const td = document.createElement("td");
@@ -217,7 +313,9 @@ function renderPlanning(estimate) {
       body.appendChild(tr);
       return;
     }
-    tr.appendChild(unitsCell(row));
+    const units = unitsCell(row);
+    units.appendChild(pullControls(row));
+    tr.appendChild(units);
     tr.appendChild(calcCell(item.plannedSpend ? gems(item.plannedSpend) : "", "", "Planned spend"));
     tr.appendChild(calcCell(item.income ? gems(item.income) : "", "", "Income"));
     const expected = calcCell(
@@ -293,7 +391,7 @@ function deleteButton(title, onClick) {
 function renderArchive() {
   const body = el("archiveBody");
   body.textContent = "";
-  const pulled = (row) => typeof row.units === "number" && row.units > 0;
+  const pulled = (row) => (typeof row.units === "number" && row.units > 0) || recordedSpend(row) > 0;
   const onlyMine = Boolean(state.settings.archiveOnlyMine);
   el("archiveCount").textContent = state.archive.length;
   el("archiveOnlyMine").checked = onlyMine;
@@ -306,13 +404,45 @@ function renderArchive() {
     .forEach((row) => {
       const tr = document.createElement("tr");
       if (pulled(row)) tr.classList.add("pulled");
-      [displayDate(row.start), displayDate(row.end), row.banner, row.units ?? "", row.note || ""].forEach((value) => {
+      const text = (value) => {
         const td = document.createElement("td");
         td.textContent = value;
         tr.appendChild(td);
-      });
+      };
+      [displayDate(row.start), displayDate(row.end), row.banner, row.units ?? ""].forEach(text);
+      tr.appendChild(spentCell(row));
+      text(row.note || "");
       body.appendChild(tr);
     });
+}
+
+/**
+ * Gems spent on an archived banner, to fill in or correct afterwards. Blank
+ * means not recorded: the banner then counts units at the default cost.
+ * Typing replaces any Pull/Done sittings with one amount, kept on the date of
+ * the last sitting, or on the banner's End when there were none.
+ */
+function spentCell(row) {
+  const td = document.createElement("td");
+  td.className = "col-spent";
+  const input = document.createElement("input");
+  input.type = "number";
+  input.className = "entry";
+  input.min = "0";
+  input.step = "1";
+  input.placeholder = typeof row.units === "number" && row.units > 0 ? gems(row.units * state.settings.defaultUnitCost) : "";
+  input.setAttribute("aria-label", "Gems spent");
+  const spent = recordedSpend(row);
+  input.value = spent === null ? "" : spent;
+  input.addEventListener("change", () => {
+    const value = numberOrNull(input.value);
+    const last = Array.isArray(row.spent) && row.spent.length ? row.spent[row.spent.length - 1].date : row.end;
+    if (value === null) delete row.spent;
+    else row.spent = [{ date: last, gems: value }];
+    commit(value === null ? "Spend cleared; units count at the default cost." : "Spend saved.");
+  });
+  td.appendChild(input);
+  return td;
 }
 
 /**

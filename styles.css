@@ -470,7 +470,8 @@ tr.low-point td.calc:nth-child(6) {
   white-space: nowrap;
 }
 
-#archiveSection tr.pulled td:nth-child(4) {
+#archiveSection tr.pulled td:nth-child(4),
+#archiveSection tr.pulled td:nth-child(5) input {
   color: var(--accent);
   font-weight: bold;
 }
@@ -530,6 +531,60 @@ button.step:disabled {
   color: var(--muted);
   opacity: 0.35;
   cursor: default;
+}
+
+/* Pull / Done under Units on a running banner, and what it recorded. */
+.pull {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.pull:empty {
+  display: none;
+}
+
+.spent {
+  font-size: 0.78rem;
+  color: var(--good);
+  white-space: nowrap;
+}
+
+button.pull-button {
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.pull-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 112px;
+}
+
+.col-units .pull-form input {
+  width: 100%;
+  text-align: right;
+}
+
+.pull-form button.link {
+  padding: 4px;
+}
+
+.col-spent input {
+  width: 88px;
+  text-align: right;
+}
+
+/* On banners you skipped the box stays out of the way until you use it. */
+#archiveSection tr:not(.pulled) .col-spent input:not(:focus):not(:hover) {
+  border-color: transparent;
+  background: transparent;
 }
 
 .legend {
