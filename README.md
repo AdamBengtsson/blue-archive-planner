@@ -17,7 +17,7 @@ Hosted on GitHub Pages, no build step.
 - [scripts/refresh-banners.mjs](scripts/refresh-banners.mjs): rebuilds banner-data.js from the forecast page
 - [banners-ui.js](banners-ui.js): the forecast inside the planning table, plus live checks against SchaleDB
 - [firebase-config.js](firebase-config.js): Firebase web config
-- [firebase-logic.js](firebase-logic.js): Google sign-in and the account's Firestore document
+- [firebase-logic.js](firebase-logic.js): passphrase sign-in and the account's Firestore document
 - [firestore.rules](firestore.rules): the Firestore rules, kept here for reference
 
 ## How it works
@@ -94,7 +94,7 @@ table rather than in a section of its own:
 ## Data, sign-in and backups
 Anyone can open the page and see the upcoming banners. Everything personal (gems,
 units, the gem log, the archive's pulls, notes and settings) appears only after
-signing in with Google, and is saved to that account's Firestore document,
+signing in with the passphrase, and is saved to that account's Firestore document,
 `users/{uid}`. The [Firestore rules](firestore.rules) let only the owner's account
 read or write it. The page's code and [seed-data.js](seed-data.js) hold only the
 public banner list, so a signed-out visitor never receives anyone's data.
@@ -113,12 +113,18 @@ public banner list, so a signed-out visitor never receives anyone's data.
 1. Create a Firebase project and add a web app to it. Paste the config it gives
    you into [firebase-config.js](firebase-config.js). These values are public by
    design; the rules are what protect the data.
-2. In Authentication, enable the Google sign-in provider, and add the site's
-   domain (`adambengtsson.github.io`) under Settings > Authorized domains.
+2. In Authentication > Sign-in method, enable **Email/Password**. Then under
+   Users, click *Add user* with the email `owner@blue-archive-planner.app` (the
+   fixed account in [firebase-logic.js](firebase-logic.js); it is not a real
+   mailbox) and the passphrase as the password. Copy the user's UID from the list.
 3. Create a Firestore database in production mode.
-4. Open the planner and sign in. The page says the account has no access yet and
-   shows its id with the rules filled in. Paste those into Firestore > Rules,
-   publish, and reload.
+4. Put that UID in place of `OWNER_UID` in [firestore.rules](firestore.rules),
+   paste the rules into Firestore > Rules, and publish. (Signing in before this
+   step shows the same rules, filled in, on the page.)
+
+Signing in is one passphrase box. Firebase slows down repeated wrong guesses, so
+four or more random words is plenty. To change the passphrase, reset the user's
+password in the Firebase console.
 
 Without a config the planner still works, saving in the browser only.
 

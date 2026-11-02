@@ -4,9 +4,9 @@ rules_version = '2';
 // console (Firestore Database > Rules) and click Publish; this copy is kept
 // here so the rules are versioned with the code.
 //
-// Each Google account's data is one document, users/{uid}. Only the owner's
+// Each account's data is one document, users/{uid}. Only the owner's
 // account may read or write it, and every other path is closed. Replace
-// OWNER_UID with the account id the page shows after the first sign-in.
+// OWNER_UID with the passphrase account's UID from Authentication > Users.
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
