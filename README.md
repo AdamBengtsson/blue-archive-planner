@@ -11,7 +11,7 @@ Hosted on GitHub Pages, no build step.
 - [seed-data.js](seed-data.js): the banner list migrated out of the spreadsheet, without any personal data
 - [archive-fixes.js](archive-fixes.js): corrected archive dates and names, checked against the Global banner list on bluearchive.wiki. Applied on every load, so saved data gets them too
 - [planner-core.js](planner-core.js): the planning maths, ported from the sheet's formulas
-- [storage.js](storage.js): load/save, moving browser data into the account, and JSON backup import/export
+- [storage.js](storage.js): starting data, tidying loaded data, and JSON backup import/export
 - [planner-ui.js](planner-ui.js): rendering and event handling
 - [banner-data.js](banner-data.js): the forecast of upcoming Global banners (generated)
 - [scripts/refresh-banners.mjs](scripts/refresh-banners.mjs): rebuilds banner-data.js from the forecast page
@@ -53,9 +53,6 @@ anchor the plan counts forward from. A banner that had already started on the da
 you logged is assumed to be paid for already. Until you log one, the starting count
 in Settings is used instead. Every count is listed in the *Gem log* section, where
 a wrong one can be corrected or deleted.
-
-Counts used to be typed into an *Actual gems* column on banner rows. Saved data
-from then is moved into the gem log automatically, dated on each row's End date.
 
 ### Archiving
 Banners whose End date has passed are moved to the Archive when the page loads, or
@@ -104,11 +101,9 @@ public banner list, so a signed-out visitor never receives anyone's data.
   `updatedAt`. Everything is one document, so a save is one write.
 - Changes save to the cloud a moment after each edit, and show up on other
   signed-in devices without a reload.
-- The first sign-in moves data saved in that browser by the old, browser-only
-  version into the account. The old copy is left in the browser but never read again.
-- Signing in on a device with no saved data and an empty account shows a notice
-  instead of starting blank, so it can never overwrite the real data. Import a
-  backup there, or sign in first on the browser that has the data.
+- Nothing is kept in the browser. If the account's document is ever missing,
+  signing in shows a notice instead of starting blank, so it can never
+  overwrite real data. Import a backup there.
 - *Export backup* writes a `.json` file; *Import backup* reads one back.
   *Clear my data* empties the account.
 
@@ -122,14 +117,11 @@ public banner list, so a signed-out visitor never receives anyone's data.
    mailbox) and the passphrase as the password. Copy the user's UID from the list.
 3. Create a Firestore database in production mode.
 4. Put that UID in [firestore.rules](firestore.rules) (it holds the current
-   owner's), paste the rules into Firestore > Rules, and publish. (Signing in before this
-   step shows the same rules, filled in, on the page.)
+   owner's), paste the rules into Firestore > Rules, and publish.
 
 Signing in is one passphrase box. Firebase slows down repeated wrong guesses, so
 four or more random words is plenty. To change the passphrase, reset the user's
 password in the Firebase console.
-
-Without a config the planner still works, saving in the browser only.
 
 ## Local preview
 ```bash

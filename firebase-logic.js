@@ -18,9 +18,6 @@
  * firestore.rules let only the owner's account read or write it, so the page
  * itself can be public. Signed out, it shows only the banner forecast.
  *
- * When firebase-config.js is still empty, none of this runs and the planner
- * keeps everything in this browser instead (see storage.js).
- *
  * The UI hands startCloud a set of callbacks, one for each situation:
  *   signedOut()          nobody is signed in
  *   loaded(state, user)  the account's saved state, on sign-in and whenever
@@ -47,19 +44,11 @@ const PLANNER_ACCOUNT = "owner@blue-archive-planner.app";
 /** How long to wait after an edit before writing, so a burst of taps is one write. */
 const SAVE_DELAY_MS = 500;
 
-/** True only when a real config has been filled in and the SDK loaded. */
-function cloudConfigured() {
-  return (
-    typeof firebase !== "undefined" &&
-    typeof firebaseConfig !== "undefined" &&
-    Boolean(firebaseConfig.projectId)
-  );
-}
-
 /** Connects to Firebase and follows the sign-in state. Returns false if it could not start. */
 function startCloud(callbacks) {
   cloud.status = callbacks.status;
   try {
+    // Throws when the Firebase scripts did not load, e.g. offline or blocked.
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     cloud.auth = firebase.auth();
   } catch (error) {
@@ -98,19 +87,11 @@ function listen(user, callbacks) {
         callbacks.empty(user);
         return;
       }
-      let state;
-      let legacy = false;
-      try {
-        ({ state, legacy } = readDocument(snapshot.data()));
-      } catch (error) {
-        console.warn("The saved planner data could not be read.", error);
-        callbacks.status("Your saved data could not be read.");
-        return;
-      }
+      const { settings, gemLog, planning, archive } = snapshot.data();
+      const state = { settings, gemLog, planning, archive };
       const key = stableStringify(state);
       if (key === cloud.lastPayload) return;
-      // An old text-block document is rewritten as fields on the next save.
-      cloud.lastPayload = legacy ? null : key;
+      cloud.lastPayload = key;
       callbacks.loaded(state, user);
     },
     (error) => {
@@ -122,17 +103,6 @@ function listen(user, callbacks) {
       }
     }
   );
-}
-
-/**
- * The planner state in a saved document. The first version kept everything
- * as one JSON string in `payload`; that is still read, and reports itself as
- * legacy so the caller saves it back as fields.
- */
-function readDocument(data) {
-  if (typeof data.payload === "string") return { state: JSON.parse(data.payload), legacy: true };
-  const { settings, gemLog, planning, archive } = data;
-  return { state: { settings, gemLog, planning, archive }, legacy: false };
 }
 
 /**
@@ -160,7 +130,7 @@ function stopListening() {
  * Saves the state to the signed-in account. Writes are delayed a little and
  * skipped when nothing changed.
  */
-function cloudSave(state, immediately) {
+function cloudSave(state) {
   if (!cloud.doc) return;
   const payload = stableStringify({
     settings: state.settings,
@@ -172,7 +142,7 @@ function cloudSave(state, immediately) {
   cloud.lastPayload = payload;
   cloud.pending = payload;
   clearTimeout(cloud.saveTimer);
-  cloud.saveTimer = setTimeout(flushCloudSave, immediately ? 0 : SAVE_DELAY_MS);
+  cloud.saveTimer = setTimeout(flushCloudSave, SAVE_DELAY_MS);
   if (cloud.status) cloud.status("Saving…");
 }
 
@@ -182,8 +152,7 @@ function flushCloudSave() {
   clearTimeout(cloud.saveTimer);
   cloud.saveTimer = null;
   // Back through JSON so the fields hold only what Firestore accepts:
-  // no undefined values, plain objects only. set() replaces the whole
-  // document, which also drops the old `payload` field.
+  // no undefined values, plain objects only. set() replaces the whole document.
   const fields = JSON.parse(cloud.pending);
   const report = cloud.status || (() => {});
   cloud.doc
@@ -225,18 +194,4 @@ function cloudSignIn(passphrase) {
 function cloudSignOut() {
   flushCloudSave();
   return cloud.auth.signOut();
-}
-
-/** The Firestore rules that give exactly this account access, for the first setup. */
-function ownerRules(uid) {
-  return `rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if request.auth != null
-        && request.auth.uid == userId
-        && userId == "${uid}";
-    }
-  }
-}`;
 }
