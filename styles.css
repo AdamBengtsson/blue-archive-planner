@@ -244,7 +244,9 @@ body.public-view .private {
   padding-left: 14px;
 }
 
+/* A range with years may wrap after the dash, leaving room for portraits. */
 .banner-dates {
+  white-space: normal;
   font-size: 1rem;
   letter-spacing: 0.02em;
 }
@@ -267,9 +269,11 @@ body.public-view .private {
 
 .banner-meta {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+  max-width: 170px;
+  white-space: normal;
   font-size: 0.78rem;
   color: var(--muted);
 }
@@ -316,7 +320,7 @@ body.public-view .private {
 
 .student {
   position: relative;
-  width: 72px;
+  width: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -326,8 +330,8 @@ body.public-view .private {
 }
 
 .portrait {
-  width: 72px;
-  height: 82px;
+  width: 80px;
+  height: 91px;
   border-radius: 8px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.06);
@@ -470,7 +474,8 @@ tr.low-point td.calc:nth-child(6) {
   white-space: nowrap;
 }
 
-#archiveSection tr.pulled td:nth-child(4) {
+#archiveSection tr.pulled td:nth-child(4),
+#archiveSection tr.pulled td:nth-child(5) input {
   color: var(--accent);
   font-weight: bold;
 }
@@ -530,6 +535,60 @@ button.step:disabled {
   color: var(--muted);
   opacity: 0.35;
   cursor: default;
+}
+
+/* Pull / Done under Units on a running banner, and what it recorded. */
+.pull {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.pull:empty {
+  display: none;
+}
+
+.spent {
+  font-size: 0.78rem;
+  color: var(--good);
+  white-space: nowrap;
+}
+
+button.pull-button {
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.pull-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 112px;
+}
+
+.col-units .pull-form input {
+  width: 100%;
+  text-align: right;
+}
+
+.pull-form button.link {
+  padding: 4px;
+}
+
+.col-spent input {
+  width: 88px;
+  text-align: right;
+}
+
+/* On banners you skipped the box stays out of the way until you use it. */
+#archiveSection tr:not(.pulled) .col-spent input:not(:focus):not(:hover) {
+  border-color: transparent;
+  background: transparent;
 }
 
 .legend {
@@ -733,15 +792,19 @@ ul.help {
   }
 
   .student {
-    width: 58px;
+    width: 60px;
   }
 
   .portrait {
-    width: 58px;
-    height: 66px;
+    width: 60px;
+    height: 68px;
   }
 
   .roster {
-    gap: 5px;
+    gap: 4px;
+  }
+
+  .banner-meta {
+    max-width: none;
   }
 }

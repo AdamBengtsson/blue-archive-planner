@@ -25,10 +25,15 @@ Hosted on GitHub Pages, no build step.
   come from the forecast by themselves; only Units is typed in, or set with the
   &minus; and + buttons next to it. Rows with a Limited or Fes student are tinted red.
 - **Units** is how many banners you want to spend on. Each costs the default
-  24,000, the worst case, even when a unit comes cheaper in game.
+  24,000, the worst case, until you record what you really spent.
+- **Pull / Done** on a running banner records real spend: Pull logs your gems
+  before pulling, Done logs them after, and the drop is saved on the banner
+  (`spent: [{ date, gems }]`). In the Archive, *Gems spent* can be filled in or
+  corrected afterwards. A banner with nothing recorded costs units × 24,000.
 - **Income** is not typed in. It is estimated from your gem log: for each gap
-  between two logged counts, earned = the change in your count + the units spent
-  on banners that started in between (at the default cost).
+  between two logged counts, earned = the change in your count + what the
+  banners in between cost: recorded spend on its date, or else units at the
+  default cost on the banner's End date.
   The monthly rate is the total earned over the total days, for the gaps in the
   last 12 months (*Estimate income from the last* in Settings). Each banner row
   then earns that rate for its days, and the *Gem log and income* section
@@ -36,9 +41,8 @@ Hosted on GitHub Pages, no build step.
 - The estimate is only as good as the logs. Units you spent but did not enter
   make it read low. Pyroxene spent on anything other than banners is assumed to
   be negligible.
-- Because every unit is counted at the full 24,000, a unit that came cheaper
-  still adds the full cost back as spend, so the income estimate reads a little
-  high. That is accepted: tracking the real spend per banner is too much work.
+- A banner with units but no recorded spend still adds the full 24,000 per unit
+  back as spend, so a cheap pull left unrecorded makes the estimate read high.
 - **Expected after** is your gem anchor + income so far &minus; planned spend so far.
 - **Lowest ahead** is the lowest the balance is projected to get between that row and
   the end of the plan. At or above 0 means everything planned fits. The row where
@@ -49,14 +53,15 @@ Hosted on GitHub Pages, no build step.
 ### Your gem anchor
 Type your real gem count into *Log your gems* under the summary. It is saved for
 today (or another date, to fill in a count you forgot), and the latest one is the
-anchor the plan counts forward from. A banner that had already started on the day
-you logged is assumed to be paid for already. Every count is listed in the
+anchor the plan counts forward from. Spend recorded on or before that date is
+already in the count. A banner with nothing recorded is paid on its End date, so
+a running banner stays in the plan until you record it or it ends. Every count is listed in the
 *Gem log and income* section, where a wrong one can be corrected or deleted.
 
 ### Archiving
 Banners whose End date has passed are moved to the Archive when the page loads
-(this replaces the `ArchiveScript.gs` Apps Script). The Archive is read-only
-history; it is not part of the projection. Banners you pulled on are highlighted,
+(this replaces the `ArchiveScript.gs` Apps Script). The Archive is history,
+not part of the projection; only *Gems spent* can be edited there. Banners you pulled on are highlighted,
 and *Only banners I pulled on* hides the rest.
 
 ## Upcoming banners
