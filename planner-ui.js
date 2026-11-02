@@ -507,16 +507,6 @@ function bindToolbar() {
   });
 
   el("emptyImport").addEventListener("click", () => el("importFile").click());
-
-  el("resetData").addEventListener("click", () => {
-    const warning =
-      "Clear all your data? Your gem log, units, notes and settings will be lost" +
-      " on every device you sign in on. Export a backup first if you might want them back.";
-    if (!window.confirm(warning)) return;
-    state = seedState();
-    renderSettings();
-    commit("Data cleared.");
-  });
 }
 
 /**

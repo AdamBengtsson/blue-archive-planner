@@ -5,7 +5,7 @@
  * notes. Those are saved per account in the cloud (see firebase-logic.js), so
  * a visitor who is not signed in never receives them.
  *
- * It is what a new account, a cleared account, or a browser without Firebase
+ * It is what a new account, or a browser without Firebase
  * starts from:
  *
  *   settings  defaults: income lookback, unit cost

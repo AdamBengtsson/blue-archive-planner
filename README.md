@@ -104,7 +104,8 @@ public banner list, so a signed-out visitor never receives anyone's data.
   signing in shows a notice instead of starting blank, so it can never
   overwrite real data. Import a backup there.
 - *Export backup* writes a `.json` file; *Import backup* reads one back.
-  *Clear my data* empties the account.
+  There is no clear button: to wipe the data, delete the document in the
+  Firebase console.
 
 ## Firebase setup
 1. Create a Firebase project and add a web app to it. Paste the config it gives
