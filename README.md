@@ -31,8 +31,7 @@ Hosted on GitHub Pages, no build step.
   on banners that started in between (at the default cost).
   The monthly rate is the total earned over the total days, for the gaps in the
   last 12 months (*Estimate income from the last* in Settings). Each banner row
-  then earns that rate for its days, and the *Income estimate* panel shows the
-  working.
+  then earns that rate for its days, and the *History* shows the working.
 - The estimate is only as good as the logs. Units you spent but did not enter
   make it read low. Pyroxene spent on anything other than banners is assumed to
   be negligible.
@@ -51,14 +50,18 @@ Type your real gem count into *Log your gems* under the summary. It is saved for
 today (or another date, to fill in a count you forgot), and the latest one is the
 anchor the plan counts forward from. A banner that had already started on the day
 you logged is assumed to be paid for already. Until you log one, the starting count
-in Settings is used instead. Every count is listed in the *Gem log* section, where
-a wrong one can be corrected or deleted.
+in Settings is used instead. Every count is listed in the *History*, where a wrong
+one can be corrected or deleted.
 
-### Archiving
-Banners whose End date has passed are moved to the Archive when the page loads, or
-on demand with the *Archive past banners* button. The Archive is read-only history;
-it is not part of the projection. Banners you pulled on are highlighted, and
-*Only banners I pulled on* hides the rest. This replaces the `ArchiveScript.gs` Apps Script.
+### History
+Banners whose End date has passed move out of Planning into the archive when the
+page loads (this replaces the `ArchiveScript.gs` Apps Script). The *History*
+section lists those past banners and every gem count in one list, newest first.
+Each gem count shows how much it changed since the one before, what was earned
+(change + the units on the banners listed below it at the default cost) and that
+rate per month: the working behind the income estimate, with rates outside the
+lookback faded. Banners you pulled on are highlighted, and *Only banners I pulled
+on* hides the rest.
 
 ## Upcoming banners
 Global runs JP's banners in the same order a few months later, so the upcoming

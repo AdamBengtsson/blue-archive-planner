@@ -4,7 +4,7 @@
  *
  * The state shape is { settings, planning, archive, gemLog } — see
  * seed-data.js and storage.js. Planning rows are the only editable banners;
- * archive rows are read-only. The gem log is edited in its own section.
+ * archive rows are read-only. Gem counts are edited in the History.
  */
 
 /** What the visitor may see; see storage.js. Signed out until Firebase says otherwise. */
@@ -93,7 +93,7 @@ function describeDates(banner) {
 }
 
 
-/** Builds one editable input cell bound to a field on a planning row or gem log entry. */
+/** Builds one editable input cell bound to a field on a planning row or gem count. */
 function inputCell(row, field, type, className) {
   const td = document.createElement("td");
   td.className = className;
@@ -106,9 +106,6 @@ function inputCell(row, field, type, className) {
 
   input.addEventListener("change", () => {
     row[field] = type === "number" ? numberOrNull(input.value) : input.value;
-    // Re-sorting on every keystroke would move the field out from under the
-    // cursor, so dates only trigger a sort once the field is left.
-    if (field === "start" || field === "end") state.planning = sortRows(state.planning);
     commit();
   });
 
@@ -257,139 +254,120 @@ function renderPlanning(estimate) {
     const actions = document.createElement("td");
     actions.className = "col-actions";
     if (!details) {
-      const remove = document.createElement("button");
-      remove.className = "link";
-      remove.textContent = "✕";
-      remove.title = "Delete this banner";
-      remove.addEventListener("click", () => {
-        state.planning.splice(index, 1);
-        commit("Banner deleted.");
-      });
-      actions.appendChild(remove);
+      actions.appendChild(
+        deleteButton("Delete this banner", () => {
+          state.planning.splice(index, 1);
+          commit("Banner deleted.");
+        })
+      );
     }
     tr.appendChild(actions);
 
     body.appendChild(tr);
   });
 
-  if (rows.length === 0) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 9;
-    td.className = "empty";
-    td.textContent = "No upcoming banners in the forecast.";
-    tr.appendChild(td);
-    body.appendChild(tr);
-  }
+  if (rows.length === 0) emptyRow(body, 9, "No upcoming banners in the forecast.");
 }
 
-function renderArchive() {
-  const body = el("archiveBody");
+/** A one-cell row saying a table has nothing to show. */
+function emptyRow(body, columns, text) {
+  const tr = document.createElement("tr");
+  const td = document.createElement("td");
+  td.colSpan = columns;
+  td.className = "empty";
+  td.textContent = text;
+  tr.appendChild(td);
+  body.appendChild(tr);
+}
+
+/** A ✕ button that runs `onClick`. */
+function deleteButton(title, onClick) {
+  const button = document.createElement("button");
+  button.className = "link";
+  button.textContent = "✕";
+  button.title = title;
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+/**
+ * The History: past banners and gem counts in one list, newest first. Each
+ * count carries the income-estimate gap that ends on it, and the banners
+ * between two counts are the ones whose spend that gap counted.
+ */
+function renderHistory(estimate) {
+  const body = el("historyBody");
   body.textContent = "";
   const pulled = (row) => typeof row.units === "number" && row.units > 0;
   const onlyMine = Boolean(state.settings.archiveOnlyMine);
-  el("archiveCount").textContent = state.archive.length;
   el("archiveOnlyMine").checked = onlyMine;
 
-  // Newest first: when looking back, recent banners are the interesting ones.
-  state.archive
-    .slice()
-    .reverse()
+  const key = (date) => (date ? formatDate(date) : "");
+  const entries = new Map(state.gemLog.map((entry) => [key(parseDate(entry.date)), entry]));
+  const gaps = new Map(estimate.gaps.map((gap) => [key(gap.to), gap]));
+  const counts = collectGemLogs(state.gemLog, state.settings).map((count) => ({ date: key(count.date), count }));
+  const pastBanners = state.archive
     .filter((row) => !onlyMine || pulled(row))
-    .forEach((row) => {
-      const tr = document.createElement("tr");
+    .map((row) => ({ date: key(spendDate(row)), row }));
+  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+  el("historyCount").textContent = `${plural(state.archive.length, "banner")}, ${plural(counts.length, "gem count")}`;
+
+  // Newest first. A count goes above the banners that started that same day,
+  // since they count as paid by then.
+  const items = counts.concat(pastBanners).sort((a, b) => b.date.localeCompare(a.date) || (b.count ? 1 : 0) - (a.count ? 1 : 0));
+
+  items.forEach(({ date, count, row }) => {
+    const tr = document.createElement("tr");
+    if (row) {
+      tr.classList.add("banner-row");
       if (pulled(row)) tr.classList.add("pulled");
-      [displayDate(row.start), displayDate(row.end), row.banner, row.units ?? "", row.note || ""].forEach(
-        (value) => {
-          const td = document.createElement("td");
-          td.textContent = value === null || value === undefined ? "" : value;
-          tr.appendChild(td);
-        }
+      const name = document.createElement("td");
+      name.textContent = row.banner;
+      if (row.note) {
+        const note = document.createElement("div");
+        note.className = "banner-when";
+        note.textContent = row.note;
+        name.appendChild(note);
+      }
+      const rest = document.createElement("td");
+      rest.colSpan = 4;
+      tr.append(calcCell(describeDates(row)), name, calcCell(String(row.units ?? ""), "", "Units"), rest);
+      body.appendChild(tr);
+      return;
+    }
+
+    tr.classList.add("count-row");
+    const entry = entries.get(date);
+    if (entry) {
+      tr.append(inputCell(entry, "date", "date", "col-date"), inputCell(entry, "gems", "number", "col-gems"));
+    } else {
+      tr.append(calcCell(displayDate(date)), calcCell(`${gems(count.gems)} (starting count in Settings)`));
+    }
+    tr.appendChild(calcCell(""));
+
+    const gap = gaps.get(date);
+    const signed = (n) => (n > 0 ? "+" : "") + gems(n);
+    const perMonth = gap && gap.days > 0 ? (gap.earned / gap.days) * DAYS_PER_MONTH : null;
+    tr.append(
+      calcCell(gap ? signed(gap.change) : "", gap && gap.change < 0 ? "negative" : "", "Change"),
+      calcCell(gap ? gems(gap.earned) : "", "", "Earned"),
+      calcCell(perMonth === null ? "" : gems(perMonth), gap && !gap.used ? "unused" : "", "Per month")
+    );
+
+    const actions = document.createElement("td");
+    if (entry) {
+      actions.appendChild(
+        deleteButton("Delete this gem count", () => {
+          state.gemLog = state.gemLog.filter((other) => other !== entry);
+          commit("Gem count deleted.");
+        })
       );
-      body.appendChild(tr);
-    });
-}
-
-/** The gem log, newest first, with each count editable in place. */
-function renderGemLog() {
-  const body = el("gemLogBody");
-  body.textContent = "";
-  el("gemLogCount").textContent = state.gemLog.length;
-
-  // Sorted here rather than on edit, so a corrected date lands in place.
-  sortGemLog(state.gemLog)
-    .reverse()
-    .forEach((entry, i, newestFirst) => {
-      const tr = document.createElement("tr");
-      tr.appendChild(inputCell(entry, "date", "date", "col-date"));
-      tr.appendChild(inputCell(entry, "gems", "number", "col-gems"));
-
-      const previous = newestFirst[i + 1];
-      const change =
-        previous && typeof entry.gems === "number" && typeof previous.gems === "number"
-          ? entry.gems - previous.gems
-          : null;
-      tr.appendChild(
-        calcCell(change === null ? "" : (change > 0 ? "+" : "") + gems(change), change < 0 ? "negative" : "")
-      );
-
-      const actions = document.createElement("td");
-      const remove = document.createElement("button");
-      remove.className = "link";
-      remove.textContent = "✕";
-      remove.title = "Delete this entry";
-      remove.addEventListener("click", () => {
-        state.gemLog = state.gemLog.filter((other) => other !== entry);
-        commit("Gem count deleted.");
-      });
-      actions.appendChild(remove);
-      tr.appendChild(actions);
-
-      body.appendChild(tr);
-    });
-
-  if (state.gemLog.length === 0) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 4;
-    td.className = "empty";
-    td.textContent = "Nothing logged yet. Log your gem count above.";
-    tr.appendChild(td);
+    }
+    tr.appendChild(actions);
     body.appendChild(tr);
-  }
-}
+  });
 
-function renderIncome(estimate) {
-  const body = el("incomeBody");
-  body.textContent = "";
-  estimate.gaps
-    .slice()
-    .reverse()
-    .forEach((gap) => {
-      const tr = document.createElement("tr");
-      if (!gap.used) tr.classList.add("past");
-      const perMonth = gap.days > 0 ? (gap.earned / gap.days) * DAYS_PER_MONTH : null;
-      [
-        displayDate(gap.from),
-        displayDate(gap.to),
-        gap.days,
-        gems(gap.change),
-        gap.spend ? gems(gap.spend) : "",
-        gems(gap.earned),
-        gems(perMonth)
-      ].forEach((value) => tr.appendChild(calcCell(String(value))));
-      body.appendChild(tr);
-    });
-
-  if (estimate.gaps.length === 0) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 7;
-    td.className = "empty";
-    td.textContent = "Log your gem count at least twice to get an estimate.";
-    tr.appendChild(td);
-    body.appendChild(tr);
-  }
+  if (items.length === 0) emptyRow(body, 7, "Nothing here yet. Log your gem count above.");
 }
 
 function renderSummary(estimate) {
@@ -468,21 +446,16 @@ function render() {
   const estimate = currentEstimate();
   renderSummary(estimate);
   renderPlanning(estimate);
-  renderGemLog();
-  renderIncome(estimate);
-  renderArchive();
+  renderHistory(estimate);
   if (typeof renderBanners === "function") renderBanners();
 }
 
 /* Actions -------------------------------------------------------------- */
 
 /** Moves every row whose End date has passed into the archive. */
-function archivePast(announce) {
+function archivePast() {
   const { keep, past } = splitPastRows(state.planning);
-  if (past.length === 0) {
-    if (announce) flash("Nothing to archive — no banner has ended yet.");
-    return;
-  }
+  if (past.length === 0) return;
   const stamp = formatDate(today());
   past.forEach((row) => {
     row.note = [row.note, `Archived ${stamp}`].filter(Boolean).join(" · ");
@@ -526,8 +499,6 @@ function bindLogForm() {
 }
 
 function bindToolbar() {
-  el("archivePast").addEventListener("click", () => archivePast(true));
-
   el("archiveOnlyMine").addEventListener("change", (event) => {
     state.settings.archiveOnlyMine = event.target.checked;
     commit();
@@ -574,7 +545,7 @@ function bindToolbar() {
  */
 function prepareState() {
   state.planning = sortRows(state.planning);
-  archivePast(false);
+  archivePast();
   if (typeof syncPlanWithForecast === "function") syncPlanWithForecast();
 }
 
@@ -585,14 +556,20 @@ function showMode(mode) {
   render();
 }
 
+/**
+ * Shows the seed data in a mode that saves nothing. The mode is set first so
+ * archiving the seed's ended banners can never save over an account.
+ */
+function showSeed(mode) {
+  appMode = mode;
+  state = seedState();
+  prepareState();
+  showMode(mode);
+}
+
 /** What the page does for each sign-in situation; see firebase-logic.js. */
 const cloudCallbacks = {
-  signedOut() {
-    appMode = "public";
-    state = seedState();
-    prepareState();
-    showMode("public");
-  },
+  signedOut: () => showSeed("public"),
   loaded(cloudState) {
     const first = appMode !== "owner";
     appMode = "owner";
@@ -603,20 +580,10 @@ const cloudCallbacks = {
     showMode("owner");
     if (!first) flash("Updated from another device.");
   },
-  empty() {
-    // Nothing is saved until a backup is imported, so a blank start can never
-    // overwrite real data.
-    appMode = "empty";
-    state = seedState();
-    prepareState();
-    showMode("empty");
-  },
-  denied() {
-    appMode = "denied";
-    state = seedState();
-    prepareState();
-    showMode("denied");
-  },
+  // Nothing is saved until a backup is imported, so a blank start can never
+  // overwrite real data.
+  empty: () => showSeed("empty"),
+  denied: () => showSeed("denied"),
   status(text) {
     el("cloudStatus").textContent = text;
   }

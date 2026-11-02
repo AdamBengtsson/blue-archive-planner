@@ -456,22 +456,28 @@ tr.low-point td.calc:nth-child(6) {
   margin-top: 3px;
 }
 
-/* Archive banners you spent on stand out from the ones you skipped. */
-#archiveSection tr.pulled td {
+/* History: gem counts are the checkpoints; between them, banners you spent
+   on stand out from the ones you skipped. */
+#historySection tr.count-row td {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+#historySection tr.banner-row td {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+#historySection tr.pulled td {
   color: var(--text);
 }
 
-#archiveSection tr:not(.pulled) td {
-  color: var(--muted);
-}
-
-#archiveSection td:nth-child(-n + 2) {
-  white-space: nowrap;
-}
-
-#archiveSection tr.pulled td:nth-child(4) {
+#historySection tr.pulled td:nth-child(3) {
   color: var(--accent);
   font-weight: bold;
+}
+
+#historySection .unused {
+  opacity: 0.45;
 }
 
 label.check {
@@ -496,10 +502,8 @@ td .negative { color: var(--bad); }
 td input { padding: 7px 6px; }
 .col-date input { width: 132px; }
 .col-banner { min-width: 300px; }
-.col-num input { width: 64px; text-align: right; }
 .col-units input { width: 44px; text-align: center; }
 .col-gems input { width: 88px; text-align: right; }
-.col-note input { min-width: 150px; }
 
 /* The up/down spinner arrows eat width in small number boxes. */
 td input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
@@ -622,10 +626,6 @@ details[open] summary {
 .log-form input[type="number"] { width: 140px; }
 .log-form input[type="date"] { width: 150px; }
 
-/* A short table; full width would push the columns far apart. */
-#gemLogSection table { width: auto; min-width: 360px; }
-#gemLogSection td, #gemLogSection th { padding-right: 24px; }
-
 /* Phones --------------------------------------------------------------- */
 
 /* The planning table is too wide for a phone, so each row becomes a card:
@@ -658,13 +658,51 @@ details[open] summary {
     min-width: 0;
   }
 
-  #planningTable thead {
+  #planningTable thead,
+  #historyTable thead {
     display: none;
   }
 
   #planningTable,
-  #planningTable tbody {
+  #planningTable tbody,
+  #historyTable,
+  #historyTable tbody {
     display: block;
+  }
+
+  /* History rows wrap: a banner's name gets a line of its own, and a gem
+     count's numbers sit under its inputs. */
+  #historyTable tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  #historyTable td {
+    display: block;
+    padding: 0;
+    border: none;
+    background: none !important;
+  }
+
+  #historyTable td:empty {
+    display: none;
+  }
+
+  #historyTable tr.banner-row td:nth-child(2) {
+    order: 1;
+    flex-basis: 100%;
+  }
+
+  #historyTable tr.count-row {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  #historyTable tr.count-row td:last-child {
+    margin-left: auto;
   }
 
   #planningTable tr {
@@ -710,7 +748,8 @@ details[open] summary {
     display: none;
   }
 
-  #planningTable td.calc::before {
+  #planningTable td.calc::before,
+  #historyTable td.calc[data-label]::before {
     content: attr(data-label);
     display: block;
     font-size: 0.62rem;
