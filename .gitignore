@@ -6,3 +6,19 @@
 *.webp
 *.gif
 !assets/**
+
+# The original spreadsheet and JSON backups exported from the app hold
+# personal data and live outside the repo.
+*.xlsx
+*.xls
+blue-archive-planner-*.json
+
+# Editor, OS and tool clutter.
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+node_modules/
+*.log
+.env
+.env.*
