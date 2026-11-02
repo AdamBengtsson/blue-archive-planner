@@ -8,16 +8,17 @@ Hosted on GitHub Pages, no build step.
 ## Project structure
 - [index.html](index.html): page structure and the order scripts load in
 - [styles.css](styles.css): all styling, carried over from the cardnamer page
-- [seed-data.js](seed-data.js): the data migrated out of the spreadsheet, used on first run
+- [seed-data.js](seed-data.js): the banner list migrated out of the spreadsheet, without any personal data
 - [archive-fixes.js](archive-fixes.js): corrected archive dates and names, checked against the Global banner list on bluearchive.wiki. Applied on every load, so saved data gets them too
 - [planner-core.js](planner-core.js): the planning maths, ported from the sheet's formulas
-- [storage.js](storage.js): load/save, reset, and JSON backup import/export
+- [storage.js](storage.js): load/save, moving browser data into the account, and JSON backup import/export
 - [planner-ui.js](planner-ui.js): rendering and event handling
 - [banner-data.js](banner-data.js): the forecast of upcoming Global banners (generated)
 - [scripts/refresh-banners.mjs](scripts/refresh-banners.mjs): rebuilds banner-data.js from the forecast page
 - [banners-ui.js](banners-ui.js): the forecast inside the planning table, plus live checks against SchaleDB
-- [firebase-config.js](firebase-config.js): Firebase web config (placeholder)
-- [firebase-logic.js](firebase-logic.js): optional Firestore sync
+- [firebase-config.js](firebase-config.js): Firebase web config
+- [firebase-logic.js](firebase-logic.js): passphrase sign-in and the account's Firestore document
+- [firestore.rules](firestore.rules): the Firestore rules, kept here for reference
 
 ## How it works
 - One row per banner, earliest first: dates, characters, units planned. The rows
@@ -90,17 +91,42 @@ table rather than in a section of its own:
 - A planner row matches a banner when it names the banner's first student and
   starts within a week of it.
 
-## Data and backups
-Everything is saved to browser localStorage, so the planner works offline and
-needs no account. *Export backup* writes a `.json` file; *Import backup* reads one
-back. *Reset to seed data* returns to the migrated spreadsheet contents.
+## Data, sign-in and backups
+Anyone can open the page and see the upcoming banners. Everything personal (gems,
+units, the gem log, the archive's pulls, notes and settings) appears only after
+signing in with the passphrase, and is saved to that account's Firestore document,
+`users/{uid}`. The [Firestore rules](firestore.rules) let only the owner's account
+read or write it. The page's code and [seed-data.js](seed-data.js) hold only the
+public banner list, so a signed-out visitor never receives anyone's data.
 
-## Firebase setup (optional)
-Sync across devices is off until a project is configured.
-1. Create a new Firebase project and add a web app to it.
-2. Paste the config it gives you into [firebase-config.js](firebase-config.js).
-3. Create a Firestore database. The planner writes a single `planner/state` document.
-4. Restrict the Firestore rules before storing anything you care about.
+- Changes save to the cloud a moment after each edit, and show up on other
+  signed-in devices without a reload.
+- The first sign-in moves data saved in that browser by the old, browser-only
+  version into the account. The old copy is left in the browser but never read again.
+- Signing in on a device with no saved data and an empty account shows a notice
+  instead of starting blank, so it can never overwrite the real data. Import a
+  backup there, or sign in first on the browser that has the data.
+- *Export backup* writes a `.json` file; *Import backup* reads one back.
+  *Clear my data* empties the account.
+
+## Firebase setup
+1. Create a Firebase project and add a web app to it. Paste the config it gives
+   you into [firebase-config.js](firebase-config.js). These values are public by
+   design; the rules are what protect the data.
+2. In Authentication > Sign-in method, enable **Email/Password**. Then under
+   Users, click *Add user* with the email `owner@blue-archive-planner.app` (the
+   fixed account in [firebase-logic.js](firebase-logic.js); it is not a real
+   mailbox) and the passphrase as the password. Copy the user's UID from the list.
+3. Create a Firestore database in production mode.
+4. Put that UID in [firestore.rules](firestore.rules) (it holds the current
+   owner's), paste the rules into Firestore > Rules, and publish. (Signing in before this
+   step shows the same rules, filled in, on the page.)
+
+Signing in is one passphrase box. Firebase slows down repeated wrong guesses, so
+four or more random words is plenty. To change the passphrase, reset the user's
+password in the Firebase console.
+
+Without a config the planner still works, saving in the browser only.
 
 ## Local preview
 ```bash

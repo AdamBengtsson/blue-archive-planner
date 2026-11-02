@@ -17,33 +17,68 @@
       <!-- The title and the numbers worth seeing without reading the table. -->
       <section class="box summary" id="summary">
         <h1>Blue Archive Gem Planner</h1>
-        <div class="stat">
+
+        <!-- Sign-in. Signed out, the page shows only the banner forecast. -->
+        <div class="account hidden" id="account">
+          <span class="account-text" id="accountText"></span>
+          <span class="status" id="cloudStatus"></span>
+          <span class="spacer"></span>
+          <form class="sign-in hidden" id="signIn">
+            <!-- A username field, hidden, lets password managers save the passphrase. -->
+            <input type="text" name="username" value="planner" autocomplete="username" class="hidden" readonly />
+            <input id="passphrase" class="entry" type="password" autocomplete="current-password"
+              placeholder="Passphrase" aria-label="Passphrase" />
+            <button type="submit" class="primary">Sign in</button>
+          </form>
+          <button id="signOut" class="hidden">Sign out</button>
+        </div>
+        <div class="notice hidden" id="emptyNotice">
+          <p>
+            Nothing is saved for this account yet. Open the planner in the browser you have been
+            using and sign in there, and its data moves across by itself. Or import a backup file.
+          </p>
+          <button id="emptyImport">Import backup</button>
+        </div>
+        <div class="notice hidden" id="deniedNotice">
+          <p>This account does not have access to the planner data yet.</p>
+          <details>
+            <summary>Setting up the planner?</summary>
+            <p class="help">
+              The Firestore rules decide which account can read and write. This account's id is
+              <code id="deniedUid"></code>. To give it access, paste these rules into the Firebase
+              console under Firestore Database, Rules, then click Publish and reload this page.
+            </p>
+            <pre id="deniedRules"></pre>
+          </details>
+        </div>
+
+        <div class="stat private">
           <label>Gems right now</label>
           <div class="value" id="statAnchor">&mdash;</div>
           <div class="hint" id="statAnchorHint"></div>
         </div>
-        <div class="stat">
+        <div class="stat private">
           <label>Lowest balance ahead</label>
           <div class="value" id="statLowest">&mdash;</div>
           <div class="hint" id="statLowestHint"></div>
         </div>
-        <div class="stat">
+        <div class="stat private">
           <label>Income per month</label>
           <div class="value" id="statIncome">&mdash;</div>
           <div class="hint" id="statIncomeHint"></div>
         </div>
-        <div class="stat">
+        <div class="stat private">
           <label>Banners planned</label>
           <div class="value" id="statUnits">&mdash;</div>
           <div class="hint" id="statUnitsHint"></div>
         </div>
-        <div class="stat">
+        <div class="stat private">
           <label>Count last updated</label>
           <div class="value" id="statStale">&mdash;</div>
           <div class="hint" id="statStaleHint"></div>
         </div>
         <!-- Gem counts are only ever logged for today, or to fix a past entry. -->
-        <form class="log-form" id="logForm">
+        <form class="log-form private" id="logForm">
           <label for="logGems">Log your gems</label>
           <input id="logGems" class="entry" type="number" step="1" min="0" placeholder="Count in game" />
           <input id="logDate" class="entry" type="date" aria-label="Date of the count" />
@@ -57,7 +92,7 @@
         the forecast's dates and line-up. Only Units is typed in.
       -->
       <section class="box">
-        <h2>Planning</h2>
+        <h2 id="planningHeading">Planning</h2>
         <div class="legend">
           <span><span class="swatch"></span>Has a Limited or Fes student</span>
           <span><span class="tag tag-limited">Limited</span>Leaves the pool when the banner ends</span>
@@ -70,20 +105,20 @@
               <tr>
                 <th>When</th>
                 <th>Banner</th>
-                <th>Units</th>
-                <th>Planned spend</th>
-                <th>Income</th>
-                <th>Expected after</th>
-                <th>Lowest ahead</th>
-                <th>Room for extra?</th>
-                <th></th>
+                <th class="private">Units</th>
+                <th class="private">Planned spend</th>
+                <th class="private">Income</th>
+                <th class="private">Expected after</th>
+                <th class="private">Lowest ahead</th>
+                <th class="private">Room for extra?</th>
+                <th class="private"></th>
               </tr>
             </thead>
             <tbody id="planningBody"></tbody>
           </table>
         </div>
         <div class="toolbar">
-          <button id="archivePast">Archive past banners</button>
+          <button id="archivePast" class="private">Archive past banners</button>
           <span class="spacer"></span>
           <span class="status" id="saveStatus"></span>
         </div>
@@ -96,7 +131,7 @@
       </section>
 
       <!-- Past banners, kept only for looking back at. -->
-      <section class="box">
+      <section class="box private">
         <details id="archiveSection">
           <summary>Archive (<span id="archiveCount">0</span> past banners)</summary>
           <label class="check">
@@ -121,7 +156,7 @@
       </section>
 
       <!-- Every gem count you have logged. Edit or delete one to fix a mistake. -->
-      <section class="box">
+      <section class="box private">
         <details id="gemLogSection">
           <summary>Gem log (<span id="gemLogCount">0</span> entries)</summary>
           <div class="table-scroll">
@@ -141,7 +176,7 @@
       </section>
 
       <!-- The working behind the income estimate: one row per gap between gem logs. -->
-      <section class="box">
+      <section class="box private">
         <details id="incomeSection">
           <summary>Income estimate</summary>
           <p class="help">
@@ -168,7 +203,7 @@
         </details>
       </section>
 
-      <section class="box">
+      <section class="box private">
         <details>
           <summary>Settings</summary>
           <div class="settings-grid">
@@ -194,12 +229,12 @@
             <button id="importData">Import backup</button>
             <input id="importFile" class="hidden" type="file" accept="application/json" />
             <span class="spacer"></span>
-            <button id="resetData" class="link">Reset to seed data</button>
+            <button id="resetData" class="link">Clear my data</button>
           </div>
         </details>
       </section>
 
-      <section class="box">
+      <section class="box private">
         <details>
           <summary>How this works</summary>
           <div class="help">
@@ -222,12 +257,13 @@
       Scripts load in dependency order:
       1. seed data migrated from the spreadsheet, then the archive date fixes
       2. pure planning maths
-      3. the Firebase config placeholder, then the optional sync layer
+      3. the Firebase config, then sign-in and cloud storage
       4. storage, then the UI that wires it all to the page
       5. the bundled banner forecast, then the forecast view, which fills
          portraits into the planning table through the planner UI's render()
     -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="seed-data.js"></script>
     <script src="archive-fixes.js"></script>
