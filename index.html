@@ -23,7 +23,13 @@
           <span class="account-text" id="accountText"></span>
           <span class="status" id="cloudStatus"></span>
           <span class="spacer"></span>
-          <button id="signIn" class="primary hidden">Sign in with Google</button>
+          <form class="sign-in hidden" id="signIn">
+            <!-- A username field, hidden, lets password managers save the passphrase. -->
+            <input type="text" name="username" value="planner" autocomplete="username" class="hidden" readonly />
+            <input id="passphrase" class="entry" type="password" autocomplete="current-password"
+              placeholder="Passphrase" aria-label="Passphrase" />
+            <button type="submit" class="primary">Sign in</button>
+          </form>
           <button id="signOut" class="hidden">Sign out</button>
         </div>
         <div class="notice hidden" id="emptyNotice">
@@ -34,7 +40,7 @@
           <button id="emptyImport">Import backup</button>
         </div>
         <div class="notice hidden" id="deniedNotice">
-          <p>This Google account does not have access to the planner data.</p>
+          <p>This account does not have access to the planner data yet.</p>
           <details>
             <summary>Setting up the planner?</summary>
             <p class="help">

@@ -450,13 +450,12 @@ function renderAccount() {
   document.body.classList.toggle("public-view", !isPrivateView());
   el("planningHeading").textContent = isPrivateView() ? "Planning" : "Upcoming banners";
   const user = typeof cloud !== "undefined" ? cloud.user : null;
-  const name = user ? user.displayName || user.email : "";
   const text = {
     local: "",
     public: "Upcoming Blue Archive banners on Global. Sign in to see your gems and plan your pulls.",
-    owner: `Signed in as ${name}.`,
-    empty: `Signed in as ${name}.`,
-    denied: `Signed in as ${name}.`
+    owner: "Signed in.",
+    empty: "Signed in.",
+    denied: "Signed in."
   }[appMode];
   el("account").classList.toggle("hidden", appMode === "local");
   el("accountText").textContent = text;
@@ -640,7 +639,19 @@ const cloudCallbacks = {
 };
 
 function bindAccount() {
-  el("signIn").addEventListener("click", () => cloudSignIn());
+  el("signIn").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const passphrase = el("passphrase").value;
+    if (!passphrase) return;
+    const button = el("signIn").querySelector("button");
+    button.disabled = true;
+    el("accountText").textContent = "Signing in…";
+    cloudSignIn(passphrase).then((problem) => {
+      button.disabled = false;
+      el("passphrase").value = "";
+      if (problem) el("accountText").textContent = problem;
+    });
+  });
   el("signOut").addEventListener("click", () => cloudSignOut());
 }
 

@@ -1,8 +1,13 @@
 /**
- * Google sign-in and cloud storage with Firebase.
+ * Passphrase sign-in and cloud storage with Firebase.
+ *
+ * Signing in is one passphrase. Behind it is a single Firebase email/password
+ * account with a fixed, made-up email (PLANNER_ACCOUNT below), so only the
+ * passphrase is ever typed. The account is created by hand in the Firebase
+ * console; the page never offers sign-up.
  *
  * Everything personal (gem log, units, archive, settings) lives in one
- * Firestore document per Google account: users/{uid}. The Firestore rules in
+ * Firestore document per account: users/{uid}. The Firestore rules in
  * firestore.rules let only the owner's account read or write it, so the page
  * itself can be public. Signed out, it shows only the banner forecast.
  *
@@ -28,6 +33,9 @@ const cloud = {
   lastPayload: null,
   status: null
 };
+
+/** The one account the passphrase unlocks. Not a real mailbox; it only names the account. */
+const PLANNER_ACCOUNT = "owner@blue-archive-planner.app";
 
 /** How long to wait after an edit before writing, so a burst of taps is one write. */
 const SAVE_DELAY_MS = 500;
@@ -144,18 +152,29 @@ function flushCloudSave() {
     });
 }
 
-function cloudSignIn() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  return cloud.auth.signInWithPopup(provider).catch((error) => {
-    // Some phone browsers block pop-ups; going through a redirect works there.
-    if (error.code === "auth/popup-blocked" || error.code === "auth/operation-not-supported-in-this-environment") {
-      return cloud.auth.signInWithRedirect(provider);
-    }
-    if (error.code !== "auth/popup-closed-by-user" && error.code !== "auth/cancelled-popup-request") {
+/**
+ * Signs in with the passphrase. Resolves with an error message for the page
+ * to show, or null when it worked. Firebase keeps the session, so this is
+ * needed once per browser.
+ */
+function cloudSignIn(passphrase) {
+  return cloud.auth
+    .signInWithEmailAndPassword(PLANNER_ACCOUNT, passphrase)
+    .then(() => null)
+    .catch((error) => {
+      if (error.code === "auth/too-many-requests") return "Too many tries. Wait a few minutes and try again.";
+      if (error.code === "auth/network-request-failed") return "Could not reach the sign-in service. Check your connection.";
+      if (
+        error.code === "auth/invalid-credential" ||
+        error.code === "auth/wrong-password" ||
+        error.code === "auth/user-not-found" ||
+        error.code === "auth/invalid-login-credentials"
+      ) {
+        return "That passphrase is not right.";
+      }
       console.warn("Sign-in failed.", error);
-      if (cloud.status) cloud.status("Sign-in failed. Try again.");
-    }
-  });
+      return "Sign-in failed. Try again.";
+    });
 }
 
 function cloudSignOut() {
