@@ -7,7 +7,14 @@
  * archive rows are read-only. The gem log is edited in its own section.
  */
 
-let state = loadState();
+/** Which store is in use and what the visitor may see; see storage.js. */
+let appMode = cloudConfigured() ? "public" : "local";
+let state = appMode === "local" ? loadState() : seedState();
+
+/** True when the visitor sees their own gems, units and settings, not just the forecast. */
+function isPrivateView() {
+  return appMode === "local" || appMode === "owner";
+}
 
 const el = (id) => document.getElementById(id);
 const gems = (n) => (typeof n === "number" ? Math.round(n).toLocaleString("en-US") : "");
@@ -182,8 +189,9 @@ function renderPlanning(estimate) {
   rows.forEach((item, index) => {
     const row = item.row;
     const tr = document.createElement("tr");
+    const mine = isPrivateView();
     if (item.isPast) tr.classList.add("past");
-    if (item.isAnchorRow) tr.classList.add("anchor");
+    if (mine && item.isAnchorRow) tr.classList.add("anchor");
 
     // Portraits from the forecast once banners-ui.js has loaded; otherwise
     // the name the row was saved with.
@@ -207,6 +215,11 @@ function renderPlanning(estimate) {
     tr.appendChild(bannerCell);
     // Limited and Fes students leave the pool when the banner ends, so those rows stand out.
     if (details && details.dataset.limited) tr.classList.add("limited");
+    // Signed out, a row is just the banner: units and balances are personal.
+    if (!mine) {
+      body.appendChild(tr);
+      return;
+    }
     tr.appendChild(unitsCell(row));
     tr.appendChild(calcCell(item.plannedSpend ? gems(item.plannedSpend) : "", "", "Planned spend"));
     tr.appendChild(calcCell(item.income ? gems(item.income) : "", "", "Income"));
@@ -432,7 +445,34 @@ function renderSettings() {
   el("defaultUnitCost").value = state.settings.defaultUnitCost ?? "";
 }
 
+/** The sign-in line at the top, and the notices that go with each mode. */
+function renderAccount() {
+  document.body.classList.toggle("public-view", !isPrivateView());
+  el("planningHeading").textContent = isPrivateView() ? "Planning" : "Upcoming banners";
+  const user = typeof cloud !== "undefined" ? cloud.user : null;
+  const name = user ? user.displayName || user.email : "";
+  const text = {
+    local: "",
+    public: "Upcoming Blue Archive banners on Global. Sign in to see your gems and plan your pulls.",
+    owner: `Signed in as ${name}.`,
+    empty: `Signed in as ${name}.`,
+    denied: `Signed in as ${name}.`
+  }[appMode];
+  el("account").classList.toggle("hidden", appMode === "local");
+  el("accountText").textContent = text;
+  el("signIn").classList.toggle("hidden", appMode !== "public");
+  el("signOut").classList.toggle("hidden", appMode === "public" || appMode === "local");
+  if (appMode !== "owner") el("cloudStatus").textContent = "";
+  el("emptyNotice").classList.toggle("hidden", appMode !== "empty");
+  el("deniedNotice").classList.toggle("hidden", appMode !== "denied");
+  if (appMode === "denied" && user) {
+    el("deniedUid").textContent = user.uid;
+    el("deniedRules").textContent = ownerRules(user.uid);
+  }
+}
+
 function render() {
+  renderAccount();
   const estimate = currentEstimate();
   renderSummary(estimate);
   renderPlanning(estimate);
@@ -457,7 +497,8 @@ function archivePast(announce) {
   });
   state.archive = state.archive.concat(past);
   state.planning = keep;
-  commit(`Archived ${past.length} banner${past.length === 1 ? "" : "s"}.`);
+  // Signed out, archiving is housekeeping on the forecast, not news.
+  commit(isPrivateView() ? `Archived ${past.length} banner${past.length === 1 ? "" : "s"}.` : "");
 }
 
 function bindSettings() {
@@ -509,7 +550,10 @@ function bindToolbar() {
     if (!file) return;
     importState(file)
       .then((imported) => {
+        if (appMode === "empty") appMode = "owner";
+        if (!isPrivateView()) return;
         state = imported;
+        prepareState();
         renderSettings();
         commit("Backup imported.");
       })
@@ -519,33 +563,100 @@ function bindToolbar() {
       });
   });
 
+  el("emptyImport").addEventListener("click", () => el("importFile").click());
+
   el("resetData").addEventListener("click", () => {
     const warning =
-      "Reset to the data migrated from the spreadsheet? Everything you have changed here will be lost.";
+      "Clear all your data? Your gem log, units, notes and settings will be lost" +
+      (appMode === "owner" ? " on every device you sign in on." : ".") +
+      " Export a backup first if you might want them back.";
     if (!window.confirm(warning)) return;
     state = resetToSeed();
     renderSettings();
-    commit("Reset to seed data.");
+    commit("Data cleared.");
   });
 }
 
-/** Replaces the whole state when Firebase hands back a newer copy. */
-function applyCloudState(cloudState) {
-  state = normaliseState(cloudState);
+/**
+ * Tidies a freshly loaded state: sorted, ended banners archived (like the old
+ * daily script) and the plan matched to the forecast. Saves if that changed it.
+ */
+function prepareState() {
+  state.planning = sortRows(state.planning);
+  archivePast(false);
+  if (typeof syncPlanWithForecast === "function") syncPlanWithForecast();
+}
+
+/** Switches mode and redraws everything. */
+function showMode(mode) {
+  appMode = mode;
   renderSettings();
   render();
-  flash("Loaded from the cloud.");
+}
+
+/** What the page does for each sign-in situation; see firebase-logic.js. */
+const cloudCallbacks = {
+  signedOut() {
+    appMode = "public";
+    state = seedState();
+    prepareState();
+    showMode("public");
+  },
+  loaded(cloudState) {
+    const first = appMode !== "owner";
+    appMode = "owner";
+    state = normaliseState(cloudState);
+    prepareState();
+    showMode("owner");
+    if (!first) flash("Updated from another device.");
+  },
+  empty() {
+    // Data saved in this browser before sign-in existed moves into the account.
+    const local = loadLocalState();
+    if (!local) {
+      appMode = "empty";
+      state = seedState();
+      prepareState();
+      showMode("empty");
+      return;
+    }
+    appMode = "owner";
+    state = local;
+    prepareState();
+    cloudSave(state, true);
+    markMovedToCloud();
+    showMode("owner");
+    flash("Moved the data saved in this browser to your account.");
+  },
+  denied() {
+    appMode = "denied";
+    state = seedState();
+    prepareState();
+    showMode("denied");
+  },
+  status(text) {
+    el("cloudStatus").textContent = text;
+  }
+};
+
+function bindAccount() {
+  el("signIn").addEventListener("click", () => cloudSignIn());
+  el("signOut").addEventListener("click", () => cloudSignOut());
 }
 
 function init() {
-  state.planning = sortRows(state.planning);
-  archivePast(false); // keep Planning to current and future, like the old daily script
+  prepareState();
   renderSettings();
   bindSettings();
   bindLogForm();
   bindToolbar();
+  bindAccount();
   render();
-  if (typeof startCloudSync === "function") startCloudSync(applyCloudState);
+  if (appMode !== "local" && !startCloud(cloudCallbacks)) {
+    // Firebase failed to load; say so rather than showing a sign-in that cannot work.
+    el("accountText").textContent = "Sign-in could not start. Reload the page to try again.";
+    el("signIn").classList.add("hidden");
+  }
 }
 
 init();

@@ -11,8 +11,8 @@
  * A fix either sets new values on the row (`set`) or deletes it (`remove`),
  * or adds a banner the archive is missing (`add`, placed after the row named
  * in `after`, and only if no row with its start, end and banner exists yet).
- * Units and notes are left alone, unless a fix sets units Adam has
- * confirmed. Gem counts typed on a banner row were moved
+ * Units and notes are never set here: they are personal and live in each
+ * account's saved data, not in this public file. Gem counts typed on a banner row were moved
  * into the gem log under that row's End date, so when a fix moves the End
  * date, a count logged on the old End date moves with it (unless the fix
  * says `keepGemLog`, for a count that belongs to another row ending that day).
@@ -153,27 +153,12 @@ const ARCHIVE_FIXES = [
     set: { start: "2026-02-24", banner: "Ritsu, Shigure & Miyu" }
   },
   {
-    // Adam pulled Suzumi and Reisa (Magical).
-    match: { start: "2026-03-10", end: "2026-03-24", banner: "Magical girls" },
-    set: { units: 2 }
-  },
-  {
-    // Adam thinks he pulled Subaru here.
-    match: { start: "2026-03-31", end: "2026-04-07", banner: "Trinity Swimsuits & New Arius" },
-    set: { units: 1, note: "1 unit (Subaru), probably" }
-  },
-  {
-    // Adam was missing a limited unit and pulled here, not on the banners around it.
-    match: { start: "2026-04-21", end: "2026-04-28", banner: "Idol Rerun" },
-    set: { units: 1 }
-  },
-  {
     after: { start: "2026-04-28", end: "2026-05-12", banner: "Hyakkiyako Dress" },
     add: {
       start: "2026-05-05",
       end: "2026-05-12",
       banner: "Anniversary Archive (Wakamo, Hoshino Swimsuit, Mika)",
-      units: 0,
+      units: null,
       note: ""
     }
   },
@@ -187,22 +172,11 @@ const ARCHIVE_FIXES = [
   },
   {
     match: { start: "2026-05-26", end: "2026-06-09", banner: "FEST 1" },
-    // Adam owns Rio and Himari (Battle), so he pulled here.
-    set: { banner: "*Limited* Rio & Himari (Battle)", units: 2 }
-  },
-  {
-    // Adam owns Kei and Arisu (Battle), so he pulled here.
-    match: { start: "2026-06-09", end: "2026-06-16", banner: "FEST 2" },
-    set: { units: 2 }
+    set: { banner: "*Limited* Rio & Himari (Battle)" }
   },
   {
     match: { start: "2026-06-16", end: "2026-06-23", banner: "Intermission" },
     set: { banner: "Ichika, Kasumi, Sakurako & Eimi (Swimsuit)" }
-  },
-  {
-    // The 1 unit was an old plan; Adam was low on gems and did not pull.
-    match: { start: "2026-06-23", end: "2026-07-07", banner: "Yuzu & Eimi Battle" },
-    set: { units: 0 }
   },
   {
     match: { start: "2026-07-07", end: "2026-07-14", banner: "Game Development maid" },
@@ -225,8 +199,8 @@ const ARCHIVE_FIXES = [
     set: { banner: "*Limited* School Uniform rerun (Seia, Asuna)" }
   },
 
-  // November 2023 to September 2024, then the banners that ran during
-  // Adam's break (September 2024 to March 2025)
+  // November 2023 to September 2024, then September 2024 to March 2025,
+  // which the spreadsheet left out
   {
     match: { start: "2023-11-22", end: "2023-11-29", banner: "Summertime Trinity" },
     set: { start: "2023-11-21", end: "2023-11-28" }
@@ -368,7 +342,7 @@ const ARCHIVE_FIXES = [
     set: { start: "2024-09-17", end: "2024-09-24" }
   },
   {
-    // A spreadsheet marker for Adam's break from the game; the real banners follow.
+    // A spreadsheet marker for the months it left out; the real banners follow.
     match: { start: null, end: null, banner: "~~" },
     remove: true
   },
@@ -379,7 +353,7 @@ const ARCHIVE_FIXES = [
       end: "2024-10-08",
       banner: "Tsubaki (Guide), Umika, Mimori, Izuna & Shizuko",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -389,7 +363,7 @@ const ARCHIVE_FIXES = [
       end: "2024-10-15",
       banner: "Kazusa, Reisa, Natsu & Mari",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -399,7 +373,7 @@ const ARCHIVE_FIXES = [
       end: "2024-10-22",
       banner: "*Limited* Toki, Nagisa & Koyuki",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -409,7 +383,7 @@ const ARCHIVE_FIXES = [
       end: "2024-11-05",
       banner: "*Limited* Kazusa (Band), Yoshimi (Band) & Ako",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -419,7 +393,7 @@ const ARCHIVE_FIXES = [
       end: "2024-11-12",
       banner: "Kirara, Kaede, Tsukuyo & Kaho",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -429,7 +403,7 @@ const ARCHIVE_FIXES = [
       end: "2024-11-19",
       banner: "Rumi, Mina, Shun & Kokona",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -439,7 +413,7 @@ const ARCHIVE_FIXES = [
       end: "2024-12-03",
       banner: "Momoi (Maid), Midori (Maid), Arisu (Maid) & Toki (Bunny Girl)",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -449,7 +423,7 @@ const ARCHIVE_FIXES = [
       end: "2024-12-14",
       banner: "Serika (Swimsuit), Nonomi (Swimsuit), Wakamo (Swimsuit) & Shiroko (Swimsuit)",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -459,7 +433,7 @@ const ARCHIVE_FIXES = [
       end: "2024-12-24",
       banner: "*Limited* Izuna (Swimsuit), Chise (Swimsuit) & Mimori (Swimsuit)",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -469,7 +443,7 @@ const ARCHIVE_FIXES = [
       end: "2025-01-07",
       banner: "Kanna (Swimsuit) & Fubuki (Swimsuit)",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -479,7 +453,7 @@ const ARCHIVE_FIXES = [
       end: "2025-01-16",
       banner: "Moe (Swimsuit), Miyako (Swimsuit) & Saki (Swimsuit)",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -489,7 +463,7 @@ const ARCHIVE_FIXES = [
       end: "2025-01-23",
       banner: "Hina & Hoshino",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -499,7 +473,7 @@ const ARCHIVE_FIXES = [
       end: "2025-01-30",
       banner: "FEST: Hoshino (Battle), Shiroko＊Terror & Mika",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -509,7 +483,7 @@ const ARCHIVE_FIXES = [
       end: "2025-02-08",
       banner: "*Limited* Saori (Swimsuit) & Hiyori (Swimsuit)",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -519,7 +493,7 @@ const ARCHIVE_FIXES = [
       end: "2025-02-18",
       banner: "Meru, Momiji, Cherino, Marina, Minori & Shigure (Hot Spring)",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -529,7 +503,7 @@ const ARCHIVE_FIXES = [
       end: "2025-03-04",
       banner: "Marina (Qipao) & Tomoe (Qipao)",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -539,7 +513,7 @@ const ARCHIVE_FIXES = [
       end: "2025-03-11",
       banner: "*Limited* Ui (Swimsuit), Hinata (Swimsuit), Iroha & Miyu",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
   },
   {
@@ -549,13 +523,8 @@ const ARCHIVE_FIXES = [
       end: "2025-03-18",
       banner: "*Limited* Neru (Bunny Girl), Karin (Bunny Girl), Asuna (Bunny Girl) & Akane (Bunny Girl)",
       units: null,
-      note: "Break, not tracked"
+      note: ""
     }
-  },
-  {
-    // Adam rolled for one unit here; the other came free as a bonus (2026-10-22).
-    match: { start: "2026-08-18", end: "2026-09-01", banner: "SRT FOX" },
-    set: { units: 1 }
   }
 ];
 

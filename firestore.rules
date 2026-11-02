@@ -1,0 +1,18 @@
+rules_version = '2';
+
+// Firestore security rules for the planner. Paste these into the Firebase
+// console (Firestore Database > Rules) and click Publish; this copy is kept
+// here so the rules are versioned with the code.
+//
+// Each Google account's data is one document, users/{uid}. Only the owner's
+// account may read or write it, and every other path is closed. Replace
+// OWNER_UID with the account id the page shows after the first sign-in.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId
+        && userId == "OWNER_UID";
+    }
+  }
+}

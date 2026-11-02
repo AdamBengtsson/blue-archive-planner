@@ -1,21 +1,39 @@
 /**
- * Optional Firestore sync.
+ * Google sign-in and cloud storage with Firebase.
  *
- * The planner is fully usable without this: storage.js keeps everything in
- * browser localStorage. When firebase-config.js holds a real project id, this
- * file mirrors the state to a single document so other devices can pick it up.
+ * Everything personal (gem log, units, archive, settings) lives in one
+ * Firestore document per Google account: users/{uid}. The Firestore rules in
+ * firestore.rules let only the owner's account read or write it, so the page
+ * itself can be public. Signed out, it shows only the banner forecast.
  *
- * Document: planner/state
+ * When firebase-config.js is still empty, none of this runs and the planner
+ * keeps everything in this browser instead (see storage.js).
  *
- * The two functions the rest of the app looks for are startCloudSync and
- * pushStateToCloud. Both are defined unconditionally but do nothing when
- * Firebase is not configured, so the caller never has to check.
+ * The UI hands startCloud a set of callbacks, one for each situation:
+ *   signedOut()          nobody is signed in
+ *   loaded(state, user)  the account's saved state, on sign-in and whenever
+ *                        another device changes it
+ *   empty(user)          signed in, but nothing is saved for this account yet
+ *   denied(user)         signed in, but the rules do not let this account in
+ *   status(text)         a short line on how saving is going
  */
 
-let cloudDoc = null;
+const cloud = {
+  auth: null,
+  doc: null,
+  user: null,
+  stopListening: null,
+  saveTimer: null,
+  pending: null,
+  lastPayload: null,
+  status: null
+};
+
+/** How long to wait after an edit before writing, so a burst of taps is one write. */
+const SAVE_DELAY_MS = 500;
 
 /** True only when a real config has been filled in and the SDK loaded. */
-function cloudAvailable() {
+function cloudConfigured() {
   return (
     typeof firebase !== "undefined" &&
     typeof firebaseConfig !== "undefined" &&
@@ -23,41 +41,138 @@ function cloudAvailable() {
   );
 }
 
-/**
- * Connects to Firestore and hands the stored state back through onState.
- * Called once on page load; does nothing if Firebase is not configured.
- */
-function startCloudSync(onState) {
-  if (!cloudAvailable()) return;
+/** Connects to Firebase and follows the sign-in state. Returns false if it could not start. */
+function startCloud(callbacks) {
+  cloud.status = callbacks.status;
   try {
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    cloudDoc = firebase.firestore().doc("planner/state");
+    cloud.auth = firebase.auth();
   } catch (error) {
-    console.warn("Firebase could not start; staying on local storage.", error);
-    cloudDoc = null;
-    return;
+    console.warn("Firebase could not start.", error);
+    return false;
   }
 
-  cloudDoc
-    .get()
-    .then((snapshot) => {
-      if (!snapshot.exists) return;
-      const data = snapshot.data();
-      if (data && data.payload) onState(JSON.parse(data.payload));
-    })
-    .catch((error) => console.warn("Could not read planner state from Firestore.", error));
+  cloud.auth.onAuthStateChanged((user) => {
+    stopListening();
+    cloud.user = user;
+    cloud.lastPayload = null;
+    if (!user) {
+      cloud.doc = null;
+      callbacks.signedOut();
+      return;
+    }
+    cloud.doc = firebase.firestore().doc(`users/${user.uid}`);
+    listen(user, callbacks);
+  });
+
+  // A save still waiting when the tab closes or goes to the background is sent now.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushCloudSave();
+  });
+  window.addEventListener("beforeunload", flushCloudSave);
+  return true;
+}
+
+/** Follows the account's document, so a change made on another device shows up here too. */
+function listen(user, callbacks) {
+  cloud.stopListening = cloud.doc.onSnapshot(
+    (snapshot) => {
+      // Our own write echoing back, or a remote change while we have unsaved edits.
+      if (snapshot.metadata.hasPendingWrites || cloud.saveTimer) return;
+      if (!snapshot.exists) {
+        callbacks.empty(user);
+        return;
+      }
+      const payload = snapshot.data().payload;
+      if (!payload || payload === cloud.lastPayload) return;
+      cloud.lastPayload = payload;
+      try {
+        callbacks.loaded(JSON.parse(payload), user);
+      } catch (error) {
+        console.warn("The saved planner data could not be read.", error);
+        callbacks.status("Your saved data could not be read.");
+      }
+    },
+    (error) => {
+      if (error.code === "permission-denied") {
+        callbacks.denied(user);
+      } else {
+        console.warn("Could not reach Firestore.", error);
+        callbacks.status("Could not reach the cloud. Check your connection and reload.");
+      }
+    }
+  );
+}
+
+function stopListening() {
+  flushCloudSave();
+  if (cloud.stopListening) cloud.stopListening();
+  cloud.stopListening = null;
 }
 
 /**
- * Mirrors the current state to Firestore. Fire and forget: a failure here is
- * logged but never blocks the user, since localStorage already has the save.
- *
- * The state is stored as a JSON string rather than a nested object so that
+ * Saves the state to the signed-in account. Writes are delayed a little and
+ * skipped when nothing changed. The state is stored as one JSON string, so
  * Firestore's limits on nested arrays never come into play.
  */
-function pushStateToCloud(state) {
-  if (!cloudDoc) return;
-  cloudDoc
-    .set({ payload: JSON.stringify(state), updatedAt: new Date().toISOString() })
-    .catch((error) => console.warn("Could not save planner state to Firestore.", error));
+function cloudSave(state, immediately) {
+  if (!cloud.doc) return;
+  const payload = JSON.stringify(state);
+  if (payload === cloud.lastPayload && !cloud.saveTimer) return;
+  cloud.lastPayload = payload;
+  cloud.pending = payload;
+  clearTimeout(cloud.saveTimer);
+  cloud.saveTimer = setTimeout(flushCloudSave, immediately ? 0 : SAVE_DELAY_MS);
+  if (cloud.status) cloud.status("Saving…");
+}
+
+/** Sends a waiting save right away. */
+function flushCloudSave() {
+  if (!cloud.saveTimer || !cloud.doc) return;
+  clearTimeout(cloud.saveTimer);
+  cloud.saveTimer = null;
+  const payload = cloud.pending;
+  const report = cloud.status || (() => {});
+  cloud.doc
+    .set({ payload, updatedAt: new Date().toISOString() })
+    .then(() => report("Saved to the cloud."))
+    .catch((error) => {
+      console.warn("Could not save planner state to Firestore.", error);
+      // Forget what we sent, so the next edit tries the whole state again.
+      cloud.lastPayload = null;
+      report("Could not save. Check your connection, then change something to try again.");
+    });
+}
+
+function cloudSignIn() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  return cloud.auth.signInWithPopup(provider).catch((error) => {
+    // Some phone browsers block pop-ups; going through a redirect works there.
+    if (error.code === "auth/popup-blocked" || error.code === "auth/operation-not-supported-in-this-environment") {
+      return cloud.auth.signInWithRedirect(provider);
+    }
+    if (error.code !== "auth/popup-closed-by-user" && error.code !== "auth/cancelled-popup-request") {
+      console.warn("Sign-in failed.", error);
+      if (cloud.status) cloud.status("Sign-in failed. Try again.");
+    }
+  });
+}
+
+function cloudSignOut() {
+  flushCloudSave();
+  return cloud.auth.signOut();
+}
+
+/** The Firestore rules that give exactly this account access, for the first setup. */
+function ownerRules(uid) {
+  return `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId
+        && userId == "${uid}";
+    }
+  }
+}`;
 }
