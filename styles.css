@@ -518,6 +518,7 @@ td input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 /* Units, between its − and + buttons. */
 .stepper {
   display: flex;
+  justify-content: center; /* lines up with Pull under it, however wide the column */
   align-items: center;
   gap: 4px;
 }
