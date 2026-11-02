@@ -1,0 +1,4 @@
+# Screenshots taken while checking the layout belong in the project files, not the repo.
+*.png
+*.jpg
+*.jpeg
