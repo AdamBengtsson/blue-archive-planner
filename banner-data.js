@@ -15,74 +15,9 @@
  *   banners     earliest first. tag marks a limited unit ("Limited" or "Fes").
  */
 const BANNER_DATA = {
-  "updated": "2026-10-29",
+  "updated": "2026-11-05",
   "jpLagDays": 104,
   "banners": [
-    {
-      "start": "2026-10-27",
-      "end": "2026-11-03",
-      "status": "predicted",
-      "students": [
-        {
-          "id": 10117,
-          "name": "Hikari",
-          "tag": "Limited"
-        },
-        {
-          "id": 10118,
-          "name": "Nozomi",
-          "tag": "Limited"
-        },
-        {
-          "id": 10101,
-          "name": "Saori (Swimsuit)",
-          "tag": "Limited"
-        },
-        {
-          "id": 10102,
-          "name": "Hiyori (Swimsuit)",
-          "tag": "Limited"
-        },
-        {
-          "id": 20049,
-          "name": "Misaki (Swimsuit)"
-        }
-      ]
-    },
-    {
-      "start": "2026-10-27",
-      "end": "2026-11-03",
-      "status": "predicted",
-      "title": "Recollection Recruitment",
-      "note": "Pick one of these to rate up.",
-      "students": [
-        {
-          "id": 10033,
-          "name": "Wakamo",
-          "tag": "Fes"
-        },
-        {
-          "id": 10059,
-          "name": "Mika",
-          "tag": "Fes"
-        },
-        {
-          "id": 10045,
-          "name": "Hoshino (Swimsuit)",
-          "tag": "Fes"
-        },
-        {
-          "id": 10074,
-          "name": "Hanako (Swimsuit)",
-          "tag": "Fes"
-        },
-        {
-          "id": 10086,
-          "name": "Hina (Dress)",
-          "tag": "Fes"
-        }
-      ]
-    },
     {
       "start": "2026-11-03",
       "end": "2026-11-10",
